@@ -1,0 +1,1105 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.4"
+  }
+  public: {
+    Tables: {
+      asignaciones: {
+        Row: {
+          conductor_id: string
+          created_at: string
+          disponibilidad: Database["public"]["Enums"]["estado_disponibilidad"]
+          disponible_at: string | null
+          empresa_id: string
+          estado: Database["public"]["Enums"]["estado_asignacion"]
+          fecha_fin: string | null
+          fecha_inicio: string
+          id: string
+          vehiculo_id: string
+        }
+        Insert: {
+          conductor_id: string
+          created_at?: string
+          disponibilidad?: Database["public"]["Enums"]["estado_disponibilidad"]
+          disponible_at?: string | null
+          empresa_id: string
+          estado?: Database["public"]["Enums"]["estado_asignacion"]
+          fecha_fin?: string | null
+          fecha_inicio?: string
+          id?: string
+          vehiculo_id: string
+        }
+        Update: {
+          conductor_id?: string
+          created_at?: string
+          disponibilidad?: Database["public"]["Enums"]["estado_disponibilidad"]
+          disponible_at?: string | null
+          empresa_id?: string
+          estado?: Database["public"]["Enums"]["estado_asignacion"]
+          fecha_fin?: string | null
+          fecha_inicio?: string
+          id?: string
+          vehiculo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asignaciones_conductor_id_fkey"
+            columns: ["conductor_id"]
+            isOneToOne: false
+            referencedRelation: "conductores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asignaciones_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asignaciones_vehiculo_id_fkey"
+            columns: ["vehiculo_id"]
+            isOneToOne: false
+            referencedRelation: "vehiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_logs: {
+        Row: {
+          accion: Database["public"]["Enums"]["accion_audit"]
+          antes: Json | null
+          created_at: string
+          despues: Json | null
+          dia_operacion_id: string | null
+          empresa_id: string
+          id: string
+          rol: string | null
+          semana_id: string | null
+          user_id: string | null
+          vehiculo_id: string | null
+          viaje_id: string | null
+        }
+        Insert: {
+          accion: Database["public"]["Enums"]["accion_audit"]
+          antes?: Json | null
+          created_at?: string
+          despues?: Json | null
+          dia_operacion_id?: string | null
+          empresa_id: string
+          id?: string
+          rol?: string | null
+          semana_id?: string | null
+          user_id?: string | null
+          vehiculo_id?: string | null
+          viaje_id?: string | null
+        }
+        Update: {
+          accion?: Database["public"]["Enums"]["accion_audit"]
+          antes?: Json | null
+          created_at?: string
+          despues?: Json | null
+          dia_operacion_id?: string | null
+          empresa_id?: string
+          id?: string
+          rol?: string | null
+          semana_id?: string | null
+          user_id?: string | null
+          vehiculo_id?: string | null
+          viaje_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conductores: {
+        Row: {
+          celular: string
+          codigo: string
+          created_at: string
+          domicilio: string
+          email: string
+          empresa_id: string
+          estado: Database["public"]["Enums"]["estado"]
+          estado_civil: string
+          fecha_caducidad_licencia: string
+          fecha_nacimiento: string
+          id: string
+          identificacion: string
+          nacionalidad: string
+          nombres: string
+          tipo_licencia: string
+        }
+        Insert: {
+          celular: string
+          codigo: string
+          created_at?: string
+          domicilio: string
+          email: string
+          empresa_id: string
+          estado?: Database["public"]["Enums"]["estado"]
+          estado_civil: string
+          fecha_caducidad_licencia: string
+          fecha_nacimiento: string
+          id?: string
+          identificacion: string
+          nacionalidad: string
+          nombres: string
+          tipo_licencia: string
+        }
+        Update: {
+          celular?: string
+          codigo?: string
+          created_at?: string
+          domicilio?: string
+          email?: string
+          empresa_id?: string
+          estado?: Database["public"]["Enums"]["estado"]
+          estado_civil?: string
+          fecha_caducidad_licencia?: string
+          fecha_nacimiento?: string
+          id?: string
+          identificacion?: string
+          nacionalidad?: string
+          nombres?: string
+          tipo_licencia?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conductores_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dias_operacion: {
+        Row: {
+          conductor_dia_finalizado_at: string | null
+          created_at: string
+          empresa_id: string
+          fecha: string
+          gerencia_dia_finalizado_at: string | null
+          id: string
+          observacion: string | null
+          semana_id: string
+          updated_at: string
+        }
+        Insert: {
+          conductor_dia_finalizado_at?: string | null
+          created_at?: string
+          empresa_id: string
+          fecha: string
+          gerencia_dia_finalizado_at?: string | null
+          id?: string
+          observacion?: string | null
+          semana_id: string
+          updated_at?: string
+        }
+        Update: {
+          conductor_dia_finalizado_at?: string | null
+          created_at?: string
+          empresa_id?: string
+          fecha?: string
+          gerencia_dia_finalizado_at?: string | null
+          id?: string
+          observacion?: string | null
+          semana_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dias_operacion_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dias_operacion_semana_id_fkey"
+            columns: ["semana_id"]
+            isOneToOne: false
+            referencedRelation: "semanas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      egresos_viaje: {
+        Row: {
+          aceite: number
+          alimentacion: number
+          combustible: number
+          created_at: string
+          empresa_id: string
+          hotel: number
+          id: string
+          pago_conductor: number
+          peaje: number
+          total_egreso: number
+          updated_at: string
+          varios: number
+          viaje_id: string
+        }
+        Insert: {
+          aceite?: number
+          alimentacion?: number
+          combustible?: number
+          created_at?: string
+          empresa_id: string
+          hotel?: number
+          id?: string
+          pago_conductor?: number
+          peaje?: number
+          total_egreso?: number
+          updated_at?: string
+          varios?: number
+          viaje_id: string
+        }
+        Update: {
+          aceite?: number
+          alimentacion?: number
+          combustible?: number
+          created_at?: string
+          empresa_id?: string
+          hotel?: number
+          id?: string
+          pago_conductor?: number
+          peaje?: number
+          total_egreso?: number
+          updated_at?: string
+          varios?: number
+          viaje_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "egresos_viaje_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "egresos_viaje_viaje_id_fkey"
+            columns: ["viaje_id"]
+            isOneToOne: true
+            referencedRelation: "viajes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      empresas: {
+        Row: {
+          celular: string
+          ciudad: string
+          comision_fija: number
+          comision_pct: number
+          created_at: string
+          direccion: string
+          email: string
+          id: string
+          logo_url: string | null
+          nombre: string
+          propietario_nombre: string
+          ruc: string
+          tipo_comision: Database["public"]["Enums"]["tipo_comision_empresa"]
+        }
+        Insert: {
+          celular: string
+          ciudad: string
+          comision_fija?: number
+          comision_pct?: number
+          created_at?: string
+          direccion: string
+          email: string
+          id?: string
+          logo_url?: string | null
+          nombre: string
+          propietario_nombre: string
+          ruc: string
+          tipo_comision?: Database["public"]["Enums"]["tipo_comision_empresa"]
+        }
+        Update: {
+          celular?: string
+          ciudad?: string
+          comision_fija?: number
+          comision_pct?: number
+          created_at?: string
+          direccion?: string
+          email?: string
+          id?: string
+          logo_url?: string | null
+          nombre?: string
+          propietario_nombre?: string
+          ruc?: string
+          tipo_comision?: Database["public"]["Enums"]["tipo_comision_empresa"]
+        }
+        Relationships: []
+      }
+      ingresos_viaje: {
+        Row: {
+          comision_gerencia: number
+          created_at: string
+          empresa_id: string
+          encomiendas_monto: number
+          id: string
+          pasajeros_monto: number
+          total_ingreso: number
+          updated_at: string
+          viaje_id: string
+        }
+        Insert: {
+          comision_gerencia?: number
+          created_at?: string
+          empresa_id: string
+          encomiendas_monto?: number
+          id?: string
+          pasajeros_monto?: number
+          total_ingreso?: number
+          updated_at?: string
+          viaje_id: string
+        }
+        Update: {
+          comision_gerencia?: number
+          created_at?: string
+          empresa_id?: string
+          encomiendas_monto?: number
+          id?: string
+          pasajeros_monto?: number
+          total_ingreso?: number
+          updated_at?: string
+          viaje_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ingresos_viaje_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ingresos_viaje_viaje_id_fkey"
+            columns: ["viaje_id"]
+            isOneToOne: true
+            referencedRelation: "viajes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invitaciones: {
+        Row: {
+          created_at: string
+          empresa_id: string
+          expires_at: string
+          id: string
+          rol: Database["public"]["Enums"]["invitacion_rol"]
+          token: string
+          usada: boolean
+        }
+        Insert: {
+          created_at?: string
+          empresa_id: string
+          expires_at: string
+          id?: string
+          rol: Database["public"]["Enums"]["invitacion_rol"]
+          token: string
+          usada?: boolean
+        }
+        Update: {
+          created_at?: string
+          empresa_id?: string
+          expires_at?: string
+          id?: string
+          rol?: Database["public"]["Enums"]["invitacion_rol"]
+          token?: string
+          usada?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitaciones_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          activo: boolean
+          conductor_id: string | null
+          created_at: string
+          email: string
+          empresa_id: string
+          id: string
+          propietario_id: string | null
+          user_id: string
+          username: string
+        }
+        Insert: {
+          activo?: boolean
+          conductor_id?: string | null
+          created_at?: string
+          email: string
+          empresa_id: string
+          id?: string
+          propietario_id?: string | null
+          user_id: string
+          username: string
+        }
+        Update: {
+          activo?: boolean
+          conductor_id?: string | null
+          created_at?: string
+          email?: string
+          empresa_id?: string
+          id?: string
+          propietario_id?: string | null
+          user_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_profiles_conductor"
+            columns: ["conductor_id"]
+            isOneToOne: false
+            referencedRelation: "conductores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_profiles_propietario"
+            columns: ["propietario_id"]
+            isOneToOne: false
+            referencedRelation: "propietarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      propietarios: {
+        Row: {
+          celular: string
+          codigo: string
+          created_at: string
+          direccion: string
+          email: string
+          empresa_id: string
+          estado: Database["public"]["Enums"]["estado"]
+          estado_civil: string
+          fecha_nacimiento: string
+          id: string
+          identificacion: string
+          nacionalidad: string
+          nombres: string
+        }
+        Insert: {
+          celular: string
+          codigo: string
+          created_at?: string
+          direccion: string
+          email: string
+          empresa_id: string
+          estado?: Database["public"]["Enums"]["estado"]
+          estado_civil: string
+          fecha_nacimiento: string
+          id?: string
+          identificacion: string
+          nacionalidad: string
+          nombres: string
+        }
+        Update: {
+          celular?: string
+          codigo?: string
+          created_at?: string
+          direccion?: string
+          email?: string
+          empresa_id?: string
+          estado?: Database["public"]["Enums"]["estado"]
+          estado_civil?: string
+          fecha_nacimiento?: string
+          id?: string
+          identificacion?: string
+          nacionalidad?: string
+          nombres?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "propietarios_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      semanas: {
+        Row: {
+          conductor_semana_finalizada_at: string | null
+          conductor_semana_finalizada_by: string | null
+          created_at: string
+          empresa_id: string
+          estado: Database["public"]["Enums"]["estado_semana"]
+          fecha_fin: string
+          fecha_inicio: string
+          gerencia_semana_finalizada_at: string | null
+          gerencia_semana_finalizada_by: string | null
+          id: string
+          motivo_reapertura: string | null
+          propietario_id: string
+          propietario_semana_cerrada_at: string | null
+          propietario_semana_cerrada_by: string | null
+          reabierta_at: string | null
+          reabierta_by: string | null
+          reabierta_by_user_id: string | null
+          updated_at: string
+          vehiculo_id: string
+        }
+        Insert: {
+          conductor_semana_finalizada_at?: string | null
+          conductor_semana_finalizada_by?: string | null
+          created_at?: string
+          empresa_id: string
+          estado?: Database["public"]["Enums"]["estado_semana"]
+          fecha_fin: string
+          fecha_inicio: string
+          gerencia_semana_finalizada_at?: string | null
+          gerencia_semana_finalizada_by?: string | null
+          id?: string
+          motivo_reapertura?: string | null
+          propietario_id: string
+          propietario_semana_cerrada_at?: string | null
+          propietario_semana_cerrada_by?: string | null
+          reabierta_at?: string | null
+          reabierta_by?: string | null
+          reabierta_by_user_id?: string | null
+          updated_at?: string
+          vehiculo_id: string
+        }
+        Update: {
+          conductor_semana_finalizada_at?: string | null
+          conductor_semana_finalizada_by?: string | null
+          created_at?: string
+          empresa_id?: string
+          estado?: Database["public"]["Enums"]["estado_semana"]
+          fecha_fin?: string
+          fecha_inicio?: string
+          gerencia_semana_finalizada_at?: string | null
+          gerencia_semana_finalizada_by?: string | null
+          id?: string
+          motivo_reapertura?: string | null
+          propietario_id?: string
+          propietario_semana_cerrada_at?: string | null
+          propietario_semana_cerrada_by?: string | null
+          reabierta_at?: string | null
+          reabierta_by?: string | null
+          reabierta_by_user_id?: string | null
+          updated_at?: string
+          vehiculo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "semanas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "semanas_propietario_id_fkey"
+            columns: ["propietario_id"]
+            isOneToOne: false
+            referencedRelation: "propietarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "semanas_vehiculo_id_fkey"
+            columns: ["vehiculo_id"]
+            isOneToOne: false
+            referencedRelation: "vehiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vehiculo_disponibilidad: {
+        Row: {
+          created_at: string
+          disponible: Database["public"]["Enums"]["estado_disponibilidad"]
+          empresa_id: string
+          id: string
+          marcado_at: string
+          marcado_by: string | null
+          updated_at: string
+          vehiculo_id: string
+        }
+        Insert: {
+          created_at?: string
+          disponible?: Database["public"]["Enums"]["estado_disponibilidad"]
+          empresa_id: string
+          id?: string
+          marcado_at?: string
+          marcado_by?: string | null
+          updated_at?: string
+          vehiculo_id: string
+        }
+        Update: {
+          created_at?: string
+          disponible?: Database["public"]["Enums"]["estado_disponibilidad"]
+          empresa_id?: string
+          id?: string
+          marcado_at?: string
+          marcado_by?: string | null
+          updated_at?: string
+          vehiculo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehiculo_disponibilidad_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehiculo_disponibilidad_vehiculo_id_fkey"
+            columns: ["vehiculo_id"]
+            isOneToOne: true
+            referencedRelation: "vehiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehiculos: {
+        Row: {
+          anio: number | null
+          capacidad: number
+          color: string
+          created_at: string
+          empresa_id: string
+          estado: Database["public"]["Enums"]["estado"]
+          gps: boolean
+          id: string
+          marca: string
+          modelo: string
+          placa: string
+          propietario_id: string
+          seguro: boolean
+          tipo: string
+        }
+        Insert: {
+          anio?: number | null
+          capacidad: number
+          color: string
+          created_at?: string
+          empresa_id: string
+          estado?: Database["public"]["Enums"]["estado"]
+          gps?: boolean
+          id?: string
+          marca: string
+          modelo: string
+          placa: string
+          propietario_id: string
+          seguro?: boolean
+          tipo?: string
+        }
+        Update: {
+          anio?: number | null
+          capacidad?: number
+          color?: string
+          created_at?: string
+          empresa_id?: string
+          estado?: Database["public"]["Enums"]["estado"]
+          gps?: boolean
+          id?: string
+          marca?: string
+          modelo?: string
+          placa?: string
+          propietario_id?: string
+          seguro?: boolean
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehiculos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehiculos_propietario_id_fkey"
+            columns: ["propietario_id"]
+            isOneToOne: false
+            referencedRelation: "propietarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      viaje_dia_control: {
+        Row: {
+          conductor_dia_finalizado_at: string | null
+          conductor_dia_finalizado_by: string | null
+          conductor_dia_reabierto_at: string | null
+          conductor_dia_reabierto_by: string | null
+          created_at: string
+          empresa_id: string
+          gerencia_dia_finalizado_at: string | null
+          gerencia_dia_finalizado_by: string | null
+          gerencia_dia_reabierto_at: string | null
+          gerencia_dia_reabierto_by: string | null
+          id: string
+          updated_at: string
+          viaje_id: string
+        }
+        Insert: {
+          conductor_dia_finalizado_at?: string | null
+          conductor_dia_finalizado_by?: string | null
+          conductor_dia_reabierto_at?: string | null
+          conductor_dia_reabierto_by?: string | null
+          created_at?: string
+          empresa_id: string
+          gerencia_dia_finalizado_at?: string | null
+          gerencia_dia_finalizado_by?: string | null
+          gerencia_dia_reabierto_at?: string | null
+          gerencia_dia_reabierto_by?: string | null
+          id?: string
+          updated_at?: string
+          viaje_id: string
+        }
+        Update: {
+          conductor_dia_finalizado_at?: string | null
+          conductor_dia_finalizado_by?: string | null
+          conductor_dia_reabierto_at?: string | null
+          conductor_dia_reabierto_by?: string | null
+          created_at?: string
+          empresa_id?: string
+          gerencia_dia_finalizado_at?: string | null
+          gerencia_dia_finalizado_by?: string | null
+          gerencia_dia_reabierto_at?: string | null
+          gerencia_dia_reabierto_by?: string | null
+          id?: string
+          updated_at?: string
+          viaje_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viaje_dia_control_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viaje_dia_control_viaje_id_fkey"
+            columns: ["viaje_id"]
+            isOneToOne: true
+            referencedRelation: "viajes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      viajes: {
+        Row: {
+          asignacion_id: string | null
+          created_at: string
+          destino: string
+          dia_operacion_id: string | null
+          empresa_id: string
+          estado: Database["public"]["Enums"]["estado_viaje"]
+          fecha_llegada: string | null
+          fecha_salida: string
+          id: string
+          origen: string
+          semana_id: string | null
+        }
+        Insert: {
+          asignacion_id?: string | null
+          created_at?: string
+          destino: string
+          dia_operacion_id?: string | null
+          empresa_id: string
+          estado?: Database["public"]["Enums"]["estado_viaje"]
+          fecha_llegada?: string | null
+          fecha_salida: string
+          id?: string
+          origen: string
+          semana_id?: string | null
+        }
+        Update: {
+          asignacion_id?: string | null
+          created_at?: string
+          destino?: string
+          dia_operacion_id?: string | null
+          empresa_id?: string
+          estado?: Database["public"]["Enums"]["estado_viaje"]
+          fecha_llegada?: string | null
+          fecha_salida?: string
+          id?: string
+          origen?: string
+          semana_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viajes_asignacion_id_fkey"
+            columns: ["asignacion_id"]
+            isOneToOne: false
+            referencedRelation: "asignaciones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viajes_dia_operacion_id_fkey"
+            columns: ["dia_operacion_id"]
+            isOneToOne: false
+            referencedRelation: "dias_operacion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viajes_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viajes_semana_id_fkey"
+            columns: ["semana_id"]
+            isOneToOne: false
+            referencedRelation: "semanas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      get_user_empresa_id: { Args: { _user_id: string }; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+    }
+    Enums: {
+      accion_audit:
+        | "CONDUCTOR_DIA_FINALIZADO"
+        | "CONDUCTOR_DIA_REABIERTO"
+        | "GERENCIA_DIA_FINALIZADO"
+        | "GERENCIA_DIA_REABIERTO"
+        | "CONDUCTOR_SEMANA_FINALIZADA"
+        | "CONDUCTOR_SEMANA_REABIERTA"
+        | "GERENCIA_SEMANA_FINALIZADA"
+        | "GERENCIA_SEMANA_REABIERTA"
+        | "PROPIETARIO_SEMANA_CERRADA"
+        | "PROPIETARIO_SEMANA_REABIERTA"
+        | "CONDUCTOR_VEHICULO_EN_RUTA"
+        | "INGRESOS_EDITADOS"
+        | "EGRESOS_EDITADOS"
+        | "CONDUCTOR_VEHICULO_DISPONIBLE"
+        | "CONDUCTOR_VEHICULO_NO_DISPONIBLE"
+      app_role: "GERENCIA" | "CONDUCTOR" | "PROPIETARIO"
+      estado: "HABILITADO" | "INHABILITADO"
+      estado_asignacion: "ACTIVA" | "CERRADA"
+      estado_disponibilidad: "DISPONIBLE" | "EN_RUTA"
+      estado_semana: "ABIERTA" | "CERRADA"
+      estado_viaje: "BORRADOR" | "CERRADO"
+      invitacion_rol: "CONDUCTOR" | "PROPIETARIO"
+      tipo_comision_empresa: "PORCENTAJE" | "FIJO" | "MIXTO"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      accion_audit: [
+        "CONDUCTOR_DIA_FINALIZADO",
+        "CONDUCTOR_DIA_REABIERTO",
+        "GERENCIA_DIA_FINALIZADO",
+        "GERENCIA_DIA_REABIERTO",
+        "CONDUCTOR_SEMANA_FINALIZADA",
+        "CONDUCTOR_SEMANA_REABIERTA",
+        "GERENCIA_SEMANA_FINALIZADA",
+        "GERENCIA_SEMANA_REABIERTA",
+        "PROPIETARIO_SEMANA_CERRADA",
+        "PROPIETARIO_SEMANA_REABIERTA",
+        "CONDUCTOR_VEHICULO_EN_RUTA",
+        "INGRESOS_EDITADOS",
+        "EGRESOS_EDITADOS",
+        "CONDUCTOR_VEHICULO_DISPONIBLE",
+        "CONDUCTOR_VEHICULO_NO_DISPONIBLE",
+      ],
+      app_role: ["GERENCIA", "CONDUCTOR", "PROPIETARIO"],
+      estado: ["HABILITADO", "INHABILITADO"],
+      estado_asignacion: ["ACTIVA", "CERRADA"],
+      estado_disponibilidad: ["DISPONIBLE", "EN_RUTA"],
+      estado_semana: ["ABIERTA", "CERRADA"],
+      estado_viaje: ["BORRADOR", "CERRADO"],
+      invitacion_rol: ["CONDUCTOR", "PROPIETARIO"],
+      tipo_comision_empresa: ["PORCENTAJE", "FIJO", "MIXTO"],
+    },
+  },
+} as const
