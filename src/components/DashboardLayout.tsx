@@ -2,7 +2,7 @@ import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Truck, Users, Route, ClipboardList,
-  Settings, LogOut, Menu, X, ChevronDown, Building2
+  Settings, LogOut, Menu, X, ChevronDown, Building2, Shield
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +15,10 @@ const navItems = [
   { label: "Asignaciones", icon: ClipboardList, href: "/dashboard/asignaciones" },
   { label: "Viajes", icon: Route, href: "/dashboard/viajes" },
   { label: "Configuración", icon: Settings, href: "/dashboard/config" },
+];
+
+const superAdminItems = [
+  { label: "Empresas", icon: Building2, href: "/admin" },
 ];
 
 export function DashboardLayout({ children }: { children: ReactNode }) {
