@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import SuperAdminPanel from "./pages/SuperAdminPanel";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
