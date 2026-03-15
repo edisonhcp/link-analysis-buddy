@@ -502,52 +502,6 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {(unassignedConductores.length > 0 || unassignedVehiculos.length > 0) && (
-          <motion.div variants={item}>
-            <Card className="border-0 shadow-sm border-l-4 border-l-primary">
-              <CardHeader className="pb-3">
-                <CardTitle className="font-display text-base flex items-center gap-2">
-                  <LinkIcon className="w-4 h-4 text-primary" />
-                  Asignar Conductor a Vehículo
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Conductores sin vehículo ({unassignedConductores.length})</p>
-                    <Select value={selectedConductor} onValueChange={setSelectedConductor}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar conductor..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {unassignedConductores.map(c => (
-                          <SelectItem key={c.id} value={c.id}>{c.nombres}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Vehículos sin conductor ({unassignedVehiculos.length})</p>
-                    <Select value={selectedVehiculo} onValueChange={setSelectedVehiculo}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar vehículo..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {unassignedVehiculos.map(v => (
-                          <SelectItem key={v.id} value={v.id}>{v.placa} — {v.marca} {v.modelo}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button onClick={handleAssign} disabled={!selectedConductor || !selectedVehiculo || assigning} className="gap-2">
-                    <LinkIcon className="w-4 h-4" />
-                    {assigning ? "Asignando..." : "Asignar"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <motion.div variants={item}>
