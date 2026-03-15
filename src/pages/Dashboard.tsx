@@ -461,10 +461,6 @@ export default function Dashboard() {
       title: "Propietarios", icon: UserCheck, color: "text-secondary", bg: "bg-secondary/10",
       items: [{ label: "Total", value: stats.propietarios }],
     },
-    {
-      title: "Asignaciones Activas", icon: CheckCircle2, color: "text-primary", bg: "bg-primary/10",
-      items: [{ label: "Activas", value: stats.asignacionesActivas }],
-    },
   ];
 
   return (
