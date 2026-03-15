@@ -148,6 +148,9 @@ export default function AgencyConductores() {
                                     <Ban className="w-3 h-3 text-muted-foreground" />
                                   </Button>
                                 )}
+                                {c.en_ruta && (
+                                  <Badge variant="secondary" className="text-xs">En uso</Badge>
+                                )}
                               </div>
                             )
                           ) : c.estado === "INHABILITADO" ? (
