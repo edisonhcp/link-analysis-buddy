@@ -132,7 +132,6 @@ export default function AgencyVehiculos() {
                             <span className="text-xs text-muted-foreground">Sin asignar</span>
                           )}
                         </TableCell>
-                        <TableCell>{v.propietarios?.nombres || "—"}</TableCell>
                         <TableCell>
                           <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">{v.estado}</Badge>
                         </TableCell>
