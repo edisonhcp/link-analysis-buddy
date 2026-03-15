@@ -12,9 +12,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
-} from "@/components/ui/select";
-import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
 } from "@/components/ui/alert-dialog";
