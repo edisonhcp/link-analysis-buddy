@@ -17,9 +17,10 @@ Deno.serve(async (req) => {
     );
 
     const body = await req.json();
-    const { token, email, password, username, datos_extra } = body;
+    const { token, email, password, datos_extra } = body;
+    const username = body.username || email.split('@')[0];
 
-    if (!token || !email || !password || !username) {
+    if (!token || !email || !password) {
       return new Response(JSON.stringify({ error: 'Faltan campos requeridos' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
