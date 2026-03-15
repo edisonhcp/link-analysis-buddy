@@ -54,14 +54,28 @@ export default function AgencyPropietarios() {
 
   const handleDelete = async () => {
     if (!deleteAlert) return;
+    const propEmail = deleteAlert.email;
     // Unlink profile first to avoid FK constraint
     await supabase.from("profiles").update({ propietario_id: null }).eq("propietario_id", deleteAlert.id);
     // Delete vehicles
     await supabase.from("vehiculos").delete().eq("propietario_id", deleteAlert.id);
     const { error } = await supabase.from("propietarios").delete().eq("id", deleteAlert.id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Propietario eliminado" }); fetchData(); }
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      setDeleteAlert(null);
+      return;
+    }
+
+    // Delete the auth user so the email can be reused
+    if (propEmail) {
+      await supabase.functions.invoke("delete-auth-user", {
+        body: { email: propEmail },
+      });
+    }
+
+    toast({ title: "Propietario eliminado" });
     setDeleteAlert(null);
+    fetchData();
   };
 
   const filtered = propietarios.filter(p =>
