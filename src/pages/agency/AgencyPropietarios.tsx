@@ -126,6 +126,7 @@ export default function AgencyPropietarios() {
                       <TableHead>Apellidos</TableHead>
                       <TableHead>Identificación</TableHead>
                       <TableHead>Celular</TableHead>
+                      <TableHead>Email</TableHead>
                       <TableHead>Marca</TableHead>
                       <TableHead>Modelo</TableHead>
                       <TableHead>Tipo</TableHead>
