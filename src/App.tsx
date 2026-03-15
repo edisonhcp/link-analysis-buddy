@@ -18,6 +18,7 @@ import RegistroInvitacion from "./pages/RegistroInvitacion";
 import Invitaciones from "./pages/Invitaciones";
 import PropietarioVehiculos from "./pages/PropietarioVehiculos";
 import NotFound from "./pages/NotFound";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
