@@ -82,11 +82,13 @@ export default function SuperAdminPanel() {
   const [detailLoading, setDetailLoading] = useState(false);
 
   const fetchData = async () => {
-    const [empresasRes, conductoresRes, vehiculosRes, propietariosRes] = await Promise.all([
+    const [empresasRes, conductoresRes, vehiculosRes, propietariosRes, viajesCerradosRes, viajesBorradorRes] = await Promise.all([
       supabase.from("empresas").select("*").order("created_at", { ascending: false }),
       supabase.from("conductores").select("id", { count: "exact", head: true }),
       supabase.from("vehiculos").select("id", { count: "exact", head: true }),
       supabase.from("propietarios").select("id", { count: "exact", head: true }),
+      supabase.from("viajes").select("id", { count: "exact", head: true }).eq("estado", "CERRADO"),
+      supabase.from("viajes").select("id", { count: "exact", head: true }).eq("estado", "BORRADOR"),
     ]);
     setEmpresas((empresasRes.data as EmpresaRow[]) || []);
     setStats({
@@ -94,6 +96,8 @@ export default function SuperAdminPanel() {
       conductores: conductoresRes.count || 0,
       vehiculos: vehiculosRes.count || 0,
       propietarios: propietariosRes.count || 0,
+      viajesCerrados: viajesCerradosRes.count || 0,
+      viajesCancelados: viajesBorradorRes.count || 0,
     });
     setLoading(false);
   };
