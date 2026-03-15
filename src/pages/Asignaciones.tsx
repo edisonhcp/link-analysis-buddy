@@ -74,7 +74,6 @@ export default function Asignaciones() {
 
     const vehiculoData = vehiculosDisponibles.find((v) => v.vehiculo_id === selectedVehiculo);
     if (!vehiculoData) return;
-    if (!vehiculoData) return;
 
     setSubmitting(true);
     const { error } = await crearAsignacionRuta({
