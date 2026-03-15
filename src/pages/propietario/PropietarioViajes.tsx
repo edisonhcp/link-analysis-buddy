@@ -15,8 +15,6 @@ export default function PropietarioViajes() {
   const [viajes, setViajes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  if (role !== "PROPIETARIO") return <Navigate to="/dashboard" replace />;
-
   useEffect(() => {
     const load = async () => {
       if (!user?.id) return;
