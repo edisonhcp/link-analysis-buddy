@@ -324,26 +324,37 @@ export default function SuperAdminPanel() {
                           <TableRow>
                             <TableHead>Nombres</TableHead>
                             <TableHead>Identificación</TableHead>
-                            <TableHead>Celular</TableHead>
-                            <TableHead>Vehículo(s)</TableHead>
+                            <TableHead>Marca</TableHead>
+                            <TableHead>Modelo</TableHead>
+                            <TableHead>Año</TableHead>
+                            <TableHead>Placa</TableHead>
                             <TableHead>Estado</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {detailPropietarios.map((p: any) => (
-                            <TableRow key={p.id}>
-                              <TableCell className="font-medium">{p.nombres}</TableCell>
-                              <TableCell>{p.identificacion}</TableCell>
-                              <TableCell>{p.celular}</TableCell>
-                              <TableCell>
-                                {p.vehiculos && p.vehiculos.length > 0
-                                  ? p.vehiculos.map((v: any, i: number) => (
-                                      <Badge key={i} variant="outline" className="text-xs mr-1">{v.placa} — {v.marca} {v.modelo}</Badge>
-                                    ))
-                                  : <span className="text-muted-foreground text-xs">Sin vehículos</span>
-                                }
-                              </TableCell>
-                              <TableCell><Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"}>{p.estado}</Badge></TableCell>
+                          {detailPropietarios.flatMap((p: any) => {
+                            const vehs = p.vehiculos || [];
+                            if (vehs.length === 0) {
+                              return [(
+                                <TableRow key={p.id}>
+                                  <TableCell className="font-medium">{p.nombres}</TableCell>
+                                  <TableCell>{p.identificacion}</TableCell>
+                                  <TableCell colSpan={4}><span className="text-muted-foreground text-xs">Sin vehículos</span></TableCell>
+                                  <TableCell><Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"}>{p.estado}</Badge></TableCell>
+                                </TableRow>
+                              )];
+                            }
+                            return vehs.map((v: any, i: number) => (
+                              <TableRow key={`${p.id}-${i}`}>
+                                <TableCell className="font-medium">{i === 0 ? p.nombres : ""}</TableCell>
+                                <TableCell>{i === 0 ? p.identificacion : ""}</TableCell>
+                                <TableCell>{v.marca}</TableCell>
+                                <TableCell>{v.modelo}</TableCell>
+                                <TableCell>{v.anio || "—"}</TableCell>
+                                <TableCell>{v.placa}</TableCell>
+                                <TableCell>{i === 0 && <Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"}>{p.estado}</Badge>}</TableCell>
+                              </TableRow>
+                            ));
                             </TableRow>
                           ))}
                         </TableBody>
