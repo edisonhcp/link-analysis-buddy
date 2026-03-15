@@ -19,21 +19,31 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
 } from "@/components/ui/alert-dialog";
-import { fetchVehiculos, toggleVehiculoEstado, deleteVehiculo } from "@/services/vehiculosService";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from "@/components/ui/select";
+import { fetchVehiculos, toggleVehiculoEstado, deleteVehiculo, fetchConductoresDisponibles, assignConductorToVehiculo } from "@/services/vehiculosService";
+import { unassignConductor } from "@/services/conductoresService";
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function AgencyVehiculos() {
-  const { role } = useAuth();
+  const { role, empresaId } = useAuth();
   const { toast } = useToast();
   const [vehiculos, setVehiculos] = useState<any[]>([]);
+  const [conductoresDisponibles, setConductoresDisponibles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [deleteAlert, setDeleteAlert] = useState<any>(null);
 
   const loadData = async () => {
-    setVehiculos(await fetchVehiculos());
+    const [vehs, conds] = await Promise.all([
+      fetchVehiculos(),
+      fetchConductoresDisponibles(),
+    ]);
+    setVehiculos(vehs);
+    setConductoresDisponibles(conds);
     setLoading(false);
   };
 
@@ -57,6 +67,21 @@ export default function AgencyVehiculos() {
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else { toast({ title: "Vehículo eliminado" }); loadData(); }
     setDeleteAlert(null);
+  };
+
+  const handleAssignConductor = async (vehiculoId: string, conductorId: string) => {
+    if (!empresaId) return;
+    const { error } = await assignConductorToVehiculo(vehiculoId, conductorId, empresaId);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Conductor asignado al vehículo" }); loadData(); }
+  };
+
+  const handleUnassignFromVehiculo = async (v: any) => {
+    if (v.en_ruta) { toast({ title: "En ruta", description: enRutaMsg, variant: "destructive" }); return; }
+    // Find the conductor for this vehicle to unassign
+    const { error } = await unassignConductor({ id: v.conductor_id });
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Conductor desvinculado del vehículo" }); loadData(); }
   };
 
   const filtered = vehiculos.filter(v =>
@@ -112,9 +137,31 @@ export default function AgencyVehiculos() {
                         <TableCell>{v.propietarios?.nombres || "—"}</TableCell>
                         <TableCell>
                           {v.conductor_nombre ? (
-                            <Badge variant="outline" className="text-xs">{v.conductor_nombre}</Badge>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs">{v.conductor_nombre}</Badge>
+                              {!v.en_ruta && (
+                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleUnassignFromVehiculo(v)}>
+                                  <Ban className="w-3 h-3 text-muted-foreground" />
+                                </Button>
+                              )}
+                            </div>
                           ) : (
-                            <span className="text-xs text-muted-foreground">Sin asignar</span>
+                            <Select onValueChange={(conductorId) => handleAssignConductor(v.id, conductorId)}>
+                              <SelectTrigger className="h-8 w-[180px] text-xs">
+                                <SelectValue placeholder="Asignar conductor" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {conductoresDisponibles.length === 0 ? (
+                                  <div className="px-2 py-1.5 text-xs text-muted-foreground">No hay conductores disponibles</div>
+                                ) : (
+                                  conductoresDisponibles.map(c => (
+                                    <SelectItem key={c.id} value={c.id} className="text-xs">
+                                      {c.nombres} {c.apellidos}
+                                    </SelectItem>
+                                  ))
+                                )}
+                              </SelectContent>
+                            </Select>
                           )}
                         </TableCell>
                         <TableCell>
