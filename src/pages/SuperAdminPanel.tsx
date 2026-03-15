@@ -121,6 +121,8 @@ export default function SuperAdminPanel() {
         ...c,
         vehiculo_placa: asig?.vehiculos?.placa || null,
         vehiculo_marca: asig?.vehiculos?.marca || null,
+        vehiculo_modelo: asig?.vehiculos?.modelo || null,
+        vehiculo_anio: asig?.vehiculos?.anio || null,
         propietario_nombre: asig?.vehiculos?.propietarios?.nombres || null,
       };
     });
