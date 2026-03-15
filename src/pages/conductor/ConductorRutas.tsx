@@ -15,8 +15,6 @@ export default function ConductorRutas() {
   const [viajes, setViajes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  if (role !== "CONDUCTOR") return <Navigate to="/dashboard" replace />;
-
   useEffect(() => {
     const load = async () => {
       if (!user?.id) return;
