@@ -359,8 +359,8 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [stats, setStats] = useState<Stats>({
-    vehiculos: 0, conductores: 0, viajesHoy: 0,
-    viajesBorrador: 0, viajesCerrados: 0, asignacionesActivas: 0,
+    vehiculos: 0, vehiculosDeshabilitados: 0, conductores: 0, conductoresDeshabilitados: 0,
+    propietarios: 0, viajesBorrador: 0, viajesCerrados: 0, asignacionesActivas: 0,
   });
   const [recentViajes, setRecentViajes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
