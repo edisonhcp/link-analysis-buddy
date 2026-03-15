@@ -249,7 +249,19 @@ export default function Invitaciones() {
                             {new Date(inv.expires_at).toLocaleDateString("es-ES")}
                           </TableCell>
                           <TableCell>
-                            {!inv.usada && new Date(inv.expires_at) >= new Date() && (
+                            {inv.usada ? (
+                              inv.registro_status === "activo" ? (
+                                <Badge variant="outline" className="text-xs gap-1 text-green-600 border-green-200 bg-green-50">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  Registrado
+                                </Badge>
+                              ) : inv.registro_status === "eliminado" ? (
+                                <Badge variant="outline" className="text-xs gap-1 text-destructive border-destructive/20 bg-destructive/5">
+                                  <XCircle className="w-3 h-3" />
+                                  Eliminado
+                                </Badge>
+                              ) : null
+                            ) : new Date(inv.expires_at) >= new Date() ? (
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -261,7 +273,7 @@ export default function Invitaciones() {
                               >
                                 <Copy className="w-3 h-3" /> Copiar
                               </Button>
-                            )}
+                            ) : null}
                           </TableCell>
                         </TableRow>
                       );
