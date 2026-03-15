@@ -66,6 +66,7 @@ export default function SuperAdminPanel() {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [generatedLink, setGeneratedLink] = useState("");
   const [generatingLink, setGeneratingLink] = useState(false);
+  const [selectEmpresaDialogOpen, setSelectEmpresaDialogOpen] = useState(false);
 
   const fetchData = async () => {
     const [empresasRes, conductoresRes, vehiculosRes] = await Promise.all([
@@ -178,7 +179,7 @@ export default function SuperAdminPanel() {
             <h1 className="text-3xl font-display font-bold text-foreground">Gestión de Empresas</h1>
             <p className="text-muted-foreground mt-1">Administra las agencias de transporte registradas</p>
           </div>
-          <Button onClick={() => handleGenerateLink()} disabled={generatingLink} className="gap-2 font-display">
+          <Button onClick={() => setSelectEmpresaDialogOpen(true)} disabled={generatingLink} className="gap-2 font-display">
             <Link2 className="w-4 h-4" />
             {generatingLink ? "Generando..." : "Generar Link para Agencia"}
           </Button>
@@ -353,6 +354,33 @@ export default function SuperAdminPanel() {
           <DialogFooter>
             <Button onClick={() => setLinkDialogOpen(false)}>Cerrar</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Select Empresa Dialog */}
+      <Dialog open={selectEmpresaDialogOpen} onOpenChange={setSelectEmpresaDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl">Seleccionar Empresa</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-4">
+            <p className="text-sm text-muted-foreground mb-3">Selecciona la empresa para generar el link de registro:</p>
+            {empresas.filter(e => e.activo).map(empresa => (
+              <button
+                key={empresa.id}
+                onClick={() => { setSelectEmpresaDialogOpen(false); handleGenerateLink(empresa.id); }}
+                className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors text-left"
+              >
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Building2 className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground text-sm">{empresa.nombre}</p>
+                  <p className="text-xs text-muted-foreground">{empresa.ciudad} · RUC: {empresa.ruc}</p>
+                </div>
+              </button>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     </DashboardLayout>
