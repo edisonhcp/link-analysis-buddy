@@ -211,6 +211,22 @@ export default function RegistroInvitacion() {
                   </div>
                 </div>
 
+                {/* Extra fields for GERENCIA */}
+                {rol === "GERENCIA" && (
+                  <div className="border-t border-border pt-4 space-y-3">
+                    <p className="text-sm font-semibold text-foreground">Datos de la Compañía</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="col-span-2"><Label>Nombre de la compañía</Label><Input value={datosEmpresa.nombre_empresa} onChange={e => setDatosEmpresa({ ...datosEmpresa, nombre_empresa: e.target.value })} required /></div>
+                      <div><Label>RUC</Label><Input value={datosEmpresa.ruc} onChange={e => setDatosEmpresa({ ...datosEmpresa, ruc: e.target.value })} required /></div>
+                      <div><Label>Ciudad</Label><Input value={datosEmpresa.ciudad} onChange={e => setDatosEmpresa({ ...datosEmpresa, ciudad: e.target.value })} required /></div>
+                      <div className="col-span-2"><Label>Dirección</Label><Input value={datosEmpresa.direccion} onChange={e => setDatosEmpresa({ ...datosEmpresa, direccion: e.target.value })} required /></div>
+                      <div><Label>Celular de la compañía</Label><Input value={datosEmpresa.celular_empresa} onChange={e => setDatosEmpresa({ ...datosEmpresa, celular_empresa: e.target.value })} required /></div>
+                      <div><Label>Email de la compañía</Label><Input type="email" value={datosEmpresa.email_empresa} onChange={e => setDatosEmpresa({ ...datosEmpresa, email_empresa: e.target.value })} required /></div>
+                      <div className="col-span-2"><Label>Nombre del representante</Label><Input value={datosEmpresa.propietario_nombre} onChange={e => setDatosEmpresa({ ...datosEmpresa, propietario_nombre: e.target.value })} required /></div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Extra fields for CONDUCTOR */}
                 {rol === "CONDUCTOR" && (
                   <div className="border-t border-border pt-4 space-y-3">
