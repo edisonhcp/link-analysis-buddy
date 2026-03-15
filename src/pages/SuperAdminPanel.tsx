@@ -102,13 +102,30 @@ export default function SuperAdminPanel() {
   const handleViewDetail = async (empresa: EmpresaRow) => {
     setDetailEmpresa(empresa);
     setDetailLoading(true);
-    const [vRes, cRes, pRes] = await Promise.all([
-      supabase.from("vehiculos").select("*").eq("empresa_id", empresa.id),
+    const [vRes, cRes, pRes, aRes] = await Promise.all([
+      supabase.from("vehiculos").select("*, propietarios(nombres)").eq("empresa_id", empresa.id),
       supabase.from("conductores").select("*").eq("empresa_id", empresa.id),
-      supabase.from("propietarios").select("*").eq("empresa_id", empresa.id),
+      supabase.from("propietarios").select("*, vehiculos(placa, marca, modelo)").eq("empresa_id", empresa.id),
+      supabase.from("asignaciones").select("conductor_id, vehiculo_id, conductores(nombres), vehiculos(placa, marca, modelo, propietarios(nombres))").eq("empresa_id", empresa.id).eq("estado", "ACTIVA"),
     ]);
-    setDetailVehiculos(vRes.data || []);
-    setDetailConductores(cRes.data || []);
+    const asignaciones = aRes.data || [];
+    // Enrich vehiculos with conductor name
+    const vehiculosEnriched = (vRes.data || []).map((v: any) => {
+      const asig = asignaciones.find((a: any) => a.vehiculo_id === v.id);
+      return { ...v, conductor_nombre: asig?.conductores?.nombres || null };
+    });
+    // Enrich conductores with vehicle info and propietario
+    const conductoresEnriched = (cRes.data || []).map((c: any) => {
+      const asig = asignaciones.find((a: any) => a.conductor_id === c.id);
+      return {
+        ...c,
+        vehiculo_placa: asig?.vehiculos?.placa || null,
+        vehiculo_marca: asig?.vehiculos?.marca || null,
+        propietario_nombre: asig?.vehiculos?.propietarios?.nombres || null,
+      };
+    });
+    setDetailVehiculos(vehiculosEnriched);
+    setDetailConductores(conductoresEnriched);
     setDetailPropietarios(pRes.data || []);
     setDetailLoading(false);
   };
