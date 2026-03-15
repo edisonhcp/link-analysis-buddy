@@ -195,24 +195,28 @@ export default function Asignaciones() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Vehículo - only show on create */}
-                {!editingId && (
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground">Vehículo disponible</Label>
-                    <Select value={selectedVehiculo} onValueChange={setSelectedVehiculo}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar vehículo..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {vehiculosDisponibles.map((v) => (
-                          <SelectItem key={v.vehiculo_id} value={v.vehiculo_id}>
-                            {v.placa} — {v.marca} {v.modelo} ({v.conductor_nombre})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
+                {/* Vehículo - show on create and edit */}
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground">Vehículo disponible</Label>
+                  <Select value={selectedVehiculo} onValueChange={setSelectedVehiculo}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar vehículo..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {vehiculosDisponibles.map((v) => (
+                        <SelectItem key={v.vehiculo_id} value={v.vehiculo_id}>
+                          {v.placa} — {v.marca} {v.modelo} ({v.conductor_nombre})
+                        </SelectItem>
+                      ))}
+                      {/* If editing, show current vehicle option too */}
+                      {editingId && !vehiculosDisponibles.find(v => v.vehiculo_id === selectedVehiculo) && selectedVehiculo && (
+                        <SelectItem value={selectedVehiculo} disabled>
+                          Vehículo actual (no cambiar)
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 <div className="space-y-2">
                   <Label className="text-muted-foreground">Origen</Label>
