@@ -21,7 +21,8 @@ import {
 import { fetchConductorData, deleteConductorAccount } from "@/services/conductoresService";
 import { deletePropietarioAccount } from "@/services/propietariosService";
 import { fetchPropietarioVehiculos, deleteVehiculo } from "@/services/vehiculosService";
-import { fetchDashboardStats, fetchEmpresaNombre, createAsignacion, refreshAssignments, type DashboardStats } from "@/services/dashboardService";
+import { fetchDashboardStats, fetchEmpresaNombre, type DashboardStats } from "@/services/dashboardService";
+import { fetchRutasConductor, iniciarRuta, finalizarRuta, type RutaAsignada } from "@/services/asignacionesRutaService";
 
 const container = {
   hidden: { opacity: 0 },
