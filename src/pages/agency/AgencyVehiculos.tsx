@@ -144,6 +144,9 @@ export default function AgencyVehiculos() {
                                   <Ban className="w-3 h-3 text-muted-foreground" />
                                 </Button>
                               )}
+                              {v.en_ruta && (
+                                <Badge variant="secondary" className="text-xs">En uso</Badge>
+                              )}
                             </div>
                           ) : v.estado === "INHABILITADO" ? (
                             <span className="text-xs text-muted-foreground">Vehículo suspendido</span>
