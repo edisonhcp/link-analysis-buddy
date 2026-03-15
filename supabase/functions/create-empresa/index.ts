@@ -83,6 +83,7 @@ Deno.serve(async (req) => {
         celular: empresa.celular,
         email: empresa.email,
         propietario_nombre: empresa.propietario_nombre,
+        propietario_apellidos: empresa.propietario_apellidos,
         tipo_comision: empresa.tipo_comision || 'PORCENTAJE',
         comision_pct: empresa.comision_pct || 0.10,
         comision_fija: empresa.comision_fija || 0,

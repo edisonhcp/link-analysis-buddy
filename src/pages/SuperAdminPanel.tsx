@@ -478,7 +478,7 @@ export default function SuperAdminPanel() {
                     <h3 className="font-display font-semibold text-foreground mb-1 truncate">{empresa.nombre}</h3>
                     <p className="text-sm text-muted-foreground mb-3">RUC: {empresa.ruc}</p>
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{empresa.propietario_nombre}</span>
+                      <span>{empresa.propietario_nombre} {empresa.propietario_apellidos}</span>
                       <span>{new Date(empresa.created_at).toLocaleDateString("es-ES")}</span>
                     </div>
                   </CardContent>
