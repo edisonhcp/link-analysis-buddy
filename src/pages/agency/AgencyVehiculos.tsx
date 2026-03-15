@@ -124,7 +124,7 @@ export default function AgencyVehiculos() {
                         <TableCell>{v.marca} {v.modelo}</TableCell>
                         <TableCell>{v.tipo}</TableCell>
                         <TableCell>{v.color}</TableCell>
-                        <TableCell className="text-xs">{v.propietarios?.email || "—"}</TableCell>
+                        <TableCell>{v.propietarios?.nombres || "—"}</TableCell>
                         <TableCell>
                           {v.conductor_nombre ? (
                             <Badge variant="outline" className="text-xs">{v.conductor_nombre}</Badge>
