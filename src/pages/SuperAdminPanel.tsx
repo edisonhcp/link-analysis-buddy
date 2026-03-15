@@ -283,8 +283,10 @@ export default function SuperAdminPanel() {
                           <TableRow>
                             <TableHead>Nombres</TableHead>
                             <TableHead>Identificación</TableHead>
-                            <TableHead>Celular</TableHead>
-                            <TableHead>Vehículo</TableHead>
+                            <TableHead>Marca</TableHead>
+                            <TableHead>Modelo</TableHead>
+                            <TableHead>Año</TableHead>
+                            <TableHead>Placa</TableHead>
                             <TableHead>Propietario</TableHead>
                             <TableHead>Estado</TableHead>
                           </TableRow>
@@ -294,8 +296,10 @@ export default function SuperAdminPanel() {
                             <TableRow key={c.id}>
                               <TableCell className="font-medium">{c.nombres}</TableCell>
                               <TableCell>{c.identificacion}</TableCell>
-                              <TableCell>{c.celular}</TableCell>
-                              <TableCell>{c.vehiculo_placa ? <Badge variant="outline" className="text-xs">{c.vehiculo_placa} — {c.vehiculo_marca}</Badge> : <span className="text-muted-foreground text-xs">Sin asignar</span>}</TableCell>
+                              <TableCell>{c.vehiculo_marca || "—"}</TableCell>
+                              <TableCell>{c.vehiculo_modelo || "—"}</TableCell>
+                              <TableCell>{c.vehiculo_anio || "—"}</TableCell>
+                              <TableCell>{c.vehiculo_placa || <span className="text-muted-foreground text-xs">Sin asignar</span>}</TableCell>
                               <TableCell>{c.propietario_nombre || "—"}</TableCell>
                               <TableCell><Badge variant={c.estado === "HABILITADO" ? "default" : "destructive"}>{c.estado}</Badge></TableCell>
                             </TableRow>
