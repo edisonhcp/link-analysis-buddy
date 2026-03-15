@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Truck, Users, Route, CheckCircle2, Clock, Plus, LinkIcon, AlertTriangle,
+  Truck, Users, Route, CheckCircle2, Clock, Plus, AlertTriangle,
   Trash2, MessageCircle, UserCheck
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
