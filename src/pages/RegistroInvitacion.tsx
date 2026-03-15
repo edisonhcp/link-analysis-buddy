@@ -59,6 +59,7 @@ export default function RegistroInvitacion() {
   const [username, setUsername] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [datos, setDatos] = useState<DatosExtra>(emptyDatos);
+  const [datosEmpresa, setDatosEmpresa] = useState<DatosEmpresa>(emptyEmpresa);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
