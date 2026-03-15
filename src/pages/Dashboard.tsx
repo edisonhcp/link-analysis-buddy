@@ -415,11 +415,6 @@ export default function Dashboard() {
   
   const [loading, setLoading] = useState(true);
   const [empresaNombre, setEmpresaNombre] = useState("");
-  const [unassignedConductores, setUnassignedConductores] = useState<any[]>([]);
-  const [unassignedVehiculos, setUnassignedVehiculos] = useState<any[]>([]);
-  const [selectedConductor, setSelectedConductor] = useState("");
-  const [selectedVehiculo, setSelectedVehiculo] = useState("");
-  const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -427,8 +422,6 @@ export default function Dashboard() {
 
       const result = await fetchDashboardStats();
       setStats(result.stats);
-      setUnassignedConductores(result.unassignedConductores);
-      setUnassignedVehiculos(result.unassignedVehiculos);
 
       if (empresaId) {
         setEmpresaNombre(await fetchEmpresaNombre(empresaId));
@@ -443,23 +436,6 @@ export default function Dashboard() {
   if (role === "SUPER_ADMIN") return <Navigate to="/admin" replace />;
   if (role === "PROPIETARIO") return <PropietarioDashboard profile={profile} suspended={suspended} />;
   if (role === "CONDUCTOR") return <ConductorDashboard profile={profile} suspended={suspended} />;
-
-  const handleAssign = async () => {
-    if (!selectedConductor || !selectedVehiculo || !empresaId) return;
-    setAssigning(true);
-    const { error } = await createAsignacion(selectedConductor, selectedVehiculo, empresaId);
-    setAssigning(false);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else {
-      toast({ title: "Conductor asignado al vehículo exitosamente" });
-      setSelectedConductor("");
-      setSelectedVehiculo("");
-      const refreshed = await refreshAssignments();
-      setUnassignedConductores(refreshed.unassignedConductores);
-      setUnassignedVehiculos(refreshed.unassignedVehiculos);
-      setStats(prev => ({ ...prev, asignacionesActivas: refreshed.asignacionesActivas }));
-    }
-  };
 
   const vehiculosActivos = stats.vehiculos - stats.vehiculosDeshabilitados;
   const conductoresActivos = stats.conductores - stats.conductoresDeshabilitados;
