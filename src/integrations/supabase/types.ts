@@ -306,6 +306,7 @@ export type Database = {
       }
       empresas: {
         Row: {
+          activo: boolean
           celular: string
           ciudad: string
           comision_fija: number
@@ -321,6 +322,7 @@ export type Database = {
           tipo_comision: Database["public"]["Enums"]["tipo_comision_empresa"]
         }
         Insert: {
+          activo?: boolean
           celular: string
           ciudad: string
           comision_fija?: number
@@ -336,6 +338,7 @@ export type Database = {
           tipo_comision?: Database["public"]["Enums"]["tipo_comision_empresa"]
         }
         Update: {
+          activo?: boolean
           celular?: string
           ciudad?: string
           comision_fija?: number
@@ -946,7 +949,7 @@ export type Database = {
       estado_disponibilidad: "DISPONIBLE" | "EN_RUTA"
       estado_semana: "ABIERTA" | "CERRADA"
       estado_viaje: "BORRADOR" | "CERRADO"
-      invitacion_rol: "CONDUCTOR" | "PROPIETARIO"
+      invitacion_rol: "CONDUCTOR" | "PROPIETARIO" | "GERENCIA"
       tipo_comision_empresa: "PORCENTAJE" | "FIJO" | "MIXTO"
     }
     CompositeTypes: {
@@ -1098,7 +1101,7 @@ export const Constants = {
       estado_disponibilidad: ["DISPONIBLE", "EN_RUTA"],
       estado_semana: ["ABIERTA", "CERRADA"],
       estado_viaje: ["BORRADOR", "CERRADO"],
-      invitacion_rol: ["CONDUCTOR", "PROPIETARIO"],
+      invitacion_rol: ["CONDUCTOR", "PROPIETARIO", "GERENCIA"],
       tipo_comision_empresa: ["PORCENTAJE", "FIJO", "MIXTO"],
     },
   },
