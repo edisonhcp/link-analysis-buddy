@@ -118,9 +118,9 @@ export default function AgencyPropietarios() {
                   <TableBody>
                     {rows.map((row, idx) => (
                       <TableRow key={`${row.id}-${row.vehiculo?.id || idx}`}>
-                        <TableCell className="font-medium">{row.isFirstOfGroup ? row.nombres : ""}</TableCell>
-                        <TableCell>{row.isFirstOfGroup ? row.identificacion : ""}</TableCell>
-                        <TableCell>{row.isFirstOfGroup ? row.celular : ""}</TableCell>
+                        <TableCell className="font-medium">{row.nombres}</TableCell>
+                        <TableCell>{row.identificacion}</TableCell>
+                        <TableCell>{row.celular}</TableCell>
                         <TableCell>{row.vehiculo?.marca || "—"}</TableCell>
                         <TableCell>{row.vehiculo?.modelo || "—"}</TableCell>
                         <TableCell>{row.vehiculo?.tipo || "—"}</TableCell>
