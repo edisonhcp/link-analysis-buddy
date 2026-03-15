@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
