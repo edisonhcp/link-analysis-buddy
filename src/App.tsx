@@ -33,6 +33,7 @@ const App = () => (
             <Route path="/admin/vehiculos" element={<ProtectedRoute><AdminVehiculos /></ProtectedRoute>} />
             <Route path="/admin/conductores" element={<ProtectedRoute><AdminConductores /></ProtectedRoute>} />
             <Route path="/admin/propietarios" element={<ProtectedRoute><AdminPropietarios /></ProtectedRoute>} />
+            <Route path="/dashboard/invitaciones" element={<ProtectedRoute><Invitaciones /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
