@@ -15,8 +15,6 @@ export default function GerenciaViajes() {
   const [viajes, setViajes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  if (role !== "GERENCIA") return <Navigate to="/dashboard" replace />;
-
   useEffect(() => {
     const load = async () => {
       if (!empresaId) return;
