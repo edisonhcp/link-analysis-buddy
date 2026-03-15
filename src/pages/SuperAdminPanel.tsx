@@ -38,6 +38,7 @@ interface EmpresaRow {
   celular: string;
   direccion: string;
   propietario_nombre: string;
+  propietario_apellidos: string;
   activo: boolean;
   created_at: string;
 }
