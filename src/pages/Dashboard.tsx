@@ -59,6 +59,7 @@ function ConductorDashboard({ profile, suspended }: { profile: any; suspended: a
   const { toast } = useToast();
   const { user } = useAuth();
   const [conductorInfo, setConductorInfo] = useState<any>(null);
+  const [rutasAsignadas, setRutasAsignadas] = useState<RutaAsignada[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteAccountAlert, setDeleteAccountAlert] = useState(false);
 
