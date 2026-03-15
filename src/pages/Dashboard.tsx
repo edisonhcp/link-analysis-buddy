@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Truck, Users, Route, DollarSign, TrendingUp, TrendingDown,
-  Calendar, AlertCircle, CheckCircle2, Clock, Plus
+  Truck, Users, Route, CheckCircle2, Clock, Plus, LinkIcon, AlertTriangle
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +10,10 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from "@/components/ui/select";
 
 interface Stats {
   vehiculos: number;
@@ -31,9 +34,186 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
-export default function Dashboard() {
-  const { profile, role } = useAuth();
+// ─── Conductor Dashboard ───
+function ConductorDashboard({ profile }: { profile: any }) {
+  const [conductorInfo, setConductorInfo] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchConductorData = async () => {
+      // Get conductor profile link
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("conductor_id")
+        .eq("user_id", (await supabase.auth.getUser()).data.user?.id || "")
+        .single();
+
+      if (profileData?.conductor_id) {
+        const [condRes, asigRes] = await Promise.all([
+          supabase.from("conductores").select("*").eq("id", profileData.conductor_id).single(),
+          supabase.from("asignaciones")
+            .select("*, vehiculos(placa, marca, modelo, anio, color, tipo, propietarios(nombres))")
+            .eq("conductor_id", profileData.conductor_id)
+            .eq("estado", "ACTIVA")
+            .single(),
+        ]);
+        setConductorInfo({
+          conductor: condRes.data,
+          vehiculo: asigRes.data?.vehiculos || null,
+        });
+      }
+      setLoading(false);
+    };
+    fetchConductorData();
+  }, []);
+
+  return (
+    <DashboardLayout>
+      <motion.div variants={container} initial="hidden" animate="show" className="space-y-8">
+        <motion.div variants={item}>
+          <h1 className="text-3xl font-display font-bold text-foreground">
+            Hola, {profile?.username || "Conductor"} 👋
+          </h1>
+          <p className="text-muted-foreground mt-1">Panel de conductor</p>
+        </motion.div>
+
+        <motion.div variants={item}>
+          {loading ? (
+            <div className="h-48 rounded-xl bg-muted animate-pulse" />
+          ) : (
+            <Card className="border-0 shadow-sm">
+              <CardContent className="p-8">
+                <div className="flex items-start gap-6">
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Users className="w-8 h-8 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-display font-bold text-foreground">
+                      {conductorInfo?.conductor?.nombres || profile?.username || "Conductor"}
+                    </h2>
+                    <p className="text-muted-foreground mt-1">
+                      {conductorInfo?.conductor?.tipo_licencia && `Licencia: ${conductorInfo.conductor.tipo_licencia}`}
+                      {conductorInfo?.conductor?.celular && ` · ${conductorInfo.conductor.celular}`}
+                    </p>
+
+                    {conductorInfo?.vehiculo ? (
+                      <div className="mt-4 p-4 rounded-xl bg-muted/50 border border-border">
+                        <div className="flex items-center gap-3">
+                          <Truck className="w-6 h-6 text-primary" />
+                          <div>
+                            <p className="font-display font-semibold text-foreground">
+                              {conductorInfo.vehiculo.marca} {conductorInfo.vehiculo.modelo} {conductorInfo.vehiculo.anio || ""}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Placa: {conductorInfo.vehiculo.placa} · {conductorInfo.vehiculo.color} · {conductorInfo.vehiculo.tipo}
+                            </p>
+                            {conductorInfo.vehiculo.propietarios?.nombres && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Propietario: {conductorInfo.vehiculo.propietarios.nombres}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-4 p-4 rounded-xl bg-muted/30 border border-dashed border-border text-center">
+                        <AlertTriangle className="w-6 h-6 mx-auto mb-2 text-muted-foreground/50" />
+                        <p className="text-sm text-muted-foreground">No tienes un vehículo asignado aún</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </motion.div>
+      </motion.div>
+    </DashboardLayout>
+  );
+}
+
+// ─── Propietario Dashboard ───
+function PropietarioDashboard({ profile }: { profile: any }) {
   const navigate = useNavigate();
+  const [misVehiculos, setMisVehiculos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("vehiculos")
+        .select("*")
+        .order("created_at", { ascending: false });
+      setMisVehiculos(data || []);
+      setLoading(false);
+    };
+    fetch();
+  }, []);
+
+  return (
+    <DashboardLayout>
+      <motion.div variants={container} initial="hidden" animate="show" className="space-y-8">
+        <motion.div variants={item}>
+          <h1 className="text-3xl font-display font-bold text-foreground">
+            Hola, {profile?.username || "Propietario"} 👋
+          </h1>
+          <p className="text-muted-foreground mt-1">Panel de propietario de vehículos</p>
+        </motion.div>
+
+        <motion.div variants={item} className="flex items-center justify-between">
+          <h2 className="text-xl font-display font-semibold text-foreground">Mis Vehículos</h2>
+          <Button onClick={() => navigate("/dashboard/mis-vehiculos")} className="gap-2 font-display">
+            <Plus className="w-4 h-4" />
+            Registrar Vehículo
+          </Button>
+        </motion.div>
+
+        <motion.div variants={item}>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3].map(i => <div key={i} className="h-32 rounded-xl bg-muted animate-pulse" />)}
+            </div>
+          ) : misVehiculos.length === 0 ? (
+            <Card className="border-0 shadow-sm">
+              <CardContent className="py-12 text-center">
+                <Truck className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
+                <p className="text-muted-foreground mb-4">No tienes vehículos registrados aún</p>
+                <Button onClick={() => navigate("/dashboard/mis-vehiculos")} className="gap-2">
+                  <Plus className="w-4 h-4" />
+                  Registrar mi primer vehículo
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {misVehiculos.map(v => (
+                <Card key={v.id} className="border-0 shadow-sm">
+                  <CardContent className="p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <Truck className="w-5 h-5 text-primary" />
+                      </div>
+                      <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"}>{v.estado}</Badge>
+                    </div>
+                    <h3 className="font-display font-semibold text-foreground">{v.placa}</h3>
+                    <p className="text-sm text-muted-foreground">{v.marca} {v.modelo} {v.anio || ""}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{v.color} · {v.tipo} · Cap: {v.capacidad}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </motion.div>
+    </DashboardLayout>
+  );
+}
+
+// ─── Gerencia Dashboard ───
+export default function Dashboard() {
+  const { profile, role, empresaId } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [stats, setStats] = useState<Stats>({
     vehiculos: 0, conductores: 0, viajesHoy: 0,
     viajesBorrador: 0, viajesCerrados: 0, asignacionesActivas: 0,
@@ -41,34 +221,38 @@ export default function Dashboard() {
   const [recentViajes, setRecentViajes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Propietario-specific state
-  const [misVehiculos, setMisVehiculos] = useState<any[]>([]);
+  // Assignment state
+  const [unassignedConductores, setUnassignedConductores] = useState<any[]>([]);
+  const [unassignedVehiculos, setUnassignedVehiculos] = useState<any[]>([]);
+  const [selectedConductor, setSelectedConductor] = useState("");
+  const [selectedVehiculo, setSelectedVehiculo] = useState("");
+  const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
-      if (role === "PROPIETARIO") {
-        // Fetch propietario's own vehicles
-        const { data: vehiculosData } = await supabase
-          .from("vehiculos")
-          .select("*")
-          .order("created_at", { ascending: false });
-        setMisVehiculos(vehiculosData || []);
-        setLoading(false);
-        return;
-      }
+      if (role !== "GERENCIA") return;
 
       const today = new Date().toISOString().split("T")[0];
 
-      const [vehiculosRes, conductoresRes, viajesHoyRes, borradorRes, cerradosRes, asignacionesRes, recentRes] =
+      const [vehiculosRes, conductoresRes, viajesHoyRes, borradorRes, cerradosRes, asignacionesRes, recentRes, allCond, allVeh] =
         await Promise.all([
           supabase.from("vehiculos").select("id", { count: "exact", head: true }),
           supabase.from("conductores").select("id", { count: "exact", head: true }),
           supabase.from("viajes").select("id", { count: "exact", head: true }).gte("fecha_salida", today).lt("fecha_salida", today + "T23:59:59"),
           supabase.from("viajes").select("id", { count: "exact", head: true }).eq("estado", "BORRADOR"),
           supabase.from("viajes").select("id", { count: "exact", head: true }).eq("estado", "CERRADO"),
-          supabase.from("asignaciones").select("id", { count: "exact", head: true }).eq("estado", "ACTIVA"),
+          supabase.from("asignaciones").select("conductor_id, vehiculo_id").eq("estado", "ACTIVA"),
           supabase.from("viajes").select("*").order("created_at", { ascending: false }).limit(5),
+          supabase.from("conductores").select("id, nombres").eq("estado", "HABILITADO"),
+          supabase.from("vehiculos").select("id, placa, marca, modelo").eq("estado", "HABILITADO"),
         ]);
+
+      const activeAsignaciones = asignacionesRes.data || [];
+      const assignedConductorIds = new Set(activeAsignaciones.map((a: any) => a.conductor_id));
+      const assignedVehiculoIds = new Set(activeAsignaciones.map((a: any) => a.vehiculo_id));
+
+      setUnassignedConductores((allCond.data || []).filter((c: any) => !assignedConductorIds.has(c.id)));
+      setUnassignedVehiculos((allVeh.data || []).filter((v: any) => !assignedVehiculoIds.has(v.id)));
 
       setStats({
         vehiculos: vehiculosRes.count || 0,
@@ -76,7 +260,7 @@ export default function Dashboard() {
         viajesHoy: viajesHoyRes.count || 0,
         viajesBorrador: borradorRes.count || 0,
         viajesCerrados: cerradosRes.count || 0,
-        asignacionesActivas: asignacionesRes.count || 0,
+        asignacionesActivas: activeAsignaciones.length,
       });
       setRecentViajes(recentRes.data || []);
       setLoading(false);
@@ -85,68 +269,38 @@ export default function Dashboard() {
     if (role) fetchStats();
   }, [role]);
 
-  // Propietario Dashboard
-  if (role === "PROPIETARIO") {
-    return (
-      <DashboardLayout>
-        <motion.div variants={container} initial="hidden" animate="show" className="space-y-8">
-          <motion.div variants={item}>
-            <h1 className="text-3xl font-display font-bold text-foreground">
-              Hola, {profile?.username || "Propietario"} 👋
-            </h1>
-            <p className="text-muted-foreground mt-1">Panel de propietario de vehículos</p>
-          </motion.div>
+  if (role === "PROPIETARIO") return <PropietarioDashboard profile={profile} />;
+  if (role === "CONDUCTOR") return <ConductorDashboard profile={profile} />;
 
-          <motion.div variants={item} className="flex items-center justify-between">
-            <h2 className="text-xl font-display font-semibold text-foreground">Mis Vehículos</h2>
-            <Button onClick={() => navigate("/dashboard/mis-vehiculos")} className="gap-2 font-display">
-              <Plus className="w-4 h-4" />
-              Registrar Vehículo
-            </Button>
-          </motion.div>
+  const handleAssign = async () => {
+    if (!selectedConductor || !selectedVehiculo || !empresaId) return;
+    setAssigning(true);
+    const { error } = await supabase.from("asignaciones").insert({
+      conductor_id: selectedConductor,
+      vehiculo_id: selectedVehiculo,
+      empresa_id: empresaId,
+    });
+    setAssigning(false);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else {
+      toast({ title: "Conductor asignado al vehículo exitosamente" });
+      setSelectedConductor("");
+      setSelectedVehiculo("");
+      // Refresh
+      const [asigRes, allCond, allVeh] = await Promise.all([
+        supabase.from("asignaciones").select("conductor_id, vehiculo_id").eq("estado", "ACTIVA"),
+        supabase.from("conductores").select("id, nombres").eq("estado", "HABILITADO"),
+        supabase.from("vehiculos").select("id, placa, marca, modelo").eq("estado", "HABILITADO"),
+      ]);
+      const active = asigRes.data || [];
+      const cIds = new Set(active.map((a: any) => a.conductor_id));
+      const vIds = new Set(active.map((a: any) => a.vehiculo_id));
+      setUnassignedConductores((allCond.data || []).filter((c: any) => !cIds.has(c.id)));
+      setUnassignedVehiculos((allVeh.data || []).filter((v: any) => !vIds.has(v.id)));
+      setStats(prev => ({ ...prev, asignacionesActivas: active.length }));
+    }
+  };
 
-          <motion.div variants={item}>
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[1, 2, 3].map(i => <div key={i} className="h-32 rounded-xl bg-muted animate-pulse" />)}
-              </div>
-            ) : misVehiculos.length === 0 ? (
-              <Card className="border-0 shadow-sm">
-                <CardContent className="py-12 text-center">
-                  <Truck className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
-                  <p className="text-muted-foreground mb-4">No tienes vehículos registrados aún</p>
-                  <Button onClick={() => navigate("/dashboard/mis-vehiculos")} className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Registrar mi primer vehículo
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {misVehiculos.map(v => (
-                  <Card key={v.id} className="border-0 shadow-sm">
-                    <CardContent className="p-5">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                          <Truck className="w-5 h-5 text-primary" />
-                        </div>
-                        <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"}>{v.estado}</Badge>
-                      </div>
-                      <h3 className="font-display font-semibold text-foreground">{v.placa}</h3>
-                      <p className="text-sm text-muted-foreground">{v.marca} {v.modelo} {v.anio || ""}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{v.color} · {v.tipo} · Cap: {v.capacidad}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </motion.div>
-        </motion.div>
-      </DashboardLayout>
-    );
-  }
-
-  // Gerencia / default Dashboard
   const statCards = [
     { title: "Vehículos", value: stats.vehiculos, icon: Truck, color: "text-primary", bg: "bg-primary/10" },
     { title: "Conductores", value: stats.conductores, icon: Users, color: "text-accent", bg: "bg-accent/10" },
@@ -187,6 +341,54 @@ export default function Dashboard() {
             </motion.div>
           ))}
         </div>
+
+        {/* Assignment section */}
+        {(unassignedConductores.length > 0 || unassignedVehiculos.length > 0) && (
+          <motion.div variants={item}>
+            <Card className="border-0 shadow-sm border-l-4 border-l-primary">
+              <CardHeader className="pb-3">
+                <CardTitle className="font-display text-base flex items-center gap-2">
+                  <LinkIcon className="w-4 h-4 text-primary" />
+                  Asignar Conductor a Vehículo
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Conductores sin vehículo ({unassignedConductores.length})</p>
+                    <Select value={selectedConductor} onValueChange={setSelectedConductor}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar conductor..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {unassignedConductores.map(c => (
+                          <SelectItem key={c.id} value={c.id}>{c.nombres}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Vehículos sin conductor ({unassignedVehiculos.length})</p>
+                    <Select value={selectedVehiculo} onValueChange={setSelectedVehiculo}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar vehículo..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {unassignedVehiculos.map(v => (
+                          <SelectItem key={v.id} value={v.id}>{v.placa} — {v.marca} {v.modelo}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button onClick={handleAssign} disabled={!selectedConductor || !selectedVehiculo || assigning} className="gap-2">
+                    <LinkIcon className="w-4 h-4" />
+                    {assigning ? "Asignando..." : "Asignar"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <motion.div variants={item}>
@@ -249,9 +451,7 @@ export default function Dashboard() {
                             {new Date(viaje.fecha_salida).toLocaleDateString("es-ES")}
                           </p>
                         </div>
-                        <Badge variant="secondary">
-                          {viaje.estado}
-                        </Badge>
+                        <Badge variant="secondary">{viaje.estado}</Badge>
                       </div>
                     ))}
                   </div>

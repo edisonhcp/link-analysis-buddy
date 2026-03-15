@@ -9,8 +9,9 @@ interface AuthContextType {
   user: User | null;
   role: AppRole | null;
   empresaId: string | null;
-  profile: { username: string; email: string } | null;
+  profile: { username: string; email: string; propietario_id?: string | null; conductor_id?: string | null } | null;
   loading: boolean;
+  suspended: { type: "empresa" | "propietario"; message: string } | null;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, metadata: { username: string; empresa_id: string; role: AppRole }) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -23,19 +24,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<AppRole | null>(null);
   const [empresaId, setEmpresaId] = useState<string | null>(null);
-  const [profile, setProfile] = useState<{ username: string; email: string } | null>(null);
+  const [profile, setProfile] = useState<AuthContextType["profile"]>(null);
   const [loading, setLoading] = useState(true);
+  const [suspended, setSuspended] = useState<AuthContextType["suspended"]>(null);
 
   const fetchUserData = async (userId: string) => {
     const [roleRes, profileRes] = await Promise.all([
       supabase.from("user_roles").select("role").eq("user_id", userId).single(),
-      supabase.from("profiles").select("username, email, empresa_id").eq("user_id", userId).single(),
+      supabase.from("profiles").select("username, email, empresa_id, propietario_id, conductor_id").eq("user_id", userId).single(),
     ]);
 
     if (roleRes.data) setRole(roleRes.data.role as AppRole);
     if (profileRes.data) {
-      setProfile({ username: profileRes.data.username, email: profileRes.data.email });
+      setProfile({
+        username: profileRes.data.username,
+        email: profileRes.data.email,
+        propietario_id: profileRes.data.propietario_id,
+        conductor_id: profileRes.data.conductor_id,
+      });
       setEmpresaId(profileRes.data.empresa_id);
+
+      // Check suspension
+      const userRole = roleRes.data?.role as AppRole;
+
+      // Check empresa suspension for GERENCIA/CONDUCTOR/PROPIETARIO
+      if (userRole && userRole !== "SUPER_ADMIN") {
+        const { data: empresa } = await supabase
+          .from("empresas")
+          .select("nombre, activo")
+          .eq("id", profileRes.data.empresa_id)
+          .single();
+
+        if (empresa && !empresa.activo) {
+          setSuspended({
+            type: "empresa",
+            message: `Compañía ${empresa.nombre} se encuentra suspendida, por favor contáctese con soporte mediante WhatsApp.`,
+          });
+          return;
+        }
+      }
+
+      // Check propietario suspension
+      if (userRole === "PROPIETARIO" && profileRes.data.propietario_id) {
+        const [propRes, empresaRes] = await Promise.all([
+          supabase.from("propietarios").select("nombres, estado").eq("id", profileRes.data.propietario_id).single(),
+          supabase.from("empresas").select("nombre").eq("id", profileRes.data.empresa_id).single(),
+        ]);
+        if (propRes.data && propRes.data.estado === "INHABILITADO") {
+          setSuspended({
+            type: "propietario",
+            message: `${propRes.data.nombres}, su unidad se encuentra suspendida, por favor contáctese con ${empresaRes.data?.nombre || "la compañía"} mediante WhatsApp.`,
+          });
+          return;
+        }
+      }
+
+      setSuspended(null);
     }
   };
 
@@ -49,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setRole(null);
         setEmpresaId(null);
         setProfile(null);
+        setSuspended(null);
       }
       setLoading(false);
     });
@@ -84,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, role, empresaId, profile, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ session, user, role, empresaId, profile, loading, suspended, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

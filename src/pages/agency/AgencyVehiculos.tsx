@@ -33,11 +33,16 @@ export default function AgencyVehiculos() {
   const [deleteAlert, setDeleteAlert] = useState<any>(null);
 
   const fetchData = async () => {
-    const { data } = await supabase
-      .from("vehiculos")
-      .select("*, propietarios(nombres)")
-      .order("created_at", { ascending: false });
-    setVehiculos(data || []);
+    const [vehRes, asigRes] = await Promise.all([
+      supabase.from("vehiculos").select("*, propietarios(nombres)").order("created_at", { ascending: false }),
+      supabase.from("asignaciones").select("vehiculo_id, conductores(nombres)").eq("estado", "ACTIVA"),
+    ]);
+    const asignaciones = asigRes.data || [];
+    const enriched = (vehRes.data || []).map((v: any) => {
+      const asig = asignaciones.find((a: any) => a.vehiculo_id === v.id);
+      return { ...v, conductor_nombre: asig?.conductores?.nombres || null };
+    });
+    setVehiculos(enriched);
     setLoading(false);
   };
 
@@ -47,6 +52,11 @@ export default function AgencyVehiculos() {
 
   const handleToggleEstado = async (v: any) => {
     const newEstado = v.estado === "HABILITADO" ? "INHABILITADO" : "HABILITADO";
+    // If suspending, break the assignment
+    if (newEstado === "INHABILITADO") {
+      await supabase.from("asignaciones").update({ estado: "CERRADA", fecha_fin: new Date().toISOString() })
+        .eq("vehiculo_id", v.id).eq("estado", "ACTIVA");
+    }
     const { error } = await supabase.from("vehiculos").update({ estado: newEstado }).eq("id", v.id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else { toast({ title: newEstado === "HABILITADO" ? "Vehículo habilitado" : "Vehículo suspendido" }); fetchData(); }
@@ -54,6 +64,9 @@ export default function AgencyVehiculos() {
 
   const handleDelete = async () => {
     if (!deleteAlert) return;
+    // Break assignment first
+    await supabase.from("asignaciones").update({ estado: "CERRADA", fecha_fin: new Date().toISOString() })
+      .eq("vehiculo_id", deleteAlert.id).eq("estado", "ACTIVA");
     const { error } = await supabase.from("vehiculos").delete().eq("id", deleteAlert.id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else { toast({ title: "Vehículo eliminado" }); fetchData(); }
@@ -97,6 +110,7 @@ export default function AgencyVehiculos() {
                       <TableHead>Marca / Modelo</TableHead>
                       <TableHead>Tipo</TableHead>
                       <TableHead>Color</TableHead>
+                      <TableHead>Conductor</TableHead>
                       <TableHead>Propietario</TableHead>
                       <TableHead>Estado</TableHead>
                       <TableHead className="w-10"></TableHead>
@@ -109,6 +123,13 @@ export default function AgencyVehiculos() {
                         <TableCell>{v.marca} {v.modelo}</TableCell>
                         <TableCell>{v.tipo}</TableCell>
                         <TableCell>{v.color}</TableCell>
+                        <TableCell>
+                          {v.conductor_nombre ? (
+                            <Badge variant="outline" className="text-xs">{v.conductor_nombre}</Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Sin asignar</span>
+                          )}
+                        </TableCell>
                         <TableCell>{v.propietarios?.nombres || "—"}</TableCell>
                         <TableCell>
                           <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">{v.estado}</Badge>
