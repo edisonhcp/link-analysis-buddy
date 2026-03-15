@@ -69,6 +69,7 @@ export default function AgencyConductores() {
     if (!deleteAlert) return;
 
     const conductorId = deleteAlert.id;
+    const conductorEmail = deleteAlert.email;
 
     const { data: asignacionesData, error: asignacionesError } = await supabase
       .from("asignaciones")
@@ -109,6 +110,14 @@ export default function AgencyConductores() {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
       return;
+    }
+
+    // Delete the auth user so the email can be reused
+    if (conductorEmail) {
+      const { data: session } = await supabase.auth.getSession();
+      await supabase.functions.invoke("delete-auth-user", {
+        body: { email: conductorEmail },
+      });
     }
 
     toast({ title: "Conductor eliminado" });
