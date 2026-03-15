@@ -44,9 +44,9 @@ export async function fetchVehiculosDisponibles(empresaId: string) {
   );
 
   return (asignaciones || [])
-    .filter((a: any) => !asignacionesConViajeActivo.has(a.vehiculo_id) && a.vehiculos)
+    .filter((a: any) => !asignacionesConViajeActivo.has(a.id) && a.vehiculos)
     .map((a: any) => ({
-      asignacion_id: a.vehiculo_id, // Use the assignment record
+      id: a.id,
       vehiculo_id: a.vehiculo_id,
       conductor_id: a.conductor_id,
       placa: a.vehiculos?.placa,
@@ -54,8 +54,6 @@ export async function fetchVehiculosDisponibles(empresaId: string) {
       modelo: a.vehiculos?.modelo,
       capacidad: a.vehiculos?.capacidad,
       conductor_nombre: `${a.conductores?.nombres || ""} ${a.conductores?.apellidos || ""}`.trim(),
-      // Store the actual asignacion id
-      id: (a as any).id || a.vehiculo_id,
     }));
 }
 
