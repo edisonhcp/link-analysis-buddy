@@ -406,6 +406,13 @@ export default function Dashboard() {
         asignacionesActivas: activeAsignaciones.length,
       });
       setRecentViajes(recentRes.data || []);
+
+      // Fetch empresa name
+      if (empresaId) {
+        const { data: emp } = await supabase.from("empresas").select("nombre").eq("id", empresaId).single();
+        if (emp) setEmpresaNombre(emp.nombre);
+      }
+
       setLoading(false);
     };
 
