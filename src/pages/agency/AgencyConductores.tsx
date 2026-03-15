@@ -19,21 +19,31 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
 } from "@/components/ui/alert-dialog";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from "@/components/ui/select";
 import { fetchConductores, toggleConductorEstado, deleteConductor, unassignConductor } from "@/services/conductoresService";
+import { fetchVehiculosDisponiblesParaConductor, assignConductorToVehiculo } from "@/services/vehiculosService";
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function AgencyConductores() {
-  const { role } = useAuth();
+  const { role, empresaId } = useAuth();
   const { toast } = useToast();
   const [conductores, setConductores] = useState<any[]>([]);
+  const [vehiculosDisponibles, setVehiculosDisponibles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [deleteAlert, setDeleteAlert] = useState<any>(null);
 
   const loadData = async () => {
-    setConductores(await fetchConductores());
+    const [conds, vehs] = await Promise.all([
+      fetchConductores(),
+      fetchVehiculosDisponiblesParaConductor(),
+    ]);
+    setConductores(conds);
+    setVehiculosDisponibles(vehs);
     setLoading(false);
   };
 
@@ -65,6 +75,13 @@ export default function AgencyConductores() {
     const { error } = await unassignConductor(c);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else { toast({ title: "Asignación de vehículo eliminada" }); loadData(); }
+  };
+
+  const handleAssignVehiculo = async (conductorId: string, vehiculoId: string) => {
+    if (!empresaId) return;
+    const { error } = await assignConductorToVehiculo(vehiculoId, conductorId, empresaId);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Vehículo asignado al conductor" }); loadData(); }
   };
 
   const filtered = conductores.filter(c =>
@@ -124,10 +141,32 @@ export default function AgencyConductores() {
                             c.vehiculo.estado === "INHABILITADO" ? (
                               <Badge variant="destructive" className="text-xs">INHABILITADO</Badge>
                             ) : (
-                              <Badge variant="outline" className="text-xs">{c.vehiculo.placa} — {c.vehiculo.marca} {c.vehiculo.modelo}</Badge>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">{c.vehiculo.placa} — {c.vehiculo.marca} {c.vehiculo.modelo}</Badge>
+                                {!c.en_ruta && (
+                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleUnassign(c)}>
+                                    <Ban className="w-3 h-3 text-muted-foreground" />
+                                  </Button>
+                                )}
+                              </div>
                             )
                           ) : (
-                            <span className="text-xs text-muted-foreground">Sin asignar</span>
+                            <Select onValueChange={(vehiculoId) => handleAssignVehiculo(c.id, vehiculoId)}>
+                              <SelectTrigger className="h-8 w-[180px] text-xs">
+                                <SelectValue placeholder="Asignar vehículo" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {vehiculosDisponibles.length === 0 ? (
+                                  <div className="px-2 py-1.5 text-xs text-muted-foreground">No hay vehículos disponibles</div>
+                                ) : (
+                                  vehiculosDisponibles.map(v => (
+                                    <SelectItem key={v.id} value={v.id} className="text-xs">
+                                      {v.placa} — {v.marca} {v.modelo}
+                                    </SelectItem>
+                                  ))
+                                )}
+                              </SelectContent>
+                            </Select>
                           )}
                         </TableCell>
                         <TableCell>
@@ -139,11 +178,6 @@ export default function AgencyConductores() {
                               <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              {c.vehiculo && (
-                                <DropdownMenuItem onClick={() => handleUnassign(c)}>
-                                  <Unlink className="w-4 h-4 mr-2" /> Quitar vehículo
-                                </DropdownMenuItem>
-                              )}
                               <DropdownMenuItem onClick={() => handleToggleEstado(c)}>
                                 {c.estado === "HABILITADO" ? <><Ban className="w-4 h-4 mr-2" /> Suspender</> : <><CheckCircle2 className="w-4 h-4 mr-2" /> Habilitar</>}
                               </DropdownMenuItem>
