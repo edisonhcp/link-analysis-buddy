@@ -63,15 +63,34 @@ function ConductorDashboard({ profile, suspended }: { profile: any; suspended: a
   const [loading, setLoading] = useState(true);
   const [deleteAccountAlert, setDeleteAccountAlert] = useState(false);
 
+  const loadRutas = async () => {
+    if (!user?.id) return;
+    const { data } = await fetchRutasConductor(user.id);
+    setRutasAsignadas(data);
+  };
+
   useEffect(() => {
     const load = async () => {
       if (!user?.id) return;
       const data = await fetchConductorData(user.id);
       setConductorInfo(data);
+      await loadRutas();
       setLoading(false);
     };
     load();
   }, [user]);
+
+  const handleIniciarRuta = async (viajeId: string) => {
+    const { error } = await iniciarRuta(viajeId);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Ruta iniciada" }); loadRutas(); }
+  };
+
+  const handleFinalizarRuta = async (viajeId: string) => {
+    const { error } = await finalizarRuta(viajeId);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Ruta finalizada" }); loadRutas(); }
+  };
 
   const handleDeleteAccount = async () => {
     if (!user?.id) return;
