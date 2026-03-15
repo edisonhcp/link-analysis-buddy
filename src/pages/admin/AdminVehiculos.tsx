@@ -41,7 +41,7 @@ export default function AdminVehiculos() {
     const fetch = async () => {
       const { data } = await supabase
         .from("vehiculos")
-        .select("*, empresas(nombre)")
+        .select("*, empresas(nombre), propietarios(nombres, apellidos)")
         .order("created_at", { ascending: false });
       setVehiculos((data as any) || []);
       setLoading(false);
