@@ -11,6 +11,7 @@ import SuperAdminPanel from "./pages/SuperAdminPanel";
 import AdminVehiculos from "./pages/admin/AdminVehiculos";
 import AdminConductores from "./pages/admin/AdminConductores";
 import AdminPropietarios from "./pages/admin/AdminPropietarios";
+import AdminConsolidadoViajes from "./pages/admin/AdminConsolidadoViajes";
 import AgencyPropietarios from "./pages/agency/AgencyPropietarios";
 import AgencyVehiculos from "./pages/agency/AgencyVehiculos";
 import AgencyConductores from "./pages/agency/AgencyConductores";
