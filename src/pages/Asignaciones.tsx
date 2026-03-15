@@ -72,8 +72,8 @@ export default function Asignaciones() {
       return;
     }
 
-    // Find the asignacion record for this vehicle
     const vehiculoData = vehiculosDisponibles.find((v) => v.vehiculo_id === selectedVehiculo);
+    if (!vehiculoData) return;
     if (!vehiculoData) return;
 
     setSubmitting(true);
