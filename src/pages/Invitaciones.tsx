@@ -27,6 +27,8 @@ interface InvitacionRow {
   usada: boolean;
   expires_at: string;
   created_at: string;
+  registro_status?: "activo" | "eliminado" | null;
+  registro_nombre?: string;
 }
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
