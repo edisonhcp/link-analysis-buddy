@@ -455,10 +455,10 @@ export default function Dashboard() {
   };
 
   const statCards = [
-    { title: "Vehículos", value: stats.vehiculos, icon: Truck, color: "text-primary", bg: "bg-primary/10" },
-    { title: "Conductores", value: stats.conductores, icon: Users, color: "text-accent", bg: "bg-accent/10" },
-    { title: "Viajes Hoy", value: stats.viajesHoy, icon: Route, color: "text-secondary", bg: "bg-secondary/10" },
-    { title: "Asignaciones Activas", value: stats.asignacionesActivas, icon: CheckCircle2, color: "text-primary", bg: "bg-primary/10" },
+    { title: "Vehículos", value: stats.vehiculos, icon: Truck, color: "text-primary", bg: "bg-primary/10", sub: stats.vehiculosDeshabilitados > 0 ? `${stats.vehiculosDeshabilitados} deshabilitados` : null, subColor: "text-destructive" },
+    { title: "Conductores", value: stats.conductores, icon: Users, color: "text-accent", bg: "bg-accent/10", sub: stats.conductoresDeshabilitados > 0 ? `${stats.conductoresDeshabilitados} deshabilitados` : null, subColor: "text-destructive" },
+    { title: "Propietarios", value: stats.propietarios, icon: UserCheck, color: "text-secondary", bg: "bg-secondary/10", sub: null, subColor: "" },
+    { title: "Asignaciones Activas", value: stats.asignacionesActivas, icon: CheckCircle2, color: "text-primary", bg: "bg-primary/10", sub: null, subColor: "" },
   ];
 
   return (
