@@ -144,10 +144,10 @@ function ConductorDashboard({ profile, suspended }: { profile: any; suspended: a
                     </p>
 
                     {conductorInfo?.vehiculo ? (
-                      <div className="mt-4 p-4 rounded-xl bg-muted/50 border border-border">
+                      <div className={`mt-4 p-4 rounded-xl border ${conductorInfo.vehiculo.estado === "INHABILITADO" ? "bg-destructive/5 border-destructive/30" : "bg-muted/50 border-border"}`}>
                         <div className="flex items-center gap-3">
                           <Truck className={`w-6 h-6 ${conductorInfo.vehiculo.estado === "INHABILITADO" ? "text-destructive" : "text-primary"}`} />
-                          <div>
+                          <div className="flex-1">
                             <div className="flex items-center gap-2">
                               <p className="font-display font-semibold text-foreground">
                                 {conductorInfo.vehiculo.marca} {conductorInfo.vehiculo.modelo} {conductorInfo.vehiculo.anio || ""}
@@ -166,6 +166,18 @@ function ConductorDashboard({ profile, suspended }: { profile: any; suspended: a
                             )}
                           </div>
                         </div>
+                        {conductorInfo.vehiculo.estado === "INHABILITADO" && (
+                          <div className="mt-3 pt-3 border-t border-destructive/20 flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
+                            <p className="text-sm text-destructive flex-1">Tu vehículo ha sido deshabilitado. Contacta a la gerencia para más información.</p>
+                            <Button variant="outline" size="sm" className="gap-1 shrink-0" asChild>
+                              <a href="https://wa.me/" target="_blank" rel="noopener noreferrer">
+                                <MessageCircle className="w-3 h-3" />
+                                WhatsApp
+                              </a>
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="mt-4 p-4 rounded-xl bg-muted/30 border border-dashed border-border text-center">
@@ -300,17 +312,29 @@ function PropietarioDashboard({ profile, suspended }: { profile: any; suspended:
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {misVehiculos.map(v => (
-                <Card key={v.id} className="border-0 shadow-sm">
+                <Card key={v.id} className={`border-0 shadow-sm ${v.estado === "INHABILITADO" ? "border border-destructive/30 bg-destructive/5" : ""}`}>
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between mb-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <Truck className="w-5 h-5 text-primary" />
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${v.estado === "INHABILITADO" ? "bg-destructive/10" : "bg-primary/10"}`}>
+                        <Truck className={`w-5 h-5 ${v.estado === "INHABILITADO" ? "text-destructive" : "text-primary"}`} />
                       </div>
                       <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"}>{v.estado}</Badge>
                     </div>
                     <h3 className="font-display font-semibold text-foreground">{v.placa}</h3>
                     <p className="text-sm text-muted-foreground">{v.marca} {v.modelo} {v.anio || ""}</p>
                     <p className="text-xs text-muted-foreground mt-1">{v.color} · {v.tipo} · Cap: {v.capacidad}</p>
+                    {v.estado === "INHABILITADO" && (
+                      <div className="mt-3 pt-3 border-t border-destructive/20 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
+                        <p className="text-xs text-destructive flex-1">Vehículo deshabilitado. Contacta a la gerencia.</p>
+                        <Button variant="outline" size="sm" className="gap-1 shrink-0 h-7 text-xs" asChild>
+                          <a href="https://wa.me/" target="_blank" rel="noopener noreferrer">
+                            <MessageCircle className="w-3 h-3" />
+                            WhatsApp
+                          </a>
+                        </Button>
+                      </div>
+                    )}
                     <Button variant="ghost" size="sm" className="mt-2 text-destructive gap-1" onClick={() => setDeleteVehiculoAlert(v)}>
                       <Trash2 className="w-3 h-3" /> Eliminar
                     </Button>
