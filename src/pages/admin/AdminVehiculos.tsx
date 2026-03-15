@@ -107,6 +107,7 @@ export default function AdminVehiculos() {
                         <TableCell>{v.tipo}</TableCell>
                         <TableCell>{v.color}</TableCell>
                         <TableCell>{v.anio || "—"}</TableCell>
+                        <TableCell>{(v as any).propietarios ? `${(v as any).propietarios.nombres} ${(v as any).propietarios.apellidos}` : "—"}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className="text-xs">{v.empresas?.nombre || "—"}</Badge>
                         </TableCell>

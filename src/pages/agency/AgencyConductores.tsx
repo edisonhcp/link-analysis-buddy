@@ -183,6 +183,7 @@ export default function AgencyConductores() {
                         <TableCell>{c.apellidos}</TableCell>
                         <TableCell>{c.identificacion}</TableCell>
                         <TableCell>{c.celular}</TableCell>
+                        <TableCell className="text-xs">{c.email}</TableCell>
                         <TableCell>{c.tipo_licencia}</TableCell>
                         <TableCell>
                           {c.vehiculo ? (

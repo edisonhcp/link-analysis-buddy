@@ -576,45 +576,6 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </motion.div>
-
-          <motion.div variants={item}>
-            <Card className="border-0 shadow-sm">
-              <CardHeader>
-                <CardTitle className="font-display text-lg">Viajes Recientes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="h-14 rounded-lg bg-muted animate-pulse" />
-                    ))}
-                  </div>
-                ) : recentViajes.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Route className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p>No hay viajes registrados aún</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {recentViajes.map((viaje) => (
-                      <div key={viaje.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                        <div className={`w-2 h-2 rounded-full ${viaje.estado === "CERRADO" ? "bg-primary" : "bg-muted-foreground"}`} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">
-                            {viaje.origen} → {viaje.destino}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(viaje.fecha_salida).toLocaleDateString("es-ES")}
-                          </p>
-                        </div>
-                        <Badge variant="secondary">{viaje.estado}</Badge>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
         </div>
       </motion.div>
     </DashboardLayout>
