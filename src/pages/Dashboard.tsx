@@ -362,7 +362,7 @@ export default function Dashboard() {
     vehiculos: 0, vehiculosDeshabilitados: 0, conductores: 0, conductoresDeshabilitados: 0,
     propietarios: 0, viajesBorrador: 0, viajesCerrados: 0, asignacionesActivas: 0,
   });
-  const [recentViajes, setRecentViajes] = useState<any[]>([]);
+  
   const [loading, setLoading] = useState(true);
   const [empresaNombre, setEmpresaNombre] = useState("");
 
