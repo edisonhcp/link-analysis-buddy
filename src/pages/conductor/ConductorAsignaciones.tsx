@@ -53,6 +53,8 @@ export default function ConductorAsignaciones() {
 
   useEffect(() => { loadData(); }, [user]);
 
+  if (role !== "CONDUCTOR") return <Navigate to="/dashboard" replace />;
+
   const handleIniciarRuta = async (viajeId: string) => {
     const { error } = await iniciarRuta(viajeId);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });

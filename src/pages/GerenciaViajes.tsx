@@ -25,6 +25,8 @@ export default function GerenciaViajes() {
     load();
   }, [empresaId]);
 
+  if (role !== "GERENCIA") return <Navigate to="/dashboard" replace />;
+
   return (
     <DashboardLayout>
       <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">

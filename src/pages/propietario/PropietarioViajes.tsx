@@ -25,6 +25,8 @@ export default function PropietarioViajes() {
     load();
   }, [user]);
 
+  if (role !== "PROPIETARIO") return <Navigate to="/dashboard" replace />;
+
   return (
     <DashboardLayout>
       <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">

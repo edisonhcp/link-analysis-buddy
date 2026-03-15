@@ -25,6 +25,8 @@ export default function ConductorRutas() {
     load();
   }, [user]);
 
+  if (role !== "CONDUCTOR") return <Navigate to="/dashboard" replace />;
+
   return (
     <DashboardLayout>
       <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
