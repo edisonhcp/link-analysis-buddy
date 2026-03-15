@@ -144,6 +144,7 @@ export default function SuperAdminPanel() {
       celular: editingEmpresa.celular,
       email: editingEmpresa.email,
       propietario_nombre: editingEmpresa.propietario_nombre,
+      propietario_apellidos: editingEmpresa.propietario_apellidos,
     }).eq("id", editingEmpresa.id);
     setSaving(false);
     if (error) {
