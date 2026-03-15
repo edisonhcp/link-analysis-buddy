@@ -32,6 +32,7 @@ interface DatosEmpresa {
   direccion: string;
   celular_empresa: string;
   propietario_nombre: string;
+  propietario_apellidos: string;
 }
 
 const emptyDatos: DatosExtra = {
@@ -42,7 +43,7 @@ const emptyDatos: DatosExtra = {
 
 const emptyEmpresa: DatosEmpresa = {
   nombre_empresa: "", ruc: "", ciudad: "", direccion: "",
-  celular_empresa: "", propietario_nombre: "",
+  celular_empresa: "", propietario_nombre: "", propietario_apellidos: "",
 };
 
 export default function RegistroInvitacion() {
@@ -221,7 +222,8 @@ export default function RegistroInvitacion() {
                       <div><Label>Ciudad</Label><Input value={datosEmpresa.ciudad} onChange={e => setDatosEmpresa({ ...datosEmpresa, ciudad: e.target.value })} required /></div>
                       <div className="col-span-2"><Label>Dirección</Label><Input value={datosEmpresa.direccion} onChange={e => setDatosEmpresa({ ...datosEmpresa, direccion: e.target.value })} required /></div>
                       <div><Label>Celular de la compañía</Label><Input value={datosEmpresa.celular_empresa} onChange={e => setDatosEmpresa({ ...datosEmpresa, celular_empresa: e.target.value })} required /></div>
-                      <div><Label>Nombre del representante</Label><Input value={datosEmpresa.propietario_nombre} onChange={e => setDatosEmpresa({ ...datosEmpresa, propietario_nombre: e.target.value })} required /></div>
+                      <div><Label>Nombres del representante</Label><Input value={datosEmpresa.propietario_nombre} onChange={e => setDatosEmpresa({ ...datosEmpresa, propietario_nombre: e.target.value })} required /></div>
+                      <div><Label>Apellidos del representante</Label><Input value={datosEmpresa.propietario_apellidos} onChange={e => setDatosEmpresa({ ...datosEmpresa, propietario_apellidos: e.target.value })} required /></div>
                     </div>
                   </div>
                 )}
