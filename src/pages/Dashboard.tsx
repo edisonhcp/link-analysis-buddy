@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Truck, Users, Route, CheckCircle2, Clock, Plus, LinkIcon, AlertTriangle,
+  Truck, Users, Route, CheckCircle2, Clock, Plus, AlertTriangle,
   Trash2, MessageCircle, UserCheck
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,16 +12,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
-} from "@/components/ui/select";
-import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { fetchConductorData, deleteConductorAccount } from "@/services/conductoresService";
 import { deletePropietarioAccount } from "@/services/propietariosService";
 import { fetchPropietarioVehiculos, deleteVehiculo } from "@/services/vehiculosService";
-import { fetchDashboardStats, fetchEmpresaNombre, createAsignacion, refreshAssignments, type DashboardStats } from "@/services/dashboardService";
+import { fetchDashboardStats, fetchEmpresaNombre, type DashboardStats } from "@/services/dashboardService";
+import { fetchRutasConductor, iniciarRuta, finalizarRuta, type RutaAsignada } from "@/services/asignacionesRutaService";
 
 const container = {
   hidden: { opacity: 0 },
@@ -58,18 +56,38 @@ function ConductorDashboard({ profile, suspended }: { profile: any; suspended: a
   const { toast } = useToast();
   const { user } = useAuth();
   const [conductorInfo, setConductorInfo] = useState<any>(null);
+  const [rutasAsignadas, setRutasAsignadas] = useState<RutaAsignada[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteAccountAlert, setDeleteAccountAlert] = useState(false);
+
+  const loadRutas = async () => {
+    if (!user?.id) return;
+    const { data } = await fetchRutasConductor(user.id);
+    setRutasAsignadas(data);
+  };
 
   useEffect(() => {
     const load = async () => {
       if (!user?.id) return;
       const data = await fetchConductorData(user.id);
       setConductorInfo(data);
+      await loadRutas();
       setLoading(false);
     };
     load();
   }, [user]);
+
+  const handleIniciarRuta = async (viajeId: string) => {
+    const { error } = await iniciarRuta(viajeId);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Ruta iniciada" }); loadRutas(); }
+  };
+
+  const handleFinalizarRuta = async (viajeId: string) => {
+    const { error } = await finalizarRuta(viajeId);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Ruta finalizada" }); loadRutas(); }
+  };
 
   const handleDeleteAccount = async () => {
     if (!user?.id) return;
@@ -158,6 +176,57 @@ function ConductorDashboard({ profile, suspended }: { profile: any; suspended: a
             </Card>
           )}
         </motion.div>
+
+        {/* Rutas asignadas */}
+        {rutasAsignadas.length > 0 && (
+          <motion.div variants={item}>
+            <h2 className="text-xl font-display font-semibold text-foreground mb-4">Rutas Asignadas</h2>
+            <div className="space-y-3">
+              {rutasAsignadas.map((ruta) => (
+                <Card key={ruta.id} className={`border-0 shadow-sm ${ruta.estado === "EN_RUTA" ? "border-l-4 border-l-primary" : "border-l-4 border-l-muted"}`}>
+                  <CardContent className="p-5">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap mb-2">
+                          <Route className="w-5 h-5 text-primary" />
+                          <span className="font-display font-semibold text-foreground">
+                            {ruta.origen} → {ruta.destino}
+                          </span>
+                          <Badge variant={ruta.estado === "EN_RUTA" ? "default" : "secondary"}>
+                            {ruta.estado === "EN_RUTA" ? "Ruta Iniciada" : "Asignado"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                          {ruta.hora_salida && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{ruta.hora_salida}</span>}
+                          <span className="flex items-center gap-1"><Users className="w-3 h-3" />{ruta.cantidad_pasajeros} pasajeros</span>
+                          {ruta.vehiculo && <span><Truck className="w-3 h-3 inline mr-1" />{ruta.vehiculo.placa}</span>}
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                          <span>Valor pasajeros: ${ruta.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}</span>
+                          <span>Encomienda: ${ruta.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        {ruta.estado === "ASIGNADO" && (
+                          <Button onClick={() => handleIniciarRuta(ruta.id)} className="gap-2">
+                            <Route className="w-4 h-4" />
+                            Iniciar Ruta
+                          </Button>
+                        )}
+                        {ruta.estado === "EN_RUTA" && (
+                          <Button onClick={() => handleFinalizarRuta(ruta.id)} variant="outline" className="gap-2">
+                            <CheckCircle2 className="w-4 h-4" />
+                            Ruta Finalizada
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         <motion.div variants={item}>
           <Button variant="destructive" size="sm" className="gap-2" onClick={() => setDeleteAccountAlert(true)}>
@@ -343,11 +412,6 @@ export default function Dashboard() {
   
   const [loading, setLoading] = useState(true);
   const [empresaNombre, setEmpresaNombre] = useState("");
-  const [unassignedConductores, setUnassignedConductores] = useState<any[]>([]);
-  const [unassignedVehiculos, setUnassignedVehiculos] = useState<any[]>([]);
-  const [selectedConductor, setSelectedConductor] = useState("");
-  const [selectedVehiculo, setSelectedVehiculo] = useState("");
-  const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -355,8 +419,6 @@ export default function Dashboard() {
 
       const result = await fetchDashboardStats();
       setStats(result.stats);
-      setUnassignedConductores(result.unassignedConductores);
-      setUnassignedVehiculos(result.unassignedVehiculos);
 
       if (empresaId) {
         setEmpresaNombre(await fetchEmpresaNombre(empresaId));
@@ -371,23 +433,6 @@ export default function Dashboard() {
   if (role === "SUPER_ADMIN") return <Navigate to="/admin" replace />;
   if (role === "PROPIETARIO") return <PropietarioDashboard profile={profile} suspended={suspended} />;
   if (role === "CONDUCTOR") return <ConductorDashboard profile={profile} suspended={suspended} />;
-
-  const handleAssign = async () => {
-    if (!selectedConductor || !selectedVehiculo || !empresaId) return;
-    setAssigning(true);
-    const { error } = await createAsignacion(selectedConductor, selectedVehiculo, empresaId);
-    setAssigning(false);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else {
-      toast({ title: "Conductor asignado al vehículo exitosamente" });
-      setSelectedConductor("");
-      setSelectedVehiculo("");
-      const refreshed = await refreshAssignments();
-      setUnassignedConductores(refreshed.unassignedConductores);
-      setUnassignedVehiculos(refreshed.unassignedVehiculos);
-      setStats(prev => ({ ...prev, asignacionesActivas: refreshed.asignacionesActivas }));
-    }
-  };
 
   const vehiculosActivos = stats.vehiculos - stats.vehiculosDeshabilitados;
   const conductoresActivos = stats.conductores - stats.conductoresDeshabilitados;
@@ -412,10 +457,6 @@ export default function Dashboard() {
     {
       title: "Propietarios", icon: UserCheck, color: "text-secondary", bg: "bg-secondary/10",
       items: [{ label: "Total", value: stats.propietarios }],
-    },
-    {
-      title: "Asignaciones Activas", icon: CheckCircle2, color: "text-primary", bg: "bg-primary/10",
-      items: [{ label: "Activas", value: stats.asignacionesActivas }],
     },
   ];
 
@@ -458,52 +499,6 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {(unassignedConductores.length > 0 || unassignedVehiculos.length > 0) && (
-          <motion.div variants={item}>
-            <Card className="border-0 shadow-sm border-l-4 border-l-primary">
-              <CardHeader className="pb-3">
-                <CardTitle className="font-display text-base flex items-center gap-2">
-                  <LinkIcon className="w-4 h-4 text-primary" />
-                  Asignar Conductor a Vehículo
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Conductores sin vehículo ({unassignedConductores.length})</p>
-                    <Select value={selectedConductor} onValueChange={setSelectedConductor}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar conductor..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {unassignedConductores.map(c => (
-                          <SelectItem key={c.id} value={c.id}>{c.nombres}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Vehículos sin conductor ({unassignedVehiculos.length})</p>
-                    <Select value={selectedVehiculo} onValueChange={setSelectedVehiculo}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar vehículo..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {unassignedVehiculos.map(v => (
-                          <SelectItem key={v.id} value={v.id}>{v.placa} — {v.marca} {v.modelo}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button onClick={handleAssign} disabled={!selectedConductor || !selectedVehiculo || assigning} className="gap-2">
-                    <LinkIcon className="w-4 h-4" />
-                    {assigning ? "Asignando..." : "Asignar"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <motion.div variants={item}>
