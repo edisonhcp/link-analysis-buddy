@@ -139,12 +139,11 @@ export async function fetchRutasConductor(userId: string) {
 
   if (!profile?.conductor_id) return { data: [], error: null };
 
-  // Get active assignments for this conductor
+  // Get ALL assignments for this conductor (including CERRADA, since viajes may reference them)
   const { data: asignaciones } = await supabase
     .from("asignaciones")
     .select("id, vehiculo_id, vehiculos(placa, marca, modelo)")
-    .eq("conductor_id", profile.conductor_id)
-    .eq("estado", "ACTIVA");
+    .eq("conductor_id", profile.conductor_id);
 
   if (!asignaciones || asignaciones.length === 0) return { data: [], error: null };
 
