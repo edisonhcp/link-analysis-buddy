@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
@@ -423,6 +423,7 @@ export default function Dashboard() {
     if (role) fetchStats();
   }, [role]);
 
+  if (role === "SUPER_ADMIN") return <Navigate to="/admin" replace />;
   if (role === "PROPIETARIO") return <PropietarioDashboard profile={profile} suspended={suspended} />;
   if (role === "CONDUCTOR") return <ConductorDashboard profile={profile} suspended={suspended} />;
 
@@ -454,8 +455,12 @@ export default function Dashboard() {
     }
   };
 
+  const vehiculosActivos = stats.vehiculos - stats.vehiculosDeshabilitados;
+
   const statCards = [
-    { title: "Vehículos", value: stats.vehiculos, icon: Truck, color: "text-primary", bg: "bg-primary/10", sub: stats.vehiculosDeshabilitados > 0 ? `${stats.vehiculosDeshabilitados} deshabilitados` : null, subColor: "text-destructive" },
+    { title: "Vehículos Activos", value: vehiculosActivos, icon: Truck, color: "text-primary", bg: "bg-primary/10", sub: null, subColor: "" },
+    { title: "Vehículos Deshabilitados", value: stats.vehiculosDeshabilitados, icon: Truck, color: "text-destructive", bg: "bg-destructive/10", sub: null, subColor: "" },
+    { title: "Total Vehículos", value: stats.vehiculos, icon: Truck, color: "text-muted-foreground", bg: "bg-muted", sub: null, subColor: "" },
     { title: "Conductores", value: stats.conductores, icon: Users, color: "text-accent", bg: "bg-accent/10", sub: stats.conductoresDeshabilitados > 0 ? `${stats.conductoresDeshabilitados} deshabilitados` : null, subColor: "text-destructive" },
     { title: "Propietarios", value: stats.propietarios, icon: UserCheck, color: "text-secondary", bg: "bg-secondary/10", sub: null, subColor: "" },
     { title: "Asignaciones Activas", value: stats.asignacionesActivas, icon: CheckCircle2, color: "text-primary", bg: "bg-primary/10", sub: null, subColor: "" },
@@ -473,7 +478,7 @@ export default function Dashboard() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {statCards.map((stat) => (
             <motion.div key={stat.title} variants={item}>
               <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
