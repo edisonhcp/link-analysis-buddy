@@ -146,11 +146,16 @@ function ConductorDashboard({ profile, suspended }: { profile: any; suspended: a
                     {conductorInfo?.vehiculo ? (
                       <div className="mt-4 p-4 rounded-xl bg-muted/50 border border-border">
                         <div className="flex items-center gap-3">
-                          <Truck className="w-6 h-6 text-primary" />
+                          <Truck className={`w-6 h-6 ${conductorInfo.vehiculo.estado === "INHABILITADO" ? "text-destructive" : "text-primary"}`} />
                           <div>
-                            <p className="font-display font-semibold text-foreground">
-                              {conductorInfo.vehiculo.marca} {conductorInfo.vehiculo.modelo} {conductorInfo.vehiculo.anio || ""}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-display font-semibold text-foreground">
+                                {conductorInfo.vehiculo.marca} {conductorInfo.vehiculo.modelo} {conductorInfo.vehiculo.anio || ""}
+                              </p>
+                              {conductorInfo.vehiculo.estado === "INHABILITADO" && (
+                                <Badge variant="destructive" className="text-xs">INHABILITADO</Badge>
+                              )}
+                            </div>
                             <p className="text-sm text-muted-foreground">
                               Placa: {conductorInfo.vehiculo.placa} · {conductorInfo.vehiculo.color} · {conductorInfo.vehiculo.tipo}
                             </p>
