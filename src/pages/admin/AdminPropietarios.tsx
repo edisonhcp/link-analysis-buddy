@@ -36,7 +36,7 @@ export default function AdminPropietarios() {
   if (role !== "SUPER_ADMIN") return <Navigate to="/dashboard" replace />;
 
   const filtered = propietarios.filter((p: any) =>
-    p.nombres.toLowerCase().includes(search.toLowerCase()) ||
+    `${p.nombres} ${p.apellidos}`.toLowerCase().includes(search.toLowerCase()) ||
     p.identificacion.includes(search) ||
     (p.empresas?.nombre || "").toLowerCase().includes(search.toLowerCase())
   );
