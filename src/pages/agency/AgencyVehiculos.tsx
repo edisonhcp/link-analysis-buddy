@@ -145,6 +145,8 @@ export default function AgencyVehiculos() {
                                 </Button>
                               )}
                             </div>
+                          ) : v.estado === "INHABILITADO" ? (
+                            <span className="text-xs text-muted-foreground">Vehículo suspendido</span>
                           ) : (
                             <Select onValueChange={(conductorId) => handleAssignConductor(v.id, conductorId)}>
                               <SelectTrigger className="h-8 w-[180px] text-xs">
