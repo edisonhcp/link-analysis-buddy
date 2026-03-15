@@ -22,8 +22,6 @@ export default function PropietarioAsignaciones() {
   const [vehiculos, setVehiculos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  if (role !== "PROPIETARIO") return <Navigate to="/dashboard" replace />;
-
   useEffect(() => {
     const load = async () => {
       if (!user?.id) return;
