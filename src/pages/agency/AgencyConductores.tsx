@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Users, Search, Ban, CheckCircle2, Trash2, MoreVertical, Truck, LinkIcon } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Users, Search, Ban, CheckCircle2, Trash2, MoreVertical } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,9 +14,6 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
-} from "@/components/ui/select";
-import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {
@@ -28,43 +25,28 @@ const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { st
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function AgencyConductores() {
-  const { role, empresaId } = useAuth();
+  const { role } = useAuth();
   const { toast } = useToast();
   const [conductores, setConductores] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [deleteAlert, setDeleteAlert] = useState<any>(null);
 
-  // Assignment state
-  const [unassignedConductores, setUnassignedConductores] = useState<any[]>([]);
-  const [unassignedVehiculos, setUnassignedVehiculos] = useState<any[]>([]);
-  const [selectedConductor, setSelectedConductor] = useState("");
-  const [selectedVehiculo, setSelectedVehiculo] = useState("");
-  const [assigning, setAssigning] = useState(false);
-
   const fetchData = async () => {
-    const [condRes, asigRes, vehRes] = await Promise.all([
+    const [condRes, asigRes] = await Promise.all([
       supabase.from("conductores").select("*").order("created_at", { ascending: false }),
       supabase.from("asignaciones").select("conductor_id, vehiculo_id, vehiculos(placa, marca, modelo)").eq("estado", "ACTIVA"),
-      supabase.from("vehiculos").select("id, placa, marca, modelo").eq("estado", "HABILITADO"),
     ]);
 
     const conductoresData = condRes.data || [];
     const asignaciones = asigRes.data || [];
-    const vehiculosData = vehRes.data || [];
-
-    // Enrich conductores with their assigned vehicle
-    const assignedConductorIds = new Set(asignaciones.map((a: any) => a.conductor_id));
-    const assignedVehiculoIds = new Set(asignaciones.map((a: any) => a.vehiculo_id));
 
     const enriched = conductoresData.map((c: any) => {
       const asig = asignaciones.find((a: any) => a.conductor_id === c.id);
-      return { ...c, vehiculo: asig?.vehiculos || null };
+      return { ...c, vehiculo: asig?.vehiculos || null, asignacion_id: asig ? (asig as any).id : null };
     });
 
     setConductores(enriched);
-    setUnassignedConductores(conductoresData.filter((c: any) => !assignedConductorIds.has(c.id) && c.estado === "HABILITADO"));
-    setUnassignedVehiculos(vehiculosData.filter((v: any) => !assignedVehiculoIds.has(v.id)));
     setLoading(false);
   };
 
@@ -74,6 +56,11 @@ export default function AgencyConductores() {
 
   const handleToggleEstado = async (c: any) => {
     const newEstado = c.estado === "HABILITADO" ? "INHABILITADO" : "HABILITADO";
+    // If suspending, break the assignment
+    if (newEstado === "INHABILITADO" && c.vehiculo) {
+      await supabase.from("asignaciones").update({ estado: "CERRADA", fecha_fin: new Date().toISOString() })
+        .eq("conductor_id", c.id).eq("estado", "ACTIVA");
+    }
     const { error } = await supabase.from("conductores").update({ estado: newEstado }).eq("id", c.id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else { toast({ title: newEstado === "HABILITADO" ? "Conductor habilitado" : "Conductor suspendido" }); fetchData(); }
@@ -81,28 +68,13 @@ export default function AgencyConductores() {
 
   const handleDelete = async () => {
     if (!deleteAlert) return;
+    // Break assignment first
+    await supabase.from("asignaciones").update({ estado: "CERRADA", fecha_fin: new Date().toISOString() })
+      .eq("conductor_id", deleteAlert.id).eq("estado", "ACTIVA");
     const { error } = await supabase.from("conductores").delete().eq("id", deleteAlert.id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else { toast({ title: "Conductor eliminado" }); fetchData(); }
     setDeleteAlert(null);
-  };
-
-  const handleAssign = async () => {
-    if (!selectedConductor || !selectedVehiculo || !empresaId) return;
-    setAssigning(true);
-    const { error } = await supabase.from("asignaciones").insert({
-      conductor_id: selectedConductor,
-      vehiculo_id: selectedVehiculo,
-      empresa_id: empresaId,
-    });
-    setAssigning(false);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else {
-      toast({ title: "Conductor asignado al vehículo exitosamente" });
-      setSelectedConductor("");
-      setSelectedVehiculo("");
-      fetchData();
-    }
   };
 
   const filtered = conductores.filter(c =>
@@ -115,56 +87,8 @@ export default function AgencyConductores() {
       <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
         <motion.div variants={item}>
           <h1 className="text-3xl font-display font-bold text-foreground">Conductores</h1>
-          <p className="text-muted-foreground mt-1">Gestiona los conductores y asigna vehículos</p>
+          <p className="text-muted-foreground mt-1">Gestiona los conductores de la compañía</p>
         </motion.div>
-
-        {/* Assignment section */}
-        {(unassignedConductores.length > 0 || unassignedVehiculos.length > 0) && (
-          <motion.div variants={item}>
-            <Card className="border-0 shadow-sm border-l-4 border-l-primary">
-              <CardHeader className="pb-3">
-                <CardTitle className="font-display text-base flex items-center gap-2">
-                  <LinkIcon className="w-4 h-4 text-primary" />
-                  Asignar Conductor a Vehículo
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Conductores sin vehículo ({unassignedConductores.length})</p>
-                    <Select value={selectedConductor} onValueChange={setSelectedConductor}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar conductor..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {unassignedConductores.map(c => (
-                          <SelectItem key={c.id} value={c.id}>{c.nombres}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">Vehículos sin conductor ({unassignedVehiculos.length})</p>
-                    <Select value={selectedVehiculo} onValueChange={setSelectedVehiculo}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar vehículo..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {unassignedVehiculos.map(v => (
-                          <SelectItem key={v.id} value={v.id}>{v.placa} — {v.marca} {v.modelo}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button onClick={handleAssign} disabled={!selectedConductor || !selectedVehiculo || assigning} className="gap-2">
-                    <LinkIcon className="w-4 h-4" />
-                    {assigning ? "Asignando..." : "Asignar"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
 
         <motion.div variants={item} className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

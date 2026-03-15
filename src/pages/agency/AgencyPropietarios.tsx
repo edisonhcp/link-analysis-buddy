@@ -35,7 +35,7 @@ export default function AgencyPropietarios() {
   const fetchData = async () => {
     const { data } = await supabase
       .from("propietarios")
-      .select("*, vehiculos(placa, marca, modelo)")
+      .select("*, vehiculos(placa, marca, modelo, tipo)")
       .order("created_at", { ascending: false });
     setPropietarios(data || []);
     setLoading(false);
@@ -95,7 +95,7 @@ export default function AgencyPropietarios() {
                       <TableHead>Nombre</TableHead>
                       <TableHead>Identificación</TableHead>
                       <TableHead>Celular</TableHead>
-                      <TableHead>Email</TableHead>
+                      <TableHead>Vehículo(s)</TableHead>
                       <TableHead>Estado</TableHead>
                       <TableHead className="w-10"></TableHead>
                     </TableRow>
@@ -106,7 +106,16 @@ export default function AgencyPropietarios() {
                         <TableCell className="font-medium">{p.nombres}</TableCell>
                         <TableCell>{p.identificacion}</TableCell>
                         <TableCell>{p.celular}</TableCell>
-                        <TableCell>{p.email}</TableCell>
+                        <TableCell>
+                          {p.vehiculos && p.vehiculos.length > 0
+                            ? p.vehiculos.map((v: any, i: number) => (
+                                <Badge key={i} variant="outline" className="text-xs mr-1 mb-1">
+                                  {v.marca} {v.modelo} · {v.tipo} · {v.placa}
+                                </Badge>
+                              ))
+                            : <span className="text-muted-foreground text-xs">Sin vehículos</span>
+                          }
+                        </TableCell>
                         <TableCell>
                           <Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">{p.estado}</Badge>
                         </TableCell>
