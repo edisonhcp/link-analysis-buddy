@@ -67,15 +67,53 @@ export default function AgencyConductores() {
 
   const handleDelete = async () => {
     if (!deleteAlert) return;
-    // Close active assignments
-    await supabase.from("asignaciones").update({ estado: "CERRADA", fecha_fin: new Date().toISOString() })
-      .eq("conductor_id", deleteAlert.id).eq("estado", "ACTIVA");
-    // Unlink profile first to avoid FK constraint
-    await supabase.from("profiles").update({ conductor_id: null }).eq("conductor_id", deleteAlert.id);
-    const { error } = await supabase.from("conductores").delete().eq("id", deleteAlert.id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Conductor eliminado" }); fetchData(); }
+
+    const conductorId = deleteAlert.id;
+
+    const { data: asignacionesData, error: asignacionesError } = await supabase
+      .from("asignaciones")
+      .select("id")
+      .eq("conductor_id", conductorId);
+
+    if (asignacionesError) {
+      toast({ title: "Error", description: asignacionesError.message, variant: "destructive" });
+      return;
+    }
+
+    const asignacionIds = (asignacionesData || []).map((a: any) => a.id);
+
+    if (asignacionIds.length > 0) {
+      const { error: viajesError } = await supabase
+        .from("viajes")
+        .update({ asignacion_id: null })
+        .in("asignacion_id", asignacionIds);
+
+      if (viajesError) {
+        toast({ title: "Error", description: viajesError.message, variant: "destructive" });
+        return;
+      }
+
+      const { error: asignacionesDeleteError } = await supabase
+        .from("asignaciones")
+        .delete()
+        .in("id", asignacionIds);
+
+      if (asignacionesDeleteError) {
+        toast({ title: "Error", description: asignacionesDeleteError.message, variant: "destructive" });
+        return;
+      }
+    }
+
+    const { error } = await supabase.from("conductores").delete().eq("id", conductorId);
+
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Conductor eliminado" });
     setDeleteAlert(null);
+    fetchData();
   };
 
   const handleUnassign = async (c: any) => {
