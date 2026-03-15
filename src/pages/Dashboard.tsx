@@ -22,8 +22,10 @@ import {
 
 interface Stats {
   vehiculos: number;
+  vehiculosDeshabilitados: number;
   conductores: number;
-  viajesHoy: number;
+  conductoresDeshabilitados: number;
+  propietarios: number;
   viajesBorrador: number;
   viajesCerrados: number;
   asignacionesActivas: number;
