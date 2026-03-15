@@ -243,10 +243,10 @@ export default function SuperAdminPanel() {
                         <TableHeader>
                           <TableRow>
                             <TableHead>Placa</TableHead>
-                            <TableHead>Marca</TableHead>
-                            <TableHead>Modelo</TableHead>
+                            <TableHead>Marca / Modelo</TableHead>
                             <TableHead>Color</TableHead>
-                            <TableHead>Año</TableHead>
+                            <TableHead>Conductor</TableHead>
+                            <TableHead>Propietario</TableHead>
                             <TableHead>Estado</TableHead>
                           </TableRow>
                         </TableHeader>
@@ -254,10 +254,10 @@ export default function SuperAdminPanel() {
                           {detailVehiculos.map((v: any) => (
                             <TableRow key={v.id}>
                               <TableCell className="font-medium">{v.placa}</TableCell>
-                              <TableCell>{v.marca}</TableCell>
-                              <TableCell>{v.modelo}</TableCell>
+                              <TableCell>{v.marca} {v.modelo}</TableCell>
                               <TableCell>{v.color}</TableCell>
-                              <TableCell>{v.anio || "—"}</TableCell>
+                              <TableCell>{v.conductor_nombre || <span className="text-muted-foreground text-xs">Sin asignar</span>}</TableCell>
+                              <TableCell>{v.propietarios?.nombres || "—"}</TableCell>
                               <TableCell><Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"}>{v.estado}</Badge></TableCell>
                             </TableRow>
                           ))}
