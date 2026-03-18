@@ -24,7 +24,7 @@ export default function AdminPropietarios() {
     const fetch = async () => {
       const { data } = await supabase
         .from("propietarios")
-        .select("*, empresas(nombre), vehiculos(placa, marca, modelo, anio)")
+        .select("*, empresas(nombre), vehiculos(placa, marca, modelo, anio, estado)")
         .order("created_at", { ascending: false });
 
       const map: Record<string, { nombre: string; propietarios: any[] }> = {};
