@@ -33,6 +33,10 @@ interface DatosEmpresa {
   celular_empresa: string;
   propietario_nombre: string;
   propietario_apellidos: string;
+  tipo_comision: string;
+  comision_pct: string;
+  comision_fija: string;
+  frecuencia_comision: string;
 }
 
 const emptyDatos: DatosExtra = {
