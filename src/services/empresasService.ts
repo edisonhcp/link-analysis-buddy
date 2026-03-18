@@ -90,7 +90,7 @@ export async function fetchEmpresaDetail(empresaId: string) {
   const [vRes, cRes, pRes, aRes] = await Promise.all([
     supabase.from("vehiculos").select("*, propietarios(nombres)").eq("empresa_id", empresaId),
     supabase.from("conductores").select("*").eq("empresa_id", empresaId),
-    supabase.from("propietarios").select("*, vehiculos(placa, marca, modelo, anio)").eq("empresa_id", empresaId),
+    supabase.from("propietarios").select("*, vehiculos(placa, marca, modelo, anio, estado)").eq("empresa_id", empresaId),
     supabase.from("asignaciones").select("conductor_id, vehiculo_id, conductores(nombres), vehiculos(placa, marca, modelo, anio, propietarios(nombres))").eq("empresa_id", empresaId).eq("estado", "ACTIVA"),
   ]);
   const asignaciones = aRes.data || [];
