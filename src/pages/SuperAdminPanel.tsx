@@ -44,6 +44,10 @@ interface EmpresaRow {
   propietario_apellidos: string;
   activo: boolean;
   created_at: string;
+  tipo_comision: string;
+  comision_pct: number;
+  comision_fija: number;
+  frecuencia_comision: string;
 }
 
 interface GlobalStats {
