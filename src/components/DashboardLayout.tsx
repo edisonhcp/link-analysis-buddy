@@ -48,11 +48,13 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [empresaNombre, setEmpresaNombre] = useState<string | null>(null);
 
   useEffect(() => {
     if (!empresaId || role === "SUPER_ADMIN") return;
-    supabase.from("empresas").select("logo_url").eq("id", empresaId).single().then(({ data }) => {
+    supabase.from("empresas").select("logo_url, nombre").eq("id", empresaId).single().then(({ data }) => {
       if (data?.logo_url) setLogoUrl(data.logo_url);
+      if (data?.nombre) setEmpresaNombre(data.nombre);
     });
   }, [empresaId, role]);
 
@@ -145,7 +147,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {profile?.username || "Usuario"}
+                {empresaNombre || profile?.username || "Usuario"}
               </p>
               <p className="text-xs text-sidebar-foreground/50">
                 {role ? roleBadge[role] : ""}
