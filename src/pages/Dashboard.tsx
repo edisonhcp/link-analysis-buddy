@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Truck, Users, Route, CheckCircle2, Clock, Plus, AlertTriangle,
-  Trash2, MessageCircle, UserCheck
+  Trash2, MessageCircle, UserCheck, Percent, DollarSign, CalendarClock, Building2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +18,7 @@ import {
 import { fetchConductorData, deleteConductorAccount } from "@/services/conductoresService";
 import { deletePropietarioAccount } from "@/services/propietariosService";
 import { fetchPropietarioVehiculos, deleteVehiculo } from "@/services/vehiculosService";
-import { fetchDashboardStats, fetchEmpresaNombre, type DashboardStats } from "@/services/dashboardService";
+import { fetchDashboardStats, fetchEmpresaNombre, fetchEmpresaInfo, type DashboardStats } from "@/services/dashboardService";
 import { fetchRutasConductor, iniciarRuta, finalizarRuta, type RutaAsignada } from "@/services/asignacionesRutaService";
 
 const container = {
@@ -412,6 +412,7 @@ export default function Dashboard() {
   
   const [loading, setLoading] = useState(true);
   const [empresaNombre, setEmpresaNombre] = useState("");
+  const [empresaInfo, setEmpresaInfo] = useState<any>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -422,6 +423,8 @@ export default function Dashboard() {
 
       if (empresaId) {
         setEmpresaNombre(await fetchEmpresaNombre(empresaId));
+        const info = await fetchEmpresaInfo(empresaId);
+        setEmpresaInfo(info);
       }
 
       setLoading(false);
@@ -463,14 +466,62 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       <motion.div variants={container} initial="hidden" animate="show" className="space-y-8">
-        <motion.div variants={item}>
-          <h1 className="text-3xl font-display font-bold text-foreground">
-            Hola, {empresaNombre || profile?.username || "Administrador"} 👋
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Resumen de operaciones del día — {new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-          </p>
-        </motion.div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <motion.div variants={item}>
+            <Card className="border-0 shadow-sm h-full">
+              <CardContent className="p-6 flex items-center gap-5">
+                {empresaInfo?.logo_url ? (
+                  <img src={empresaInfo.logo_url} alt="Logo" className="w-16 h-16 rounded-full object-cover border border-border shrink-0" />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Building2 className="w-8 h-8 text-primary" />
+                  </div>
+                )}
+                <div>
+                  <h1 className="text-2xl font-display font-bold text-foreground">
+                    Hola, {empresaNombre || profile?.username || "Administrador"} 👋
+                  </h1>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    {new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={item}>
+            <Card className="border-0 shadow-sm h-full">
+              <CardContent className="p-6">
+                <p className="text-sm font-medium text-muted-foreground mb-3">Comisión Configurada</p>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    {empresaInfo?.tipo_comision === "PORCENTAJE" ? (
+                      <Percent className="w-5 h-5 text-primary" />
+                    ) : (
+                      <DollarSign className="w-5 h-5 text-primary" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-lg font-display font-bold text-foreground">
+                      {empresaInfo?.tipo_comision === "PORCENTAJE"
+                        ? `${Math.round((empresaInfo?.comision_pct || 0) * 100)}%`
+                        : `$${empresaInfo?.comision_fija || 0}`}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {empresaInfo?.tipo_comision === "PORCENTAJE" ? "Porcentaje" : "Valor Fijo"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CalendarClock className="w-4 h-4 text-muted-foreground" />
+                    <Badge variant="secondary" className="capitalize">
+                      {(empresaInfo?.frecuencia_comision || "SEMANAL").toLowerCase()}
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {statCards.map((stat) => (
