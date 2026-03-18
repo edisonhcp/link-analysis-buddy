@@ -147,7 +147,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {profile?.username || "Usuario"}
+                {empresaNombre || profile?.username || "Usuario"}
               </p>
               <p className="text-xs text-sidebar-foreground/50">
                 {role ? roleBadge[role] : ""}
