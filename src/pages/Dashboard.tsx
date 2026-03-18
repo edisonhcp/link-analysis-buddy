@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Truck, Users, Route, CheckCircle2, Clock, Plus, AlertTriangle,
-  Trash2, MessageCircle, UserCheck, Percent, DollarSign, CalendarClock
+  Trash2, MessageCircle, UserCheck, Percent, DollarSign, CalendarClock, Building2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
