@@ -161,14 +161,6 @@ export default function SuperAdminPanel() {
     e.ciudad.toLowerCase().includes(search.toLowerCase())
   );
 
-  const statCards = [
-    { title: "Compañías", value: stats.companias, icon: Building2, color: "text-primary", bg: "bg-primary/10" },
-    { title: "Vehículos", value: stats.vehiculos, icon: Truck, color: "text-secondary", bg: "bg-secondary/10" },
-    { title: "Conductores", value: stats.conductores, icon: Users, color: "text-accent", bg: "bg-accent/10" },
-    { title: "Propietarios", value: stats.propietarios, icon: UserCheck, color: "text-primary", bg: "bg-primary/10" },
-    { title: "Viajes Concluidos", value: stats.viajesCerrados, icon: CheckCircle2, color: "text-primary", bg: "bg-primary/10" },
-    { title: "Viajes Cancelados", value: stats.viajesCancelados, icon: Ban, color: "text-destructive", bg: "bg-destructive/10" },
-  ];
 
   if (detailEmpresa) {
     return (
