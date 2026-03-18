@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { UserCheck, Search, Shield } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { UserCheck, Shield, Building2, ChevronDown, ChevronUp } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,9 +16,9 @@ const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function AdminPropietarios() {
   const { role } = useAuth();
-  const [propietarios, setPropietarios] = useState<any[]>([]);
+  const [empresaMap, setEmpresaMap] = useState<Record<string, { nombre: string; propietarios: any[] }>>({});
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -27,7 +26,16 @@ export default function AdminPropietarios() {
         .from("propietarios")
         .select("*, empresas(nombre), vehiculos(placa, marca, modelo, anio)")
         .order("created_at", { ascending: false });
-      setPropietarios(data || []);
+
+      const map: Record<string, { nombre: string; propietarios: any[] }> = {};
+      (data || []).forEach((p: any) => {
+        const empId = p.empresa_id;
+        if (!map[empId]) {
+          map[empId] = { nombre: p.empresas?.nombre || "—", propietarios: [] };
+        }
+        map[empId].propietarios.push(p);
+      });
+      setEmpresaMap(map);
       setLoading(false);
     };
     fetch();
@@ -35,11 +43,7 @@ export default function AdminPropietarios() {
 
   if (role !== "SUPER_ADMIN") return <Navigate to="/dashboard" replace />;
 
-  const filtered = propietarios.filter((p: any) =>
-    `${p.nombres} ${p.apellidos}`.toLowerCase().includes(search.toLowerCase()) ||
-    p.identificacion.includes(search) ||
-    (p.empresas?.nombre || "").toLowerCase().includes(search.toLowerCase())
-  );
+  const empresaKeys = Object.keys(empresaMap);
 
   return (
     <DashboardLayout>
@@ -50,70 +54,84 @@ export default function AdminPropietarios() {
             <Badge className="bg-primary/10 text-primary border-0 font-medium">Super Admin</Badge>
           </div>
           <h1 className="text-3xl font-display font-bold text-foreground">Propietarios</h1>
-          <p className="text-muted-foreground mt-1">Todos los propietarios registrados en las compañías</p>
+          <p className="text-muted-foreground mt-1">Todos los propietarios registrados, agrupados por compañía</p>
         </motion.div>
 
-        <motion.div variants={item} className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Buscar por nombre, cédula o compañía..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
-        </motion.div>
-
-        <motion.div variants={item}>
-          <Card className="border-0 shadow-sm">
-            <CardContent className="p-0">
-              {loading ? (
-                <div className="p-8 text-center text-muted-foreground">Cargando...</div>
-              ) : filtered.length === 0 ? (
-                <div className="p-8 text-center">
-                  <UserCheck className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
-                  <p className="text-muted-foreground">No se encontraron propietarios</p>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nombres</TableHead>
-                      <TableHead>Apellidos</TableHead>
-                      <TableHead>Identificación</TableHead>
-                      <TableHead>Celular</TableHead>
-                      <TableHead>Compañía</TableHead>
-                      <TableHead>Vehículos</TableHead>
-                      <TableHead>Estado</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filtered.map((p: any) => (
-                      <TableRow key={p.id}>
-                        <TableCell className="font-medium">{p.nombres}</TableCell>
-                        <TableCell>{p.apellidos}</TableCell>
-                        <TableCell>{p.identificacion}</TableCell>
-                        <TableCell>{p.celular}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="text-xs">{p.empresas?.nombre || "—"}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          {p.vehiculos && p.vehiculos.length > 0
-                            ? p.vehiculos.map((v: any, i: number) => (
-                                <div key={i} className="text-xs text-muted-foreground">
-                                  {v.marca} {v.modelo} {v.anio || ""} · {v.placa}
-                                </div>
-                              ))
-                            : <span className="text-xs text-muted-foreground">Sin vehículos</span>
-                          }
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">
-                            {p.estado}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+        {loading ? (
+          <div className="h-48 rounded-xl bg-muted animate-pulse" />
+        ) : empresaKeys.length === 0 ? (
+          <div className="p-8 text-center">
+            <UserCheck className="w-10 h-10 mx-auto mb-3 text-muted-foreground/40" />
+            <p className="text-muted-foreground">No se encontraron propietarios</p>
+          </div>
+        ) : (
+          empresaKeys.map((empId) => {
+            const emp = empresaMap[empId];
+            const isOpen = expanded === empId;
+            return (
+              <motion.div key={empId} variants={item}>
+                <Card
+                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => setExpanded(isOpen ? null : empId)}
+                >
+                  <CardHeader className="pb-2">
+                    <CardTitle className="flex items-center justify-between text-base">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-5 h-5 text-primary" />
+                        <span>{emp.nombre}</span>
+                        <span className="text-muted-foreground text-xs">({emp.propietarios.length} propietarios)</span>
+                      </div>
+                      {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </CardTitle>
+                  </CardHeader>
+                  {isOpen && (
+                    <CardContent onClick={(e) => e.stopPropagation()}>
+                      <div className="overflow-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Nombres</TableHead>
+                              <TableHead>Apellidos</TableHead>
+                              <TableHead>Identificación</TableHead>
+                              <TableHead>Celular</TableHead>
+                              <TableHead>Vehículos</TableHead>
+                              <TableHead>Estado</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {emp.propietarios.map((p: any) => (
+                              <TableRow key={p.id}>
+                                <TableCell className="font-medium">{p.nombres}</TableCell>
+                                <TableCell>{p.apellidos}</TableCell>
+                                <TableCell>{p.identificacion}</TableCell>
+                                <TableCell>{p.celular}</TableCell>
+                                <TableCell>
+                                  {p.vehiculos && p.vehiculos.length > 0
+                                    ? p.vehiculos.map((v: any, i: number) => (
+                                        <div key={i} className="text-xs text-muted-foreground">
+                                          {v.marca} {v.modelo} {v.anio || ""} · {v.placa}
+                                        </div>
+                                      ))
+                                    : <span className="text-xs text-muted-foreground">Sin vehículos</span>
+                                  }
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">
+                                    {p.estado}
+                                  </Badge>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
+              </motion.div>
+            );
+          })
+        )}
       </motion.div>
     </DashboardLayout>
   );
