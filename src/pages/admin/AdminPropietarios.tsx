@@ -24,7 +24,7 @@ export default function AdminPropietarios() {
     const fetch = async () => {
       const { data } = await supabase
         .from("propietarios")
-        .select("*, empresas(nombre), vehiculos(placa, marca, modelo, anio)")
+        .select("*, empresas(nombre), vehiculos(placa, marca, modelo, anio, estado)")
         .order("created_at", { ascending: false });
 
       const map: Record<string, { nombre: string; propietarios: any[] }> = {};
@@ -108,8 +108,11 @@ export default function AdminPropietarios() {
                                 <TableCell>
                                   {p.vehiculos && p.vehiculos.length > 0
                                     ? p.vehiculos.map((v: any, i: number) => (
-                                        <div key={i} className="text-xs text-muted-foreground">
-                                          {v.marca} {v.modelo} {v.anio || ""} · {v.placa}
+                                        <div key={i} className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                          <span>{v.marca} {v.modelo} {v.anio || ""} · {v.placa}</span>
+                                          {v.estado === "INHABILITADO" && (
+                                            <Badge variant="destructive" className="text-[10px] px-1.5 py-0">INHABILITADO</Badge>
+                                          )}
                                         </div>
                                       ))
                                     : <span className="text-xs text-muted-foreground">Sin vehículos</span>
