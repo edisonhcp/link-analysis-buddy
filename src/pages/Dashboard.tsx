@@ -412,6 +412,7 @@ export default function Dashboard() {
   
   const [loading, setLoading] = useState(true);
   const [empresaNombre, setEmpresaNombre] = useState("");
+  const [empresaInfo, setEmpresaInfo] = useState<any>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -422,6 +423,8 @@ export default function Dashboard() {
 
       if (empresaId) {
         setEmpresaNombre(await fetchEmpresaNombre(empresaId));
+        const info = await fetchEmpresaInfo(empresaId);
+        setEmpresaInfo(info);
       }
 
       setLoading(false);
