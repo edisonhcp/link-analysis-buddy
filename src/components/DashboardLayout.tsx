@@ -44,9 +44,17 @@ const superAdminNavItems = [
 
 export function DashboardLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { profile, role, signOut } = useAuth();
+  const { profile, role, empresaId, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!empresaId || role === "SUPER_ADMIN") return;
+    supabase.from("empresas").select("logo_url").eq("id", empresaId).single().then(({ data }) => {
+      if (data?.logo_url) setLogoUrl(data.logo_url);
+    });
+  }, [empresaId, role]);
 
   const handleSignOut = async () => {
     await signOut();
