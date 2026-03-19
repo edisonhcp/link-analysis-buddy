@@ -237,7 +237,7 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
               <p className="font-bold text-lg text-destructive">${totals.totalEgreso.toFixed(2)}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-muted-foreground text-xs">Compañía ({(comisionPct * 100).toFixed(0)}%)</p>
+              <p className="text-muted-foreground text-xs">{comisionLabel}</p>
               <p className="font-bold text-lg text-accent-foreground">${comisionCompania.toFixed(2)}</p>
             </div>
             <div className="space-y-1">
