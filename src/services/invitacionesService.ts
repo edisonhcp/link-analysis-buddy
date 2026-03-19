@@ -18,7 +18,9 @@ export async function fetchInvitaciones() {
   const propietarioByEmail = new Map(propietarios.map((p: any) => [p.email?.toLowerCase(), `${p.nombres} ${p.apellidos}`.trim()]));
 
   return invData.map((inv: any) => {
-    if (!inv.usada) return inv;
+    if (!inv.usada) {
+      return { ...inv, registro_status: "pendiente" };
+    }
 
     const usedEmail = inv.used_by_email?.toLowerCase();
 
