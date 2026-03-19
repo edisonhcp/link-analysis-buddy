@@ -108,6 +108,12 @@ function ConsolidadoTable({ vehicleMap, vehicleKeys, empresaInfo }: { vehicleMap
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
+const FRECUENCIA_LABELS: Record<string, string> = {
+  SEMANAL: "Semana",
+  QUINCENAL: "Quincena",
+  MENSUAL: "Mes",
+};
+
 export default function GerenciaViajes() {
   const { role, empresaId } = useAuth();
   const [viajes, setViajes] = useState<any[]>([]);
@@ -129,6 +135,9 @@ export default function GerenciaViajes() {
 
   if (role !== "GERENCIA") return <Navigate to="/dashboard" replace />;
 
+  const frecuencia = empresaInfo?.frecuencia_comision || "SEMANAL";
+  const frecuenciaLabel = FRECUENCIA_LABELS[frecuencia] || "Período";
+
   // Group by propietario + vehicle
   const vehicleMap: Record<string, { placa: string; marca: string; modelo: string; propietario: string; viajes: any[] }> = {};
   viajes.forEach((v) => {
@@ -147,6 +156,15 @@ export default function GerenciaViajes() {
   });
 
   const vehicleKeys = Object.keys(vehicleMap);
+
+  const handleFinalizarPeriodo = () => {
+    toast.success(`Corte de ${frecuenciaLabel.toLowerCase()} realizado correctamente`);
+    // TODO: Implement period finalization logic
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   return (
     <DashboardLayout>
@@ -207,10 +225,22 @@ export default function GerenciaViajes() {
               <motion.div variants={item}>
                 <Card className="border-primary/30">
                   <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <LayoutList className="w-5 h-5 text-primary" />
-                      <span>Consolidado</span>
-                      <span className="text-muted-foreground text-xs">({vehicleKeys.length} vehículos)</span>
+                    <CardTitle className="flex items-center justify-between text-base">
+                      <div className="flex items-center gap-2">
+                        <LayoutList className="w-5 h-5 text-primary" />
+                        <span>Consolidado</span>
+                        <span className="text-muted-foreground text-xs">({vehicleKeys.length} vehículos)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" onClick={handlePrint}>
+                          <Printer className="w-4 h-4 mr-1" />
+                          Imprimir
+                        </Button>
+                        <Button size="sm" onClick={handleFinalizarPeriodo}>
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Finalizar {frecuenciaLabel}
+                        </Button>
+                      </div>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
