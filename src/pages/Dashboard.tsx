@@ -73,10 +73,14 @@ function ConductorDashboard({ profile, suspended }: { profile: any; suspended: a
       const data = await fetchConductorData(user.id);
       setConductorInfo(data);
       await loadRutas();
+      if (empresaId) {
+        const info = await fetchEmpresaInfo(empresaId);
+        setEmpresaInfo(info);
+      }
       setLoading(false);
     };
     load();
-  }, [user]);
+  }, [user, empresaId]);
 
   const handleIniciarRuta = async (viajeId: string) => {
     const { error } = await iniciarRuta(viajeId);
