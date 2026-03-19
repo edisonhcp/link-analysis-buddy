@@ -54,11 +54,12 @@ function SuspensionBanner({ message }: { message: string }) {
 // ─── Conductor Dashboard ───
 function ConductorDashboard({ profile, suspended }: { profile: any; suspended: any }) {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, empresaId } = useAuth();
   const [conductorInfo, setConductorInfo] = useState<any>(null);
   const [rutasAsignadas, setRutasAsignadas] = useState<RutaAsignada[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteAccountAlert, setDeleteAccountAlert] = useState(false);
+  const [empresaInfo, setEmpresaInfo] = useState<any>(null);
 
   const loadRutas = async () => {
     if (!user?.id) return;
