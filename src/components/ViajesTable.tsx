@@ -64,7 +64,7 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
     acc.conductor += eg?.pago_conductor || 0;
     acc.combustible += eg?.combustible || 0;
     acc.varios += eg?.varios || 0;
-    acc.totalEgreso += (eg?.peaje || 0) + (eg?.hotel || 0) + (eg?.pago_conductor || 0) + (eg?.combustible || 0) + (eg?.varios || 0) + alim;
+    acc.totalEgreso += (eg?.peaje || 0) + (eg?.hotel || 0) + (eg?.combustible || 0) + (eg?.varios || 0) + alim;
     return acc;
   }, {
     pasajeros: 0, pasajerosMonto: 0, encomiendas: 0, totalIngreso: 0,
