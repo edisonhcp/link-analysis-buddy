@@ -29,7 +29,7 @@ function calcAlim(eg: any): number {
   return c * ALIMENTACION_COSTO;
 }
 
-function ConsolidadoTable({ vehicleMap, vehicleKeys }: { vehicleMap: Record<string, any>; vehicleKeys: string[] }) {
+function ConsolidadoTable({ vehicleMap, vehicleKeys, empresaInfo }: { vehicleMap: Record<string, any>; vehicleKeys: string[]; empresaInfo: any }) {
   // Find the most recent Sunday cutoff from all trips
   let latestSunday = "";
   vehicleKeys.forEach((key) => {
@@ -38,6 +38,10 @@ function ConsolidadoTable({ vehicleMap, vehicleKeys }: { vehicleMap: Record<stri
       if (sun > latestSunday) latestSunday = sun;
     });
   });
+
+  const tipoComision = empresaInfo?.tipo_comision || "PORCENTAJE";
+  const comisionPct = empresaInfo?.comision_pct || 0.10;
+  const comisionFija = empresaInfo?.comision_fija || 0;
 
   const rows = vehicleKeys.map((key, idx) => {
     const veh = vehicleMap[key];
@@ -48,7 +52,9 @@ function ConsolidadoTable({ vehicleMap, vehicleKeys }: { vehicleMap: Record<stri
       const alim = calcAlim(eg);
       return s + Number(eg.peaje || 0) + Number(eg.hotel || 0) + Number(eg.combustible || 0) + Number(eg.varios || 0) + Number(eg.pago_conductor || 0) + alim;
     }, 0);
-    const totalCompania = veh.viajes.reduce((s: number, v: any) => s + Number(v.ingresos?.comision_gerencia || 0), 0);
+    const totalCompania = tipoComision === "PORCENTAJE"
+      ? totalIngreso * comisionPct
+      : comisionFija;
 
     return { idx: idx + 1, placa: veh.placa, propietario: veh.propietario, totalIngreso, totalEgreso, totalCompania };
   });
