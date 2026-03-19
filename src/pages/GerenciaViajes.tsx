@@ -5,6 +5,7 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { fetchViajesConDetalle } from "@/services/egresosService";
+import { fetchEmpresaInfo } from "@/services/dashboardService";
 import { ViajesTable } from "@/components/ViajesTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
