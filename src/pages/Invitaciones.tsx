@@ -27,7 +27,8 @@ interface InvitacionRow {
   usada: boolean;
   expires_at: string;
   created_at: string;
-  registro_status?: "activo" | "eliminado" | null;
+  used_by_email?: string | null;
+  registro_status?: "activo" | "eliminado" | "pendiente" | null;
   registro_nombre?: string;
 }
 
