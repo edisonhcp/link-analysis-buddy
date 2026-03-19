@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Bus, ChevronDown, ChevronUp, LayoutList, User } from "lucide-react";
+import { Bus, ChevronDown, ChevronUp, LayoutList, Printer, User, CheckCircle } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
