@@ -71,8 +71,20 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
     alimentacion: 0, peaje: 0, hotel: 0, conductor: 0, combustible: 0, varios: 0, totalEgreso: 0,
   });
 
-  const comisionCompania = totals.totalIngreso * comisionPct;
+  const comisionCompania = tipoComision === "PORCENTAJE" 
+    ? totals.totalIngreso * comisionPct 
+    : comisionFija * viajes.length;
   const totalPropietario = totals.totalIngreso - totals.totalEgreso - comisionCompania;
+
+  const frecuenciaLabel: Record<string, string> = {
+    SEMANAL: "Semanal",
+    QUINCENAL: "Quincenal", 
+    MENSUAL: "Mensual",
+  };
+
+  const comisionLabel = tipoComision === "PORCENTAJE"
+    ? `Compañía (${(comisionPct * 100).toFixed(0)}%) - ${frecuenciaLabel[frecuenciaComision] || frecuenciaComision}`
+    : `Compañía ($${comisionFija}) - ${frecuenciaLabel[frecuenciaComision] || frecuenciaComision}`;
 
   return (
     <div className="space-y-4">
