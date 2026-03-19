@@ -17,6 +17,16 @@ import {
   uploadRecibo,
 } from "@/services/egresosService";
 import { iniciarRuta, finalizarRuta } from "@/services/asignacionesRutaService";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
@@ -42,6 +52,7 @@ export default function ConductorAsignaciones() {
   const [combustibleFile, setCombustibleFile] = useState<File | null>(null);
   const [variosFile, setVariosFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; viajeId: string; resumen: any } | null>(null);
 
   const loadData = async () => {
     if (!user?.id) return;
@@ -85,8 +96,31 @@ export default function ConductorAsignaciones() {
     setVariosFile(null);
   };
 
-  const handleSaveEgresos = async (viajeId: string) => {
-    if (!empresaId) return;
+  const handlePreSaveEgresos = (viajeId: string) => {
+    const alimentacionItems = [];
+    if (egresoForm.desayuno) alimentacionItems.push("Desayuno");
+    if (egresoForm.almuerzo) alimentacionItems.push("Almuerzo");
+    if (egresoForm.merienda) alimentacionItems.push("Merienda");
+
+    const resumen = {
+      peaje: parseFloat(egresoForm.peaje) || 0,
+      hotel: parseFloat(egresoForm.hotel) || 0,
+      pago_conductor: parseFloat(egresoForm.pago_conductor) || 0,
+      combustible: parseFloat(egresoForm.combustible) || 0,
+      varios: parseFloat(egresoForm.varios) || 0,
+      alimentacion: alimentacionItems.join(", ") || "Ninguna",
+      varios_texto: egresoForm.varios_texto || "",
+      total: (parseFloat(egresoForm.peaje) || 0) + (parseFloat(egresoForm.hotel) || 0) +
+        (parseFloat(egresoForm.pago_conductor) || 0) + (parseFloat(egresoForm.combustible) || 0) +
+        (parseFloat(egresoForm.varios) || 0),
+    };
+    setConfirmDialog({ open: true, viajeId, resumen });
+  };
+
+  const handleConfirmSaveEgresos = async () => {
+    if (!confirmDialog || !empresaId) return;
+    const viajeId = confirmDialog.viajeId;
+    setConfirmDialog(null);
     setSaving(true);
 
     let combustible_foto_url: string | null | undefined = undefined;
@@ -273,7 +307,7 @@ export default function ConductorAsignaciones() {
                             <Input type="file" accept="image/*" onChange={e => setVariosFile(e.target.files?.[0] || null)} className="text-xs" />
                           </div>
 
-                          <Button onClick={() => handleSaveEgresos(v.id)} disabled={saving} className="gap-2" size="sm">
+                          <Button onClick={() => handlePreSaveEgresos(v.id)} disabled={saving} className="gap-2" size="sm">
                             <Save className="w-4 h-4" />
                             {saving ? "Guardando..." : "Guardar Egresos"}
                           </Button>
@@ -287,6 +321,47 @@ export default function ConductorAsignaciones() {
           </div>
         )}
       </motion.div>
+
+      {/* Confirmation dialog */}
+      <AlertDialog open={!!confirmDialog?.open} onOpenChange={(open) => !open && setConfirmDialog(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Resumen de Egresos</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm">
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <span className="text-muted-foreground">Peaje:</span>
+                  <span className="font-medium text-foreground">${confirmDialog?.resumen?.peaje?.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Hotel:</span>
+                  <span className="font-medium text-foreground">${confirmDialog?.resumen?.hotel?.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Pago conductor:</span>
+                  <span className="font-medium text-foreground">${confirmDialog?.resumen?.pago_conductor?.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Combustible:</span>
+                  <span className="font-medium text-foreground">${confirmDialog?.resumen?.combustible?.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Varios:</span>
+                  <span className="font-medium text-foreground">${confirmDialog?.resumen?.varios?.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Alimentación:</span>
+                  <span className="font-medium text-foreground">{confirmDialog?.resumen?.alimentacion}</span>
+                  {confirmDialog?.resumen?.varios_texto && (
+                    <>
+                      <span className="text-muted-foreground">Nota:</span>
+                      <span className="font-medium text-foreground">{confirmDialog?.resumen?.varios_texto}</span>
+                    </>
+                  )}
+                </div>
+                <div className="border-t border-border pt-2 mt-2 flex justify-between">
+                  <span className="font-semibold text-foreground">Total Egresos:</span>
+                  <span className="font-bold text-foreground text-base">${confirmDialog?.resumen?.total?.toFixed(2)}</span>
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmSaveEgresos}>Aceptar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }

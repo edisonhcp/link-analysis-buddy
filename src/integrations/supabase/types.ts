@@ -131,6 +131,8 @@ export type Database = {
       conductores: {
         Row: {
           apellidos: string
+          cedula_frontal_url: string | null
+          cedula_trasera_url: string | null
           celular: string
           codigo: string
           created_at: string
@@ -141,14 +143,19 @@ export type Database = {
           estado_civil: string
           fecha_caducidad_licencia: string
           fecha_nacimiento: string
+          foto_url: string | null
           id: string
           identificacion: string
+          licencia_frontal_url: string | null
+          licencia_trasera_url: string | null
           nacionalidad: string
           nombres: string
           tipo_licencia: string
         }
         Insert: {
           apellidos?: string
+          cedula_frontal_url?: string | null
+          cedula_trasera_url?: string | null
           celular: string
           codigo: string
           created_at?: string
@@ -159,14 +166,19 @@ export type Database = {
           estado_civil: string
           fecha_caducidad_licencia: string
           fecha_nacimiento: string
+          foto_url?: string | null
           id?: string
           identificacion: string
+          licencia_frontal_url?: string | null
+          licencia_trasera_url?: string | null
           nacionalidad: string
           nombres: string
           tipo_licencia: string
         }
         Update: {
           apellidos?: string
+          cedula_frontal_url?: string | null
+          cedula_trasera_url?: string | null
           celular?: string
           codigo?: string
           created_at?: string
@@ -177,8 +189,11 @@ export type Database = {
           estado_civil?: string
           fecha_caducidad_licencia?: string
           fecha_nacimiento?: string
+          foto_url?: string | null
           id?: string
           identificacion?: string
+          licencia_frontal_url?: string | null
+          licencia_trasera_url?: string | null
           nacionalidad?: string
           nombres?: string
           tipo_licencia?: string

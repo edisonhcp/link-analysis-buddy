@@ -28,6 +28,7 @@ import ConductorRutas from "./pages/conductor/ConductorRutas";
 import PropietarioAsignaciones from "./pages/propietario/PropietarioAsignaciones";
 import PropietarioViajes from "./pages/propietario/PropietarioViajes";
 import ConfiguracionEmpresa from "./pages/ConfiguracionEmpresa";
+import ConductorConfiguracion from "./pages/conductor/ConductorConfiguracion";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/dashboard/config" element={<ProtectedRoute><ConfiguracionEmpresa /></ProtectedRoute>} />
             <Route path="/dashboard/conductor-asignaciones" element={<ProtectedRoute><ConductorAsignaciones /></ProtectedRoute>} />
             <Route path="/dashboard/conductor-rutas" element={<ProtectedRoute><ConductorRutas /></ProtectedRoute>} />
+            <Route path="/dashboard/conductor-config" element={<ProtectedRoute><ConductorConfiguracion /></ProtectedRoute>} />
             <Route path="/dashboard/propietario-asignaciones" element={<ProtectedRoute><PropietarioAsignaciones /></ProtectedRoute>} />
             <Route path="/dashboard/propietario-viajes" element={<ProtectedRoute><PropietarioViajes /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><SuperAdminPanel /></ProtectedRoute>} />
