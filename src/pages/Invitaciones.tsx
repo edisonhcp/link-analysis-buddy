@@ -181,6 +181,9 @@ export default function Invitaciones() {
                               <span className="font-medium">{rolLabels[inv.rol] || inv.rol}</span>
                             </div>
                           </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {inv.used_by_email || "—"}
+                          </TableCell>
                           <TableCell className="font-mono text-xs text-muted-foreground max-w-[120px] truncate">
                             {inv.token.slice(0, 8)}...
                           </TableCell>
@@ -197,30 +200,39 @@ export default function Invitaciones() {
                             {new Date(inv.expires_at).toLocaleDateString("es-ES")}
                           </TableCell>
                           <TableCell>
-                            {inv.usada ? (
-                              inv.registro_status === "activo" ? (
-                                <Badge variant="outline" className="text-xs gap-1 text-green-600 border-green-200 bg-green-50">
-                                  <CheckCircle2 className="w-3 h-3" />
-                                  Registrado
+                            {inv.registro_status === "activo" ? (
+                              <Badge variant="outline" className="text-xs gap-1 text-green-600 border-green-200 bg-green-50">
+                                <CheckCircle2 className="w-3 h-3" />
+                                Registrado
+                              </Badge>
+                            ) : inv.registro_status === "eliminado" ? (
+                              <Badge variant="outline" className="text-xs gap-1 text-destructive border-destructive/20 bg-destructive/5">
+                                <XCircle className="w-3 h-3" />
+                                Eliminado
+                              </Badge>
+                            ) : !inv.usada && new Date(inv.expires_at) >= new Date() ? (
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs gap-1 text-muted-foreground">
+                                  <Clock className="w-3 h-3" />
+                                  Pendiente
                                 </Badge>
-                              ) : inv.registro_status === "eliminado" ? (
-                                <Badge variant="outline" className="text-xs gap-1 text-destructive border-destructive/20 bg-destructive/5">
-                                  <XCircle className="w-3 h-3" />
-                                  Eliminado
-                                </Badge>
-                              ) : null
-                            ) : new Date(inv.expires_at) >= new Date() ? (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="gap-1 text-xs"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(link);
-                                  toast({ title: "Link copiado" });
-                                }}
-                              >
-                                <Copy className="w-3 h-3" /> Copiar
-                              </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="gap-1 text-xs"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(link);
+                                    toast({ title: "Link copiado" });
+                                  }}
+                                >
+                                  <Copy className="w-3 h-3" /> Copiar
+                                </Button>
+                              </div>
+                            ) : !inv.usada ? (
+                              <Badge variant="outline" className="text-xs gap-1 text-muted-foreground">
+                                <Clock className="w-3 h-3" />
+                                Pendiente
+                              </Badge>
                             ) : null}
                           </TableCell>
                         </TableRow>
