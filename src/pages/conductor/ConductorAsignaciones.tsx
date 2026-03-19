@@ -321,6 +321,47 @@ export default function ConductorAsignaciones() {
           </div>
         )}
       </motion.div>
+
+      {/* Confirmation dialog */}
+      <AlertDialog open={!!confirmDialog?.open} onOpenChange={(open) => !open && setConfirmDialog(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Resumen de Egresos</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm">
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <span className="text-muted-foreground">Peaje:</span>
+                  <span className="font-medium text-foreground">${confirmDialog?.resumen?.peaje?.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Hotel:</span>
+                  <span className="font-medium text-foreground">${confirmDialog?.resumen?.hotel?.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Pago conductor:</span>
+                  <span className="font-medium text-foreground">${confirmDialog?.resumen?.pago_conductor?.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Combustible:</span>
+                  <span className="font-medium text-foreground">${confirmDialog?.resumen?.combustible?.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Varios:</span>
+                  <span className="font-medium text-foreground">${confirmDialog?.resumen?.varios?.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Alimentación:</span>
+                  <span className="font-medium text-foreground">{confirmDialog?.resumen?.alimentacion}</span>
+                  {confirmDialog?.resumen?.varios_texto && (
+                    <>
+                      <span className="text-muted-foreground">Nota:</span>
+                      <span className="font-medium text-foreground">{confirmDialog?.resumen?.varios_texto}</span>
+                    </>
+                  )}
+                </div>
+                <div className="border-t border-border pt-2 mt-2 flex justify-between">
+                  <span className="font-semibold text-foreground">Total Egresos:</span>
+                  <span className="font-bold text-foreground text-base">${confirmDialog?.resumen?.total?.toFixed(2)}</span>
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmSaveEgresos}>Aceptar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }
