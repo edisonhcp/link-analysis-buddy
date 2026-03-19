@@ -236,8 +236,8 @@ export default function ConfiguracionEmpresa() {
                 <Input
                   type="number"
                   min={0}
-                  value={form.comision_fija}
-                  onChange={(e) => update("comision_fija", Number(e.target.value))}
+                  value={form.comision_fija || ""}
+                  onChange={(e) => update("comision_fija", e.target.value === "" ? "" : Number(e.target.value))}
                 />
               </div>
             )}

@@ -71,11 +71,11 @@ export default function ConductorAsignaciones() {
     const eg = viaje.egresos;
     setEditingEgresos(viaje.id);
     setEgresoForm({
-      peaje: String(eg?.peaje || 0),
-      hotel: String(eg?.hotel || 0),
-      pago_conductor: String(eg?.pago_conductor || 0),
-      combustible: String(eg?.combustible || 0),
-      varios: String(eg?.varios || 0),
+      peaje: eg?.peaje ? String(eg.peaje) : "",
+      hotel: eg?.hotel ? String(eg.hotel) : "",
+      pago_conductor: eg?.pago_conductor ? String(eg.pago_conductor) : "",
+      combustible: eg?.combustible ? String(eg.combustible) : "",
+      varios: eg?.varios ? String(eg.varios) : "",
       desayuno: eg?.desayuno || false,
       almuerzo: eg?.almuerzo || false,
       merienda: eg?.merienda || false,
