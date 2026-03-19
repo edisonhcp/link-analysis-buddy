@@ -28,6 +28,7 @@ import ConductorRutas from "./pages/conductor/ConductorRutas";
 import PropietarioAsignaciones from "./pages/propietario/PropietarioAsignaciones";
 import PropietarioViajes from "./pages/propietario/PropietarioViajes";
 import ConfiguracionEmpresa from "./pages/ConfiguracionEmpresa";
+import ConductorConfiguracion from "./pages/conductor/ConductorConfiguracion";
 
 const queryClient = new QueryClient();
 
