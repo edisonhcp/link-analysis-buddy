@@ -52,6 +52,7 @@ export default function ConductorAsignaciones() {
   const [combustibleFile, setCombustibleFile] = useState<File | null>(null);
   const [variosFile, setVariosFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; viajeId: string; resumen: any } | null>(null);
 
   const loadData = async () => {
     if (!user?.id) return;
