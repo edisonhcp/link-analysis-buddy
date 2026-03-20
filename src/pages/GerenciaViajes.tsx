@@ -263,7 +263,7 @@ export default function GerenciaViajes() {
             })}
 
             {viajes.length > 0 && (
-              <motion.div variants={item}>
+              <motion.div variants={item} className={printingVehicle ? "print:hidden" : ""}>
                 <Card className="border-primary/30">
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center justify-between text-base">
