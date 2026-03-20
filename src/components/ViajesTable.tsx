@@ -111,6 +111,7 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
                     <TableHead className="text-xs font-semibold text-right">Combust.</TableHead>
                     <TableHead className="text-xs font-semibold text-right">Varios</TableHead>
                     <TableHead className="text-xs font-semibold text-right">Total Eg.</TableHead>
+                    <TableHead className="text-xs font-semibold text-center">Estado</TableHead>
                   </>
                 )}
               </TableRow>
