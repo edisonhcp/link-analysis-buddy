@@ -219,12 +219,22 @@ export default function GestionGerencia() {
 
   return (
     <DashboardLayout>
+      <PrintHeader
+        reportTitle="Gestión"
+        subtitle={`Consolidado financiero por ${FREQ_LABEL[frecuencia]?.toLowerCase() || "periodo"}`}
+      />
       <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
-        <motion.div variants={item}>
-          <h1 className="text-3xl font-display font-bold text-foreground">Gestión</h1>
-          <p className="text-muted-foreground mt-1">
-            Consolidado financiero por {FREQ_LABEL[frecuencia]?.toLowerCase() || "periodo"}
-          </p>
+        <motion.div variants={item} className="flex items-center justify-between">
+          <div className="no-print">
+            <h1 className="text-3xl font-display font-bold text-foreground">Gestión</h1>
+            <p className="text-muted-foreground mt-1">
+              Consolidado financiero por {FREQ_LABEL[frecuencia]?.toLowerCase() || "periodo"}
+            </p>
+          </div>
+          <Button size="sm" variant="outline" onClick={() => window.print()} className="no-print">
+            <Printer className="w-4 h-4 mr-1" />
+            Imprimir
+          </Button>
         </motion.div>
 
         {loading ? (
