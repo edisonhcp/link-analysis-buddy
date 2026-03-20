@@ -13,6 +13,7 @@ interface ViajeRow {
   hora_salida: string | null;
   cantidad_pasajeros: number | null;
   fecha_salida: string;
+  estado?: string;
   vehiculo?: { placa: string; marca: string; modelo: string } | null;
   conductor?: { nombres: string; apellidos: string } | null;
   ingresos?: { pasajeros_monto: number; encomiendas_monto: number; total_ingreso: number } | null;
@@ -110,6 +111,7 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
                     <TableHead className="text-xs font-semibold text-right">Combust.</TableHead>
                     <TableHead className="text-xs font-semibold text-right">Varios</TableHead>
                     <TableHead className="text-xs font-semibold text-right">Total Eg.</TableHead>
+                    <TableHead className="text-xs font-semibold text-center">Estado</TableHead>
                   </>
                 )}
               </TableRow>
@@ -117,7 +119,7 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
             <TableBody>
               {viajes.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={showEgresos ? (showConductorColumn ? 15 : 14) : 8} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={showEgresos ? (showConductorColumn ? 16 : 15) : 8} className="text-center py-8 text-muted-foreground">
                     No hay viajes registrados
                   </TableCell>
                 </TableRow>
@@ -191,6 +193,11 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
                             </div>
                           </TableCell>
                           <TableCell className="text-xs text-right font-medium">{rowTotalEgreso.toFixed(2)}</TableCell>
+                          <TableCell className="text-xs text-center">
+                            <Badge variant={v.estado === "FINALIZADO" ? "default" : v.estado === "EN_RUTA" ? "secondary" : "outline"} className="text-[10px]">
+                              {v.estado === "FINALIZADO" ? "Finalizado" : v.estado === "EN_RUTA" ? "En Ruta" : v.estado || "—"}
+                            </Badge>
+                          </TableCell>
                         </>
                       )}
                     </TableRow>
@@ -215,6 +222,7 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
                       <TableCell className="text-right">{totals.combustible.toFixed(2)}</TableCell>
                       <TableCell className="text-right">{totals.varios.toFixed(2)}</TableCell>
                       <TableCell className="text-right">{totals.totalEgreso.toFixed(2)}</TableCell>
+                      <TableCell></TableCell>
                     </>
                   )}
                 </TableRow>
