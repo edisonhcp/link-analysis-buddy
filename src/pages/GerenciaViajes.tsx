@@ -119,6 +119,7 @@ export default function GerenciaViajes() {
   const [viajes, setViajes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [printingVehicle, setPrintingVehicle] = useState<string | null>(null);
   const [empresaInfo, setEmpresaInfo] = useState<any>(null);
 
   useEffect(() => {
