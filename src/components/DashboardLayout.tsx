@@ -17,6 +17,7 @@ const gerenciaNavItems = [
   { label: "Asignaciones", icon: ClipboardList, href: "/dashboard/asignaciones" },
   { label: "Consolidado Rutas", icon: Route, href: "/dashboard/viajes" },
   { label: "Invitaciones", icon: Link2, href: "/dashboard/invitaciones" },
+  { label: "Gestión", icon: Building2, href: "/dashboard/gestion" },
   { label: "Configuración", icon: Settings, href: "/dashboard/config" },
 ];
 
