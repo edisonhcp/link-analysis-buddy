@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, ChevronDown, ChevronRight, Truck } from "lucide-react";
+import { Calendar, ChevronDown, ChevronRight, Printer, Truck } from "lucide-react";
+import { PrintHeader } from "@/components/PrintHeader";
+import { Button } from "@/components/ui/button";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
