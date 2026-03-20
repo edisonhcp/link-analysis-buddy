@@ -559,6 +559,7 @@ export type Database = {
           estado: Database["public"]["Enums"]["estado"]
           estado_civil: string
           fecha_nacimiento: string
+          foto_url: string | null
           id: string
           identificacion: string
           nacionalidad: string
@@ -575,6 +576,7 @@ export type Database = {
           estado?: Database["public"]["Enums"]["estado"]
           estado_civil: string
           fecha_nacimiento: string
+          foto_url?: string | null
           id?: string
           identificacion: string
           nacionalidad: string
@@ -591,6 +593,7 @@ export type Database = {
           estado?: Database["public"]["Enums"]["estado"]
           estado_civil?: string
           fecha_nacimiento?: string
+          foto_url?: string | null
           id?: string
           identificacion?: string
           nacionalidad?: string
@@ -768,6 +771,7 @@ export type Database = {
           created_at: string
           empresa_id: string
           estado: Database["public"]["Enums"]["estado"]
+          foto_url: string | null
           gps: boolean
           id: string
           marca: string
@@ -784,6 +788,7 @@ export type Database = {
           created_at?: string
           empresa_id: string
           estado?: Database["public"]["Enums"]["estado"]
+          foto_url?: string | null
           gps?: boolean
           id?: string
           marca: string
@@ -800,6 +805,7 @@ export type Database = {
           created_at?: string
           empresa_id?: string
           estado?: Database["public"]["Enums"]["estado"]
+          foto_url?: string | null
           gps?: boolean
           id?: string
           marca?: string
