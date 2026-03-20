@@ -119,6 +119,7 @@ export default function GerenciaViajes() {
   const [viajes, setViajes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [printingVehicle, setPrintingVehicle] = useState<string | null>(null);
   const [empresaInfo, setEmpresaInfo] = useState<any>(null);
 
   useEffect(() => {
@@ -186,7 +187,7 @@ export default function GerenciaViajes() {
               const veh = vehicleMap[key];
               const isOpen = expanded === key;
               return (
-                <motion.div key={key} variants={item}>
+                <motion.div key={key} variants={item} className={printingVehicle && printingVehicle !== key ? "print:hidden" : ""}>
                   <Card
                     className="cursor-pointer hover:shadow-md transition-shadow"
                     onClick={() => setExpanded(isOpen ? null : key)}
@@ -214,7 +215,11 @@ export default function GerenciaViajes() {
                                   variant="outline"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    window.print();
+                                    setPrintingVehicle(key);
+                                    setTimeout(() => {
+                                      window.print();
+                                      setPrintingVehicle(null);
+                                    }, 100);
                                   }}
                                 >
                                   <Printer className="w-4 h-4 mr-1" />
@@ -258,7 +263,7 @@ export default function GerenciaViajes() {
             })}
 
             {viajes.length > 0 && (
-              <motion.div variants={item}>
+              <motion.div variants={item} className={printingVehicle ? "print:hidden" : ""}>
                 <Card className="border-primary/30">
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center justify-between text-base">
