@@ -59,6 +59,7 @@ const App = () => (
             <Route path="/dashboard/conductor-config" element={<ProtectedRoute><ConductorConfiguracion /></ProtectedRoute>} />
             <Route path="/dashboard/propietario-asignaciones" element={<ProtectedRoute><PropietarioAsignaciones /></ProtectedRoute>} />
             <Route path="/dashboard/propietario-viajes" element={<ProtectedRoute><PropietarioViajes /></ProtectedRoute>} />
+            <Route path="/dashboard/propietario-config" element={<ProtectedRoute><PropietarioConfiguracion /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><SuperAdminPanel /></ProtectedRoute>} />
             <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/vehiculos" element={<ProtectedRoute><AdminVehiculos /></ProtectedRoute>} />
