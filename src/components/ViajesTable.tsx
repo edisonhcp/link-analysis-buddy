@@ -193,6 +193,11 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
                             </div>
                           </TableCell>
                           <TableCell className="text-xs text-right font-medium">{rowTotalEgreso.toFixed(2)}</TableCell>
+                          <TableCell className="text-xs text-center">
+                            <Badge variant={v.estado === "FINALIZADO" ? "default" : v.estado === "EN_RUTA" ? "secondary" : "outline"} className="text-[10px]">
+                              {v.estado === "FINALIZADO" ? "Finalizado" : v.estado === "EN_RUTA" ? "En Ruta" : v.estado || "—"}
+                            </Badge>
+                          </TableCell>
                         </>
                       )}
                     </TableRow>
