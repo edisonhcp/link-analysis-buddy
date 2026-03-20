@@ -119,7 +119,7 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
             <TableBody>
               {viajes.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={showEgresos ? (showConductorColumn ? 15 : 14) : 8} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={showEgresos ? (showConductorColumn ? 16 : 15) : 8} className="text-center py-8 text-muted-foreground">
                     No hay viajes registrados
                   </TableCell>
                 </TableRow>
