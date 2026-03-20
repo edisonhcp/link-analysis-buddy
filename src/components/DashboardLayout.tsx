@@ -25,6 +25,7 @@ const propietarioNavItems = [
   { label: "Mis Vehículos", icon: Truck, href: "/dashboard/mis-vehiculos" },
   { label: "Asignaciones", icon: ClipboardList, href: "/dashboard/propietario-asignaciones" },
   { label: "Viajes", icon: Route, href: "/dashboard/propietario-viajes" },
+  { label: "Configuración", icon: Settings, href: "/dashboard/propietario-config" },
 ];
 
 const conductorNavItems = [
