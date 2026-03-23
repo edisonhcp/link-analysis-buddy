@@ -12,11 +12,12 @@ import { Input } from "@/components/ui/input";
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
-const TIPO_COMISION_LABEL: Record<string, string> = {
-  PORCENTAJE: "Porcentaje",
-  FIJO: "Fijo",
-  MIXTO: "Mixto",
-};
+function formatComision(emp: any) {
+  if (emp.tipoComision === "PORCENTAJE") return `${((emp.comisionPct || 0) * 100).toFixed(0)}%`;
+  if (emp.tipoComision === "FIJO") return `$${(emp.comisionFija || 0).toFixed(2)}`;
+  if (emp.tipoComision === "MIXTO") return `${((emp.comisionPct || 0) * 100).toFixed(0)}% + $${(emp.comisionFija || 0).toFixed(2)}`;
+  return emp.tipoComision;
+}
 
 export default function AdminConsolidadoViajes() {
   const { role } = useAuth();
@@ -96,7 +97,7 @@ export default function AdminConsolidadoViajes() {
                                 <TableCell>{idx + 1}</TableCell>
                                 <TableCell className="font-medium">{emp.nombre}</TableCell>
                                 <TableCell className="text-center">{emp.totalVehiculos}</TableCell>
-                                <TableCell className="text-center">{TIPO_COMISION_LABEL[emp.tipoComision] || emp.tipoComision}</TableCell>
+                                <TableCell className="text-center">{formatComision(emp)}</TableCell>
                                 <TableCell className="text-right font-semibold">${emp.totalComision.toFixed(2)}</TableCell>
                                 <TableCell className="text-right font-semibold">${emp.totalIngresos.toFixed(2)}</TableCell>
                               </TableRow>
@@ -133,7 +134,7 @@ export default function AdminConsolidadoViajes() {
                               <TableCell>{idx + 1}</TableCell>
                               <TableCell className="font-medium">{emp.nombre}</TableCell>
                               <TableCell className="text-center">{emp.totalVehiculos}</TableCell>
-                              <TableCell className="text-center">{TIPO_COMISION_LABEL[emp.tipoComision] || emp.tipoComision}</TableCell>
+                              <TableCell className="text-center">{formatComision(emp)}</TableCell>
                               <TableCell className="text-right">${emp.totalComision.toFixed(2)}</TableCell>
                               <TableCell className="text-right">${emp.totalIngresos.toFixed(2)}</TableCell>
                             </TableRow>

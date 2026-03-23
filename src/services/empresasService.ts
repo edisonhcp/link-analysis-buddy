@@ -89,6 +89,8 @@ export async function fetchConsolidadoEmpresas() {
         id: emp.id,
         nombre: emp.nombre,
         tipoComision: emp.tipo_comision,
+        comisionPct: emp.comision_pct,
+        comisionFija: emp.comision_fija,
         totalVehiculos: totalVehiculos || 0,
         totalViajes,
         totalIngresos,
