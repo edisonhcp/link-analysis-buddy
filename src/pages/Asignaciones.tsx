@@ -96,6 +96,7 @@ export default function Asignaciones() {
     setValorPasajeros(String(a.ingresos?.pasajeros_monto || 0));
     setValorEncomienda(String(a.ingresos?.encomiendas_monto || 0));
     setSelectedVehiculo(a.asignacion_id || "");
+    setFechaSalida(a.fecha_salida ? new Date(a.fecha_salida) : undefined);
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -152,6 +153,7 @@ export default function Asignaciones() {
         pasajeros_monto: parseFloat(valorPasajeros) || 0,
         encomiendas_monto: parseFloat(valorEncomienda) || 0,
         empresa_id: empresaId,
+        fecha_salida: fechaSalida ? fechaSalida.toISOString() : new Date().toISOString(),
       });
       setSubmitting(false);
 
@@ -231,6 +233,33 @@ export default function Asignaciones() {
                 <div className="space-y-2">
                   <Label className="text-muted-foreground">Destino</Label>
                   <Input placeholder="Ciudad de destino" value={destino} onChange={(e) => setDestino(e.target.value)} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-muted-foreground">Fecha de salida</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !fechaSalida && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {fechaSalida ? format(fechaSalida, "dd/MM/yyyy") : "Seleccionar fecha"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={fechaSalida}
+                        onSelect={setFechaSalida}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 <div className="space-y-2">
