@@ -66,6 +66,7 @@ export async function crearAsignacionRuta(params: {
   pasajeros_monto: number;
   encomiendas_monto: number;
   empresa_id: string;
+  fecha_salida?: string;
 }) {
   // Create viaje
   const { data: viaje, error: viajeError } = await supabase
@@ -76,7 +77,7 @@ export async function crearAsignacionRuta(params: {
       origen: params.origen,
       hora_salida: params.hora_salida,
       cantidad_pasajeros: params.cantidad_pasajeros,
-      fecha_salida: new Date().toISOString(),
+      fecha_salida: params.fecha_salida || new Date().toISOString(),
       estado: "ASIGNADO" as any,
       empresa_id: params.empresa_id,
     })
