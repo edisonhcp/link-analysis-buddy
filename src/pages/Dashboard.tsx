@@ -458,6 +458,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [empresaNombre, setEmpresaNombre] = useState("");
   const [empresaInfo, setEmpresaInfo] = useState<any>(null);
+  const [viajesActivos, setViajesActivos] = useState<any[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -470,6 +471,8 @@ export default function Dashboard() {
         setEmpresaNombre(await fetchEmpresaNombre(empresaId));
         const info = await fetchEmpresaInfo(empresaId);
         setEmpresaInfo(info);
+        const viajes = await fetchViajesActivosConVehiculo(empresaId);
+        setViajesActivos(viajes);
       }
 
       setLoading(false);
