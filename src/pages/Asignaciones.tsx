@@ -433,7 +433,7 @@ export default function Asignaciones() {
                             onClick={() => {
                               const fechaStr = a.fecha_salida ? format(new Date(a.fecha_salida), "dd/MM/yyyy") : "—";
                               const horaStr = a.hora_salida || "—";
-                              const texto = `FECHA Y HORA: ${fechaStr} ${horaStr}\nRUTA: ${a.origen} → ${a.destino}\nCANTIDAD DE PASAJEROS: ${a.cantidad_pasajeros}\nPRECIO TOTAL: $${a.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}\nTOTAL ENCOMIENDA: $${a.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}`;
+                              const texto = `*FECHA Y HORA:* ${fechaStr} ${horaStr}\n*RUTA:* ${a.origen} → ${a.destino}\n*CANTIDAD DE PASAJEROS:* ${a.cantidad_pasajeros}\n*PRECIO TOTAL:* $${a.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}\n*TOTAL ENCOMIENDA:* $${a.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}`;
                               navigator.clipboard.writeText(texto);
                               toast({ title: "Copiado al portapapeles", description: "Información lista para pegar en WhatsApp" });
                             }}
