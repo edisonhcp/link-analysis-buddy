@@ -8,6 +8,7 @@ export interface RutaAsignada {
   cantidad_pasajeros: number;
   estado: string;
   fecha_salida: string;
+  created_at: string;
   asignacion_id: string | null;
   ingresos?: {
     pasajeros_monto: number;
