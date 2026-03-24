@@ -21,6 +21,7 @@ import {
   crearAsignacionRuta,
   fetchAsignacionesActivas,
   editarAsignacionRuta,
+  finalizarDia,
   type RutaAsignada,
 } from "@/services/asignacionesRutaService";
 
