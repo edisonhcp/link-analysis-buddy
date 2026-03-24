@@ -113,7 +113,7 @@ export async function fetchViajesConDetalle(empresaId: string) {
       )
     `)
     .eq("empresa_id", empresaId)
-    .in("estado", ["FINALIZADO", "EN_RUTA"] as any)
+    .in("estado", ["FINALIZADO", "EN_RUTA", "CERRADO"] as any)
     .order("fecha_salida", { ascending: false });
 
   return {
