@@ -381,7 +381,7 @@ export default function Asignaciones() {
             <div className="space-y-3">
               {asignaciones.map((a) => {
                const badge = estadoBadge[a.estado] || { label: a.estado, variant: "secondary" as const };
-                const hoursElapsed = (Date.now() - new Date(a.created_at || a.fecha_salida).getTime()) / (1000 * 60 * 60);
+                const hoursElapsed = (Date.now() - new Date(a.created_at).getTime()) / (1000 * 60 * 60);
                 const canEdit = (a.estado === "ASIGNADO" || a.estado === "EN_RUTA") && hoursElapsed <= 24;
                 return (
                   <Card key={a.id} className={`border-0 shadow-sm hover:shadow-md transition-shadow ${editingId === a.id ? "ring-2 ring-amber-500" : ""}`}>
