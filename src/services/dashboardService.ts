@@ -171,6 +171,7 @@ export function buildDespachoBoard(viajes: any[]): Record<string, VehiculoDespac
         placa: v.vehiculo.placa,
         marca: v.vehiculo.marca,
         modelo: v.vehiculo.modelo,
+        conductorNombre: v.conductor ? `${v.conductor.nombres} ${v.conductor.apellidos}` : null,
         ciudadActual: matchCity(v.destino),
         fechaLlegada: v.fecha_llegada,
         estadoRuta: null,
