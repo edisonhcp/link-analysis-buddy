@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Truck, Plus, Search, AlertTriangle, MessageCircle, Users } from "lucide-react";
+import { Truck, Plus, Search, AlertTriangle, MessageCircle, Users, UtensilsCrossed } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from "@/components/ui/dialog";
@@ -17,6 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
 import { fetchPropietarioVehiculos, createVehiculo } from "@/services/vehiculosService";
+import { fetchAlimentacionConfig, upsertAlimentacionConfig } from "@/services/alimentacionService";
 
 interface VehiculoForm {
   placa: string;
