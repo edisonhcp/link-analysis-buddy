@@ -195,8 +195,12 @@ export default function PropietarioVehiculos() {
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${v.estado === "INHABILITADO" ? "bg-destructive/10" : "bg-primary/10"}`}>
                         <Truck className={`w-5 h-5 ${v.estado === "INHABILITADO" ? "text-destructive" : "text-primary"}`} />
                       </div>
-                      <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"}>{v.estado}</Badge>
-                    </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"}>{v.estado}</Badge>
+                        <Button variant="outline" size="sm" className="gap-1 h-7 text-xs" onClick={() => openAlimentacion(v)}>
+                          <UtensilsCrossed className="w-3 h-3" /> Alimentación
+                        </Button>
+                      </div>
                     <h3 className="font-display font-semibold text-foreground">{v.placa}</h3>
                     <p className="text-sm text-muted-foreground">{v.marca} {v.modelo} {v.anio || ""}</p>
                     <p className="text-xs text-muted-foreground mt-1">{v.color} · {v.tipo} · Cap: {v.capacidad}</p>
