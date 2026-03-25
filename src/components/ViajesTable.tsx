@@ -55,7 +55,7 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
   const totals = viajes.reduce((acc, v) => {
     const ing = v.ingresos;
     const eg = v.egresos;
-    const alim = calcAlimentacion(eg);
+    const alim = calcAlimentacion(eg, v.valor_comida);
     acc.pasajeros += v.cantidad_pasajeros || 0;
     acc.pasajerosMonto += ing?.pasajeros_monto || 0;
     acc.encomiendas += ing?.encomiendas_monto || 0;
@@ -133,7 +133,7 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
                   if (eg?.desayuno) alimParts.push("D");
                   if (eg?.almuerzo) alimParts.push("A");
                   if (eg?.merienda) alimParts.push("M");
-                  const alimCosto = calcAlimentacion(eg);
+                  const alimCosto = calcAlimentacion(eg, v.valor_comida);
                   const rowTotalEgreso = (eg?.peaje || 0) + (eg?.hotel || 0) + (showConductorColumn ? (eg?.pago_conductor || 0) : 0) + (eg?.combustible || 0) + (eg?.varios || 0) + alimCosto;
 
                   return (
