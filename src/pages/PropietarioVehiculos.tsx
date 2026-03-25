@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Truck, Plus, Search, AlertTriangle, MessageCircle, Users } from "lucide-react";
+import { Truck, Plus, Search, AlertTriangle, MessageCircle, Users, UtensilsCrossed } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from "@/components/ui/dialog";
@@ -17,6 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
 import { fetchPropietarioVehiculos, createVehiculo } from "@/services/vehiculosService";
+import { fetchAlimentacionConfig, upsertAlimentacionConfig } from "@/services/alimentacionService";
 
 interface VehiculoForm {
   placa: string;
@@ -48,6 +51,17 @@ export default function PropietarioVehiculos() {
   const [form, setForm] = useState<VehiculoForm>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [propietarioId, setPropietarioId] = useState<string | null>(null);
+
+  // Alimentación
+  const [alimentacionVehiculo, setAlimentacionVehiculo] = useState<any | null>(null);
+  const [alimentacionForm, setAlimentacionForm] = useState({
+    valor_comida: "3",
+    desayuno_habilitado: true,
+    almuerzo_habilitado: true,
+    merienda_habilitado: true,
+    alimentacion_habilitada: true,
+  });
+  const [savingAlimentacion, setSavingAlimentacion] = useState(false);
 
   const loadData = async () => {
     if (!user?.id) return;
@@ -88,6 +102,46 @@ export default function PropietarioVehiculos() {
       setDialogOpen(false);
       setForm(emptyForm);
       loadData();
+    }
+  };
+
+  const openAlimentacion = async (v: any) => {
+    setAlimentacionVehiculo(v);
+    const { data } = await fetchAlimentacionConfig(v.id);
+    if (data) {
+      setAlimentacionForm({
+        valor_comida: String(data.valor_comida),
+        desayuno_habilitado: data.desayuno_habilitado,
+        almuerzo_habilitado: data.almuerzo_habilitado,
+        merienda_habilitado: data.merienda_habilitado,
+        alimentacion_habilitada: data.alimentacion_habilitada,
+      });
+    } else {
+      setAlimentacionForm({
+        valor_comida: "3", desayuno_habilitado: true, almuerzo_habilitado: true,
+        merienda_habilitado: true, alimentacion_habilitada: true,
+      });
+    }
+  };
+
+  const handleSaveAlimentacion = async () => {
+    if (!alimentacionVehiculo || !empresaId) return;
+    setSavingAlimentacion(true);
+    const { error } = await upsertAlimentacionConfig({
+      vehiculo_id: alimentacionVehiculo.id,
+      empresa_id: empresaId,
+      valor_comida: parseFloat(alimentacionForm.valor_comida) || 3,
+      desayuno_habilitado: alimentacionForm.desayuno_habilitado,
+      almuerzo_habilitado: alimentacionForm.almuerzo_habilitado,
+      merienda_habilitado: alimentacionForm.merienda_habilitado,
+      alimentacion_habilitada: alimentacionForm.alimentacion_habilitada,
+    });
+    setSavingAlimentacion(false);
+    if (error) {
+      toast({ title: "Error al guardar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Configuración de alimentación guardada" });
+      setAlimentacionVehiculo(null);
     }
   };
 
@@ -141,7 +195,12 @@ export default function PropietarioVehiculos() {
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${v.estado === "INHABILITADO" ? "bg-destructive/10" : "bg-primary/10"}`}>
                         <Truck className={`w-5 h-5 ${v.estado === "INHABILITADO" ? "text-destructive" : "text-primary"}`} />
                       </div>
-                      <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"}>{v.estado}</Badge>
+                      <div className="flex flex-col items-end gap-1">
+                        <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"}>{v.estado}</Badge>
+                        <Button variant="outline" size="sm" className="gap-1 h-7 text-xs" onClick={() => openAlimentacion(v)}>
+                          <UtensilsCrossed className="w-3 h-3" /> Alimentación
+                        </Button>
+                      </div>
                     </div>
                     <h3 className="font-display font-semibold text-foreground">{v.placa}</h3>
                     <p className="text-sm text-muted-foreground">{v.marca} {v.modelo} {v.anio || ""}</p>
@@ -219,6 +278,64 @@ export default function PropietarioVehiculos() {
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
             <Button onClick={handleSave} disabled={saving || !form.placa || !form.marca || !form.modelo || !form.color}>
               {saving ? "Guardando..." : "Registrar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog alimentación conductor */}
+      <Dialog open={!!alimentacionVehiculo} onOpenChange={open => { if (!open) setAlimentacionVehiculo(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl flex items-center gap-2">
+              <UtensilsCrossed className="w-5 h-5" /> Alimentación Conductor
+            </DialogTitle>
+            {alimentacionVehiculo && (
+              <p className="text-sm text-muted-foreground">{alimentacionVehiculo.placa} — {alimentacionVehiculo.marca} {alimentacionVehiculo.modelo}</p>
+            )}
+          </DialogHeader>
+          <div className="space-y-5 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="font-semibold">Alimentación habilitada</Label>
+                <p className="text-xs text-muted-foreground">Si se deshabilita, el conductor no podrá registrar alimentación</p>
+              </div>
+              <Switch
+                checked={alimentacionForm.alimentacion_habilitada}
+                onCheckedChange={(checked) => setAlimentacionForm(prev => ({ ...prev, alimentacion_habilitada: checked }))}
+              />
+            </div>
+            {alimentacionForm.alimentacion_habilitada && (
+              <>
+                <div className="space-y-2">
+                  <Label>Valor por comida (USD)</Label>
+                  <Input type="number" min="0" step="0.50" value={alimentacionForm.valor_comida}
+                    onChange={e => setAlimentacionForm(prev => ({ ...prev, valor_comida: e.target.value }))} />
+                  <p className="text-xs text-muted-foreground">Este valor se aplicará a cada comida seleccionada</p>
+                </div>
+                <div className="space-y-3">
+                  <Label>Comidas habilitadas</Label>
+                  {[
+                    { key: "desayuno_habilitado", label: "Desayuno" },
+                    { key: "almuerzo_habilitado", label: "Almuerzo" },
+                    { key: "merienda_habilitado", label: "Merienda" },
+                  ].map(({ key, label }) => (
+                    <div key={key} className="flex items-center gap-3">
+                      <Checkbox
+                        checked={alimentacionForm[key as keyof typeof alimentacionForm] as boolean}
+                        onCheckedChange={(checked) => setAlimentacionForm(prev => ({ ...prev, [key]: !!checked }))}
+                      />
+                      <Label className="text-sm">{label}</Label>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAlimentacionVehiculo(null)}>Cancelar</Button>
+            <Button onClick={handleSaveAlimentacion} disabled={savingAlimentacion}>
+              {savingAlimentacion ? "Guardando..." : "Guardar"}
             </Button>
           </DialogFooter>
         </DialogContent>
