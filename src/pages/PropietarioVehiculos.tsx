@@ -201,6 +201,7 @@ export default function PropietarioVehiculos() {
                           <UtensilsCrossed className="w-3 h-3" /> Alimentación
                         </Button>
                       </div>
+                    </div>
                     <h3 className="font-display font-semibold text-foreground">{v.placa}</h3>
                     <p className="text-sm text-muted-foreground">{v.marca} {v.modelo} {v.anio || ""}</p>
                     <p className="text-xs text-muted-foreground mt-1">{v.color} · {v.tipo} · Cap: {v.capacidad}</p>
