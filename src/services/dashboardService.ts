@@ -123,7 +123,9 @@ export async function fetchViajesActivosConVehiculo(empresaId: string) {
       asignacion_id,
       asignaciones!viajes_asignacion_id_fkey (
         vehiculo_id,
-        vehiculos!asignaciones_vehiculo_id_fkey ( id, placa, marca, modelo )
+        conductor_id,
+        vehiculos!asignaciones_vehiculo_id_fkey ( id, placa, marca, modelo ),
+        conductores!asignaciones_conductor_id_fkey ( id, nombres, apellidos )
       )
     `)
     .eq("empresa_id", empresaId)
@@ -138,6 +140,7 @@ export async function fetchViajesActivosConVehiculo(empresaId: string) {
     fecha_llegada: v.fecha_llegada,
     fecha_salida: v.fecha_salida,
     vehiculo: v.asignaciones?.vehiculos || null,
+    conductor: v.asignaciones?.conductores || null,
   }));
 }
 
@@ -146,9 +149,10 @@ export interface VehiculoDespacho {
   placa: string;
   marca: string;
   modelo: string;
+  conductorNombre: string | null;
   ciudadActual: string;
   fechaLlegada: string | null;
-  estadoRuta: string | null; // ASIGNADO, EN_RUTA if has pending route
+  estadoRuta: string | null;
   destinoPendiente: string | null;
 }
 
