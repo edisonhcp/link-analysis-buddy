@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Truck, Users, Route, CheckCircle2, Clock, Plus, AlertTriangle,
@@ -20,6 +20,7 @@ import { deletePropietarioAccount } from "@/services/propietariosService";
 import { fetchPropietarioVehiculos, deleteVehiculo } from "@/services/vehiculosService";
 import { fetchDashboardStats, fetchEmpresaNombre, fetchEmpresaInfo, fetchViajesActivosConVehiculo, buildDespachoBoard, type DashboardStats, type VehiculoDespacho } from "@/services/dashboardService";
 import { fetchRutasConductor, iniciarRuta, finalizarRuta, type RutaAsignada } from "@/services/asignacionesRutaService";
+import { supabase } from "@/integrations/supabase/client";
 
 const container = {
   hidden: { opacity: 0 },
@@ -460,6 +461,12 @@ export default function Dashboard() {
   const [empresaInfo, setEmpresaInfo] = useState<any>(null);
   const [viajesActivos, setViajesActivos] = useState<any[]>([]);
 
+  const loadDespacho = useCallback(async () => {
+    if (role !== "GERENCIA" || !empresaId) return;
+    const viajes = await fetchViajesActivosConVehiculo(empresaId);
+    setViajesActivos(viajes);
+  }, [role, empresaId]);
+
   useEffect(() => {
     const load = async () => {
       if (role !== "GERENCIA") return;
@@ -471,15 +478,26 @@ export default function Dashboard() {
         setEmpresaNombre(await fetchEmpresaNombre(empresaId));
         const info = await fetchEmpresaInfo(empresaId);
         setEmpresaInfo(info);
-        const viajes = await fetchViajesActivosConVehiculo(empresaId);
-        setViajesActivos(viajes);
+        await loadDespacho();
       }
 
       setLoading(false);
     };
 
     if (role) load();
-  }, [role]);
+  }, [role, loadDespacho]);
+
+  // Realtime: actualizar tablero cuando cambian viajes
+  useEffect(() => {
+    if (role !== "GERENCIA") return;
+    const channel = supabase
+      .channel("viajes-despacho")
+      .on("postgres_changes", { event: "*", schema: "public", table: "viajes" }, () => {
+        loadDespacho();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [role, loadDespacho]);
 
   if (role === "SUPER_ADMIN") return <Navigate to="/admin" replace />;
   if (role === "PROPIETARIO") return <PropietarioDashboard profile={profile} suspended={suspended} />;
