@@ -282,6 +282,64 @@ export default function PropietarioVehiculos() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog alimentación conductor */}
+      <Dialog open={!!alimentacionVehiculo} onOpenChange={open => { if (!open) setAlimentacionVehiculo(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl flex items-center gap-2">
+              <UtensilsCrossed className="w-5 h-5" /> Alimentación Conductor
+            </DialogTitle>
+            {alimentacionVehiculo && (
+              <p className="text-sm text-muted-foreground">{alimentacionVehiculo.placa} — {alimentacionVehiculo.marca} {alimentacionVehiculo.modelo}</p>
+            )}
+          </DialogHeader>
+          <div className="space-y-5 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="font-semibold">Alimentación habilitada</Label>
+                <p className="text-xs text-muted-foreground">Si se deshabilita, el conductor no podrá registrar alimentación</p>
+              </div>
+              <Switch
+                checked={alimentacionForm.alimentacion_habilitada}
+                onCheckedChange={(checked) => setAlimentacionForm(prev => ({ ...prev, alimentacion_habilitada: checked }))}
+              />
+            </div>
+            {alimentacionForm.alimentacion_habilitada && (
+              <>
+                <div className="space-y-2">
+                  <Label>Valor por comida (USD)</Label>
+                  <Input type="number" min="0" step="0.50" value={alimentacionForm.valor_comida}
+                    onChange={e => setAlimentacionForm(prev => ({ ...prev, valor_comida: e.target.value }))} />
+                  <p className="text-xs text-muted-foreground">Este valor se aplicará a cada comida seleccionada</p>
+                </div>
+                <div className="space-y-3">
+                  <Label>Comidas habilitadas</Label>
+                  {[
+                    { key: "desayuno_habilitado", label: "Desayuno" },
+                    { key: "almuerzo_habilitado", label: "Almuerzo" },
+                    { key: "merienda_habilitado", label: "Merienda" },
+                  ].map(({ key, label }) => (
+                    <div key={key} className="flex items-center gap-3">
+                      <Checkbox
+                        checked={alimentacionForm[key as keyof typeof alimentacionForm] as boolean}
+                        onCheckedChange={(checked) => setAlimentacionForm(prev => ({ ...prev, [key]: !!checked }))}
+                      />
+                      <Label className="text-sm">{label}</Label>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAlimentacionVehiculo(null)}>Cancelar</Button>
+            <Button onClick={handleSaveAlimentacion} disabled={savingAlimentacion}>
+              {savingAlimentacion ? "Guardando..." : "Guardar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
