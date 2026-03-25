@@ -1,11 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Save, Upload, Camera, Truck, Edit2 } from "lucide-react";
+import { Save, Upload, Camera, Truck, Edit2, UtensilsCrossed } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DashboardLayout } from "@/components/DashboardLayout";
@@ -13,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAlimentacionConfig, upsertAlimentacionConfig } from "@/services/alimentacionService";
 
 export default function PropietarioConfiguracion() {
   const { role, user, profile, empresaId } = useAuth();
