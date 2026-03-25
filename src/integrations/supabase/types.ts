@@ -715,6 +715,60 @@ export type Database = {
         }
         Relationships: []
       }
+      vehiculo_alimentacion: {
+        Row: {
+          alimentacion_habilitada: boolean
+          almuerzo_habilitado: boolean
+          created_at: string
+          desayuno_habilitado: boolean
+          empresa_id: string
+          id: string
+          merienda_habilitado: boolean
+          updated_at: string
+          valor_comida: number
+          vehiculo_id: string
+        }
+        Insert: {
+          alimentacion_habilitada?: boolean
+          almuerzo_habilitado?: boolean
+          created_at?: string
+          desayuno_habilitado?: boolean
+          empresa_id: string
+          id?: string
+          merienda_habilitado?: boolean
+          updated_at?: string
+          valor_comida?: number
+          vehiculo_id: string
+        }
+        Update: {
+          alimentacion_habilitada?: boolean
+          almuerzo_habilitado?: boolean
+          created_at?: string
+          desayuno_habilitado?: boolean
+          empresa_id?: string
+          id?: string
+          merienda_habilitado?: boolean
+          updated_at?: string
+          valor_comida?: number
+          vehiculo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehiculo_alimentacion_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehiculo_alimentacion_vehiculo_id_fkey"
+            columns: ["vehiculo_id"]
+            isOneToOne: true
+            referencedRelation: "vehiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehiculo_disponibilidad: {
         Row: {
           created_at: string
