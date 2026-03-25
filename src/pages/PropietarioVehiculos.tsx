@@ -52,6 +52,17 @@ export default function PropietarioVehiculos() {
   const [saving, setSaving] = useState(false);
   const [propietarioId, setPropietarioId] = useState<string | null>(null);
 
+  // Alimentación
+  const [alimentacionVehiculo, setAlimentacionVehiculo] = useState<any | null>(null);
+  const [alimentacionForm, setAlimentacionForm] = useState({
+    valor_comida: "3",
+    desayuno_habilitado: true,
+    almuerzo_habilitado: true,
+    merienda_habilitado: true,
+    alimentacion_habilitada: true,
+  });
+  const [savingAlimentacion, setSavingAlimentacion] = useState(false);
+
   const loadData = async () => {
     if (!user?.id) return;
     const result = await fetchPropietarioVehiculos(user.id);
