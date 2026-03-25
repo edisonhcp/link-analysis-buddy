@@ -17,6 +17,7 @@ import {
   uploadRecibo,
 } from "@/services/egresosService";
 import { iniciarRuta, finalizarRuta } from "@/services/asignacionesRutaService";
+import { fetchAlimentacionByVehiculos, VehiculoAlimentacion } from "@/services/alimentacionService";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,16 +54,42 @@ export default function ConductorAsignaciones() {
   const [variosFile, setVariosFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; viajeId: string; resumen: any } | null>(null);
+  const [alimentacionMap, setAlimentacionMap] = useState<Record<string, VehiculoAlimentacion>>({});
+  const [asigVehMap, setAsigVehMap] = useState<Record<string, string>>({});
 
   const loadData = async () => {
     if (!user?.id) return;
     const { data, empresaId: eid } = await fetchConductorViajes(user.id, ["ASIGNADO", "EN_RUTA", "FINALIZADO"]);
     setViajes(data);
     setEmpresaId(eid);
+
+    const asignacionIds = [...new Set(data.map((v: any) => v.asignacion_id).filter(Boolean))];
+    if (asignacionIds.length > 0) {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: asigs } = await supabase
+        .from("asignaciones")
+        .select("id, vehiculo_id")
+        .in("id", asignacionIds);
+      if (asigs) {
+        const aToV: Record<string, string> = {};
+        asigs.forEach(a => { aToV[a.id] = a.vehiculo_id; });
+        setAsigVehMap(aToV);
+        const vehIds = [...new Set(asigs.map(a => a.vehiculo_id))];
+        const { data: configs } = await fetchAlimentacionByVehiculos(vehIds);
+        const map: Record<string, VehiculoAlimentacion> = {};
+        configs.forEach(c => { map[c.vehiculo_id] = c; });
+        setAlimentacionMap(map);
+      }
+    }
     setLoading(false);
   };
 
   useEffect(() => { loadData(); }, [user]);
+
+  const getAlimConfig = (viaje: any) => {
+    const vehId = asigVehMap[viaje.asignacion_id];
+    return vehId ? alimentacionMap[vehId] : null;
+  };
 
   if (role !== "CONDUCTOR") return <Navigate to="/dashboard" replace />;
 
@@ -183,6 +210,7 @@ export default function ConductorAsignaciones() {
             {viajes.map((v) => {
               const badge = estadoBadge[v.estado] || { label: v.estado, variant: "secondary" as const };
               const isEditing = editingEgresos === v.id;
+              const alimConfig = getAlimConfig(v);
 
               return (
                 <motion.div key={v.id} variants={item}>
@@ -238,14 +266,17 @@ export default function ConductorAsignaciones() {
                           <h4 className="text-sm font-semibold text-foreground">Registro de Egresos</h4>
 
                           {/* Alimentación checkboxes */}
+                          {(!alimConfig || alimConfig.alimentacion_habilitada) && (
                           <div className="space-y-2">
-                            <Label className="text-xs text-muted-foreground">Alimentación</Label>
+                            <Label className="text-xs text-muted-foreground">
+                              Alimentación {alimConfig ? `($${alimConfig.valor_comida} c/u)` : "($3.00 c/u)"}
+                            </Label>
                             <div className="flex gap-4">
                               {[
-                                { key: "desayuno", label: "D (Desayuno)" },
-                                { key: "almuerzo", label: "A (Almuerzo)" },
-                                { key: "merienda", label: "M (Merienda)" },
-                              ].map(({ key, label }) => (
+                                { key: "desayuno", label: "D (Desayuno)", enabled: !alimConfig || alimConfig.desayuno_habilitado },
+                                { key: "almuerzo", label: "A (Almuerzo)", enabled: !alimConfig || alimConfig.almuerzo_habilitado },
+                                { key: "merienda", label: "M (Merienda)", enabled: !alimConfig || alimConfig.merienda_habilitado },
+                              ].filter(m => m.enabled).map(({ key, label }) => (
                                 <div key={key} className="flex items-center gap-2">
                                   <Checkbox
                                     checked={egresoForm[key as keyof typeof egresoForm] as boolean}
@@ -258,6 +289,7 @@ export default function ConductorAsignaciones() {
                               ))}
                             </div>
                           </div>
+                          )}
 
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <div className="space-y-1">

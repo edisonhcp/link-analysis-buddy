@@ -1,11 +1,13 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Save, Upload, Camera, Truck, Edit2 } from "lucide-react";
+import { Save, Upload, Camera, Truck, Edit2, UtensilsCrossed } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DashboardLayout } from "@/components/DashboardLayout";
@@ -13,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAlimentacionConfig, upsertAlimentacionConfig } from "@/services/alimentacionService";
 
 export default function PropietarioConfiguracion() {
   const { role, user, profile, empresaId } = useAuth();
@@ -39,6 +42,17 @@ export default function PropietarioConfiguracion() {
   const [vehiculoFotoPreview, setVehiculoFotoPreview] = useState<string | null>(null);
   const [vehiculoFotoFile, setVehiculoFotoFile] = useState<File | null>(null);
   const [savingVehiculo, setSavingVehiculo] = useState(false);
+
+  // Alimentación config
+  const [alimentacionVehiculo, setAlimentacionVehiculo] = useState<any | null>(null);
+  const [alimentacionForm, setAlimentacionForm] = useState({
+    valor_comida: "3",
+    desayuno_habilitado: true,
+    almuerzo_habilitado: true,
+    merienda_habilitado: true,
+    alimentacion_habilitada: true,
+  });
+  const [savingAlimentacion, setSavingAlimentacion] = useState(false);
 
   useEffect(() => {
     if (!user?.id || !profile?.propietario_id) return;
@@ -145,6 +159,49 @@ export default function PropietarioConfiguracion() {
   };
 
   const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
+
+  const openAlimentacion = async (v: any) => {
+    setAlimentacionVehiculo(v);
+    const { data } = await fetchAlimentacionConfig(v.id);
+    if (data) {
+      setAlimentacionForm({
+        valor_comida: String(data.valor_comida),
+        desayuno_habilitado: data.desayuno_habilitado,
+        almuerzo_habilitado: data.almuerzo_habilitado,
+        merienda_habilitado: data.merienda_habilitado,
+        alimentacion_habilitada: data.alimentacion_habilitada,
+      });
+    } else {
+      setAlimentacionForm({
+        valor_comida: "3",
+        desayuno_habilitado: true,
+        almuerzo_habilitado: true,
+        merienda_habilitado: true,
+        alimentacion_habilitada: true,
+      });
+    }
+  };
+
+  const handleSaveAlimentacion = async () => {
+    if (!alimentacionVehiculo || !empresaId) return;
+    setSavingAlimentacion(true);
+    const { error } = await upsertAlimentacionConfig({
+      vehiculo_id: alimentacionVehiculo.id,
+      empresa_id: empresaId,
+      valor_comida: parseFloat(alimentacionForm.valor_comida) || 3,
+      desayuno_habilitado: alimentacionForm.desayuno_habilitado,
+      almuerzo_habilitado: alimentacionForm.almuerzo_habilitado,
+      merienda_habilitado: alimentacionForm.merienda_habilitado,
+      alimentacion_habilitada: alimentacionForm.alimentacion_habilitada,
+    });
+    setSavingAlimentacion(false);
+    if (error) {
+      toast({ title: "Error al guardar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Configuración de alimentación guardada" });
+      setAlimentacionVehiculo(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -271,6 +328,9 @@ export default function PropietarioConfiguracion() {
                       <p className="text-sm text-muted-foreground">{v.marca} {v.modelo} {v.anio || ""} · {v.color}</p>
                     </div>
                     <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"} className="shrink-0">{v.estado}</Badge>
+                    <Button variant="outline" size="sm" className="gap-1 shrink-0" onClick={() => openAlimentacion(v)}>
+                      <UtensilsCrossed className="w-3 h-3" /> Alimentación
+                    </Button>
                     <Button variant="outline" size="sm" className="gap-1 shrink-0" onClick={() => openEditVehiculo(v)}>
                       <Edit2 className="w-3 h-3" /> Editar
                     </Button>
@@ -348,6 +408,76 @@ export default function PropietarioConfiguracion() {
             <Button variant="outline" onClick={() => setEditVehiculo(null)}>Cancelar</Button>
             <Button onClick={handleSaveVehiculo} disabled={savingVehiculo}>
               {savingVehiculo ? "Guardando..." : "Guardar Cambios"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog alimentación conductor */}
+      <Dialog open={!!alimentacionVehiculo} onOpenChange={open => { if (!open) setAlimentacionVehiculo(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl flex items-center gap-2">
+              <UtensilsCrossed className="w-5 h-5" /> Alimentación Conductor
+            </DialogTitle>
+            {alimentacionVehiculo && (
+              <p className="text-sm text-muted-foreground">{alimentacionVehiculo.placa} — {alimentacionVehiculo.marca} {alimentacionVehiculo.modelo}</p>
+            )}
+          </DialogHeader>
+          <div className="space-y-5 py-4">
+            {/* Toggle principal */}
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="font-semibold">Alimentación habilitada</Label>
+                <p className="text-xs text-muted-foreground">Si se deshabilita, el conductor no podrá registrar alimentación en egresos</p>
+              </div>
+              <Switch
+                checked={alimentacionForm.alimentacion_habilitada}
+                onCheckedChange={(checked) => setAlimentacionForm(prev => ({ ...prev, alimentacion_habilitada: checked }))}
+              />
+            </div>
+
+            {alimentacionForm.alimentacion_habilitada && (
+              <>
+                {/* Valor por comida */}
+                <div className="space-y-2">
+                  <Label>Valor por comida (USD)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.50"
+                    value={alimentacionForm.valor_comida}
+                    onChange={e => setAlimentacionForm(prev => ({ ...prev, valor_comida: e.target.value }))}
+                  />
+                  <p className="text-xs text-muted-foreground">Este valor se aplicará a cada comida seleccionada</p>
+                </div>
+
+                {/* Comidas habilitadas */}
+                <div className="space-y-3">
+                  <Label>Comidas habilitadas</Label>
+                  {[
+                    { key: "desayuno_habilitado", label: "Desayuno" },
+                    { key: "almuerzo_habilitado", label: "Almuerzo" },
+                    { key: "merienda_habilitado", label: "Merienda" },
+                  ].map(({ key, label }) => (
+                    <div key={key} className="flex items-center gap-3">
+                      <Checkbox
+                        checked={alimentacionForm[key as keyof typeof alimentacionForm] as boolean}
+                        onCheckedChange={(checked) =>
+                          setAlimentacionForm(prev => ({ ...prev, [key]: !!checked }))
+                        }
+                      />
+                      <Label className="text-sm">{label}</Label>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAlimentacionVehiculo(null)}>Cancelar</Button>
+            <Button onClick={handleSaveAlimentacion} disabled={savingAlimentacion}>
+              {savingAlimentacion ? "Guardando..." : "Guardar"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -4,7 +4,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Image } from "lucide-react";
 
-const ALIMENTACION_COSTO = 3.00;
+const ALIMENTACION_COSTO_DEFAULT = 3.00;
 
 interface ViajeRow {
   id: string;
@@ -22,6 +22,7 @@ interface ViajeRow {
     total_egreso: number; desayuno: boolean; almuerzo: boolean; merienda: boolean;
     combustible_foto_url?: string | null; varios_foto_url?: string | null; varios_texto?: string | null;
   } | null;
+  valor_comida?: number;
 }
 
 interface ViajesTableProps {
@@ -35,13 +36,13 @@ interface ViajesTableProps {
   frecuenciaComision?: string;
 }
 
-function calcAlimentacion(eg: ViajeRow["egresos"]): number {
+function calcAlimentacion(eg: ViajeRow["egresos"], valorComida: number = ALIMENTACION_COSTO_DEFAULT): number {
   if (!eg) return 0;
   let count = 0;
   if (eg.desayuno) count++;
   if (eg.almuerzo) count++;
   if (eg.merienda) count++;
-  return count * ALIMENTACION_COSTO;
+  return count * valorComida;
 }
 
 export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = true, showSummary = true, comisionPct = 0.10, comisionFija = 0, tipoComision = "PORCENTAJE", frecuenciaComision = "SEMANAL" }: ViajesTableProps) {
@@ -54,7 +55,7 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
   const totals = viajes.reduce((acc, v) => {
     const ing = v.ingresos;
     const eg = v.egresos;
-    const alim = calcAlimentacion(eg);
+    const alim = calcAlimentacion(eg, v.valor_comida);
     acc.pasajeros += v.cantidad_pasajeros || 0;
     acc.pasajerosMonto += ing?.pasajeros_monto || 0;
     acc.encomiendas += ing?.encomiendas_monto || 0;
@@ -132,7 +133,7 @@ export function ViajesTable({ viajes, showEgresos = true, showConductorColumn = 
                   if (eg?.desayuno) alimParts.push("D");
                   if (eg?.almuerzo) alimParts.push("A");
                   if (eg?.merienda) alimParts.push("M");
-                  const alimCosto = calcAlimentacion(eg);
+                  const alimCosto = calcAlimentacion(eg, v.valor_comida);
                   const rowTotalEgreso = (eg?.peaje || 0) + (eg?.hotel || 0) + (showConductorColumn ? (eg?.pago_conductor || 0) : 0) + (eg?.combustible || 0) + (eg?.varios || 0) + alimCosto;
 
                   return (
