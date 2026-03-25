@@ -644,11 +644,16 @@ export default function Dashboard() {
                                     <div>
                                       <p className="font-semibold text-foreground truncate">{veh.conductorNombre || "—"}</p>
                                       <p className="text-muted-foreground">{veh.marca} · {veh.placa}</p>
-                                      {veh.estadoRuta && (
-                                        <Badge variant={veh.estadoRuta === "EN_RUTA" ? "default" : "outline"} className="text-[9px] mt-0.5">
-                                          {veh.estadoRuta === "EN_RUTA" ? `Ruta → ${veh.destinoPendiente}` : `Asig → ${veh.destinoPendiente}`}
-                                        </Badge>
-                                      )}
+                                      <Badge
+                                        variant={veh.estadoRuta === "EN_RUTA" ? "default" : veh.estadoRuta === "ASIGNADO" ? "outline" : "secondary"}
+                                        className="text-[9px] mt-0.5"
+                                      >
+                                        {veh.estadoRuta === "EN_RUTA"
+                                          ? `En Ruta → ${veh.destinoPendiente}`
+                                          : veh.estadoRuta === "ASIGNADO"
+                                            ? `Asignado → ${veh.destinoPendiente}`
+                                            : "Disponible"}
+                                      </Badge>
                                     </div>
                                   ) : null}
                                 </td>
