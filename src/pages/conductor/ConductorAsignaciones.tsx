@@ -86,6 +86,11 @@ export default function ConductorAsignaciones() {
 
   useEffect(() => { loadData(); }, [user]);
 
+  const getAlimConfig = (viaje: any) => {
+    const vehId = asigVehMap[viaje.asignacion_id];
+    return vehId ? alimentacionMap[vehId] : null;
+  };
+
   if (role !== "CONDUCTOR") return <Navigate to="/dashboard" replace />;
 
   const handleIniciarRuta = async (viajeId: string) => {
