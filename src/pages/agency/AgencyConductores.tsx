@@ -137,6 +137,7 @@ export default function AgencyConductores() {
                       <TableHead>Email</TableHead>
                       <TableHead>Licencia</TableHead>
                       <TableHead>Vehículo Asignado</TableHead>
+                      <TableHead>Config. Alimentación</TableHead>
                       <TableHead>Estado</TableHead>
                       <TableHead className="w-10"></TableHead>
                     </TableRow>
