@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Bus, ChevronDown, ChevronUp, LayoutList, Printer, User, CheckCircle } from "lucide-react";
+import { Bus, ChevronDown, ChevronUp, LayoutList, Printer, User, CheckCircle, AlertTriangle } from "lucide-react";
 import { PrintHeader } from "@/components/PrintHeader";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -120,6 +124,7 @@ export default function GerenciaViajes() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [printingVehicle, setPrintingVehicle] = useState<string | null>(null);
   const [empresaInfo, setEmpresaInfo] = useState<any>(null);
+  const [finalizarAlert, setFinalizarAlert] = useState<{ placa: string; hasEnRuta: boolean } | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -228,10 +233,7 @@ export default function GerenciaViajes() {
                                   size="sm"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (hasEnRuta) {
-                                      toast.info("Tienes rutas pendientes por finalizar. Las rutas que no estén finalizadas se registrarán en el siguiente corte. Contáctate con tu conductor.", { duration: 6000 });
-                                    }
-                                    handleFinalizarPeriodo(veh.placa);
+                                    setFinalizarAlert({ placa: veh.placa, hasEnRuta });
                                   }}
                                 >
                                   <CheckCircle className="w-4 h-4 mr-1" />
@@ -287,6 +289,31 @@ export default function GerenciaViajes() {
           </>
         )}
       </motion.div>
+
+      <AlertDialog open={!!finalizarAlert} onOpenChange={() => setFinalizarAlert(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              {finalizarAlert?.hasEnRuta && <AlertTriangle className="w-5 h-5 text-yellow-500" />}
+              Finalizar {frecuenciaLabel}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
+              {finalizarAlert?.hasEnRuta
+                ? "Tienes rutas pendientes por finalizar. Las rutas que no estén finalizadas se registrarán en el siguiente corte. Contáctate con tu conductor."
+                : `¿Deseas finalizar el corte de ${frecuenciaLabel.toLowerCase()} para el vehículo ${finalizarAlert?.placa}?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (finalizarAlert) handleFinalizarPeriodo(finalizarAlert.placa);
+              setFinalizarAlert(null);
+            }}>
+              Finalizar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }
