@@ -45,8 +45,9 @@ function ConsolidadoTable({ vehicleMap, vehicleKeys, empresaInfo }: { vehicleMap
 
   const rows = vehicleKeys.map((key, idx) => {
     const veh = vehicleMap[key];
-    const totalIngreso = veh.viajes.reduce((s: number, v: any) => s + Number(v.ingresos?.total_ingreso || 0), 0);
-    const totalEgreso = veh.viajes.reduce((s: number, v: any) => {
+    const finalizados = veh.viajes.filter((v: any) => v.estado === "FINALIZADO" || v.estado === "CERRADO");
+    const totalIngreso = finalizados.reduce((s: number, v: any) => s + Number(v.ingresos?.total_ingreso || 0), 0);
+    const totalEgreso = finalizados.reduce((s: number, v: any) => {
       const eg = v.egresos;
       if (!eg) return s;
       const alim = calcAlim(eg, v.valor_comida);
