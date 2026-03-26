@@ -190,6 +190,22 @@ export default function AgencyConductores() {
                           )}
                         </TableCell>
                         <TableCell>
+                          {(() => {
+                            if (!c.vehiculo?.id) return <span className="text-xs text-muted-foreground">—</span>;
+                            const alim = alimMap[c.vehiculo.id];
+                            if (!alim) return <span className="text-xs text-muted-foreground">—</span>;
+                            if (!alim.alimentacion_habilitada) return <span className="text-xs text-destructive font-medium">No alimentación</span>;
+                            return (
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-xs font-semibold text-foreground">${alim.valor_comida}</span>
+                                {alim.desayuno_habilitado && <span className="w-3 h-3 rounded-full bg-yellow-400 inline-block" title="Desayuno" />}
+                                {alim.almuerzo_habilitado && <span className="w-3 h-3 rounded-full bg-yellow-400 inline-block" title="Almuerzo" />}
+                                {alim.merienda_habilitado && <span className="w-3 h-3 rounded-full bg-yellow-400 inline-block" title="Merienda" />}
+                              </div>
+                            );
+                          })()}
+                        </TableCell>
+                        <TableCell>
                           <Badge variant={c.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">{c.estado}</Badge>
                         </TableCell>
                         <TableCell>
