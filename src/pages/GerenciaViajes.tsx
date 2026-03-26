@@ -205,7 +205,7 @@ export default function GerenciaViajes() {
                         </div>
                         <div className="flex items-center gap-2">
                           {isOpen && (() => {
-                            const allFinalized = veh.viajes.length > 0 && veh.viajes.every((v: any) => v.estado === "FINALIZADO");
+                            const hasEnRuta = veh.viajes.some((v: any) => v.estado === "EN_RUTA" || v.estado === "ASIGNADO");
                             return (
                               <>
                                 <Button
@@ -225,12 +225,13 @@ export default function GerenciaViajes() {
                                 </Button>
                                 <Button
                                   size="sm"
-                                  disabled={!allFinalized}
                                   onClick={(e) => {
                                     e.stopPropagation();
+                                    if (hasEnRuta) {
+                                      toast.info("Tienes rutas pendientes por finalizar. Las rutas que no estén finalizadas se registrarán en el siguiente corte. Contáctate con tu conductor.", { duration: 6000 });
+                                    }
                                     handleFinalizarPeriodo(veh.placa);
                                   }}
-                                  title={!allFinalized ? "Todos los viajes deben estar finalizados" : ""}
                                 >
                                   <CheckCircle className="w-4 h-4 mr-1" />
                                   Finalizar {frecuenciaLabel}
