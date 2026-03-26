@@ -387,8 +387,8 @@ export default function SuperAdminPanel() {
                         <TableCell className="font-medium">{empresa.nombre}</TableCell>
                         <TableCell>{empresa.propietario_nombre} {empresa.propietario_apellidos}</TableCell>
                         <TableCell>{empresa.ruc}</TableCell>
+                        <TableCell>{PROVINCIAS_ECUADOR.some(p => p.toLowerCase() === empresa.ciudad.toLowerCase()) ? empresa.ciudad : "Pichincha"}</TableCell>
                         <TableCell>{empresa.ciudad}</TableCell>
-                        <TableCell className="text-xs">{empresa.direccion}</TableCell>
                         <TableCell className="text-xs">{empresa.email}</TableCell>
                         <TableCell>{empresa.celular}</TableCell>
                         <TableCell className="text-xs">
