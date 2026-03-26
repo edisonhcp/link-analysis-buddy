@@ -34,6 +34,7 @@ export default function AgencyConductores() {
   const { toast } = useToast();
   const [conductores, setConductores] = useState<any[]>([]);
   const [vehiculosDisponibles, setVehiculosDisponibles] = useState<any[]>([]);
+  const [alimMap, setAlimMap] = useState<Record<string, VehiculoAlimentacion>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [deleteAlert, setDeleteAlert] = useState<any>(null);
@@ -45,6 +46,18 @@ export default function AgencyConductores() {
     ]);
     setConductores(conds);
     setVehiculosDisponibles(vehs);
+
+    // Fetch alimentacion configs for assigned vehicles
+    const vehiculoIds = conds
+      .filter((c: any) => c.vehiculo?.id)
+      .map((c: any) => c.vehiculo.id);
+    if (vehiculoIds.length > 0) {
+      const { data: alims } = await fetchAlimentacionByVehiculos(vehiculoIds);
+      const map: Record<string, VehiculoAlimentacion> = {};
+      alims.forEach((a) => { map[a.vehiculo_id] = a; });
+      setAlimMap(map);
+    }
+
     setLoading(false);
   };
 
