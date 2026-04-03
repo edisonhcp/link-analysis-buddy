@@ -42,13 +42,19 @@ function getPeriodsForMonth(year: number, month: number, frecuencia: string): Pe
     periods.push({ label: `Quincena 1 (1-15)`, start: new Date(year, month, 1), end: mid });
     periods.push({ label: `Quincena 2 (16-${endOfMonth.getDate()})`, start: new Date(year, month, 16), end: endOfMonth });
   } else if (frecuencia === "BISEMANAL") {
-    // Every 2 weeks (Monday to Sunday), group pairs of weeks
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     let current = new Date(firstDay);
     const dow = current.getDay();
     if (dow === 0) { current.setDate(current.getDate() - 6); }
     else if (dow !== 1) { current.setDate(current.getDate() - (dow - 1)); }
+    
+    // Align to biweek using reference Monday
+    const refMonday = new Date(2024, 0, 1);
+    const weeksSinceRef = Math.floor((current.getTime() - refMonday.getTime()) / (7 * 24 * 60 * 60 * 1000));
+    if (weeksSinceRef % 2 !== 0) {
+      current.setDate(current.getDate() - 7);
+    }
     
     let biweekNum = 1;
     while (current <= lastDay) {
@@ -58,8 +64,8 @@ function getPeriodsForMonth(year: number, month: number, frecuencia: string): Pe
       bEnd.setDate(bEnd.getDate() + 13);
       bEnd.setHours(23, 59, 59, 999);
       
-      // Only show period in the month where it starts
-      if (bStart.getMonth() === month && bStart.getFullYear() === year) {
+      // Show if the period overlaps with this month
+      if (bEnd >= firstDay && bStart <= lastDay) {
         const sDay = bStart.getDate();
         const sMonth = bStart.getMonth();
         const eDay = bEnd.getDate();
@@ -72,8 +78,6 @@ function getPeriodsForMonth(year: number, month: number, frecuencia: string): Pe
         }
         periods.push({ label, start: bStart, end: bEnd });
         biweekNum++;
-      } else if (bEnd >= firstDay && bStart < firstDay) {
-        // Period starts in previous month but overlaps — skip, it belongs to previous month
       }
       current.setDate(current.getDate() + 14);
     }
