@@ -112,15 +112,16 @@ function getCurrentPeriod(frecuencia: string): { start: Date; end: Date } {
       };
     }
   } else {
-    // SEMANAL - Sunday to Saturday
-    const dayOfWeek = now.getDay();
-    const sunday = new Date(now);
-    sunday.setDate(now.getDate() - dayOfWeek);
-    sunday.setHours(0, 0, 0, 0);
-    const saturday = new Date(sunday);
-    saturday.setDate(sunday.getDate() + 6);
-    saturday.setHours(23, 59, 59, 999);
-    return { start: sunday, end: saturday };
+    // SEMANAL - Monday to Sunday
+    const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diffToMonday);
+    monday.setHours(0, 0, 0, 0);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+    return { start: monday, end: sunday };
   }
 }
 
