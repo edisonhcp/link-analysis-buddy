@@ -95,7 +95,8 @@ function getPeriodsForMonth(year: number, month: number, frecuencia: string): Pe
       weekEnd.setDate(weekEnd.getDate() + 6);
       weekEnd.setHours(23, 59, 59, 999);
       
-      if (weekEnd >= firstDay && weekStart <= lastDay) {
+      // Only show period in the month where it starts
+      if (weekStart.getMonth() === month && weekStart.getFullYear() === year) {
         const sDay = weekStart.getDate();
         const sMonth = weekStart.getMonth();
         const eDay = weekEnd.getDate();
