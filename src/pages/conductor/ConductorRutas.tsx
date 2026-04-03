@@ -134,6 +134,21 @@ function getCurrentPeriod(frecuencia: string): { start: Date; end: Date } {
         end: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999),
       };
     }
+  } else if (frecuencia === "BISEMANAL") {
+    // Every 2 weeks Monday-Sunday. Find the biweek containing today.
+    const dayOfWeek = now.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const thisMonday = new Date(now);
+    thisMonday.setDate(now.getDate() + diffToMonday);
+    thisMonday.setHours(0, 0, 0, 0);
+    // Use epoch-based calculation: weeks since a reference Monday
+    const refMonday = new Date(2024, 0, 1); // Jan 1 2024 is a Monday
+    const weeksSinceRef = Math.floor((thisMonday.getTime() - refMonday.getTime()) / (7 * 24 * 60 * 60 * 1000));
+    const isEvenWeek = weeksSinceRef % 2 === 0;
+    const biweekStart = isEvenWeek ? thisMonday : new Date(thisMonday.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const biweekEnd = new Date(biweekStart.getTime() + 13 * 24 * 60 * 60 * 1000);
+    biweekEnd.setHours(23, 59, 59, 999);
+    return { start: biweekStart, end: biweekEnd };
   } else {
     // SEMANAL - Monday to Sunday
     const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
