@@ -57,7 +57,7 @@ export default function AdminDashboard() {
   };
 
   const handleRechazarSolicitud = async (id: string) => {
-    const { error } = await resolverSolicitud(id, "RECHAZADA", "SUPER_ADMIN", motivoRechazo);
+    const { error } = await resolverSolicitud(id, "RECHAZADA", user?.id || "", motivoRechazo);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
