@@ -66,7 +66,7 @@ export default function AdminAuditoria() {
     setLoading(false);
   };
 
-  useEffect(() => { loadLogs(); }, [filterEmpresa, filterAccion, filterMes]);
+  useEffect(() => { loadLogs(); }, [filterEmpresa, filterMes]);
 
   if (role !== "SUPER_ADMIN") return <Navigate to="/dashboard" replace />;
 
