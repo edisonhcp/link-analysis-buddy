@@ -114,17 +114,6 @@ export default function AdminAuditoria() {
                   </SelectContent>
                 </Select>
 
-                <Select value={filterAccion} onValueChange={setFilterAccion}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Todas las acciones" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todas las acciones</SelectItem>
-                    {accionesDisponibles.map(a => (
-                      <SelectItem key={a} value={a}>{ACCION_LABELS[a]}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
 
                 <Select value={filterMes} onValueChange={setFilterMes}>
                   <SelectTrigger>
