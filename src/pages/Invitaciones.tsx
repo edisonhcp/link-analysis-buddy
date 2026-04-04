@@ -19,6 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
 import { fetchInvitaciones, generateInvitation } from "@/services/invitacionesService";
+import { insertAuditLog } from "@/services/auditService";
 
 interface InvitacionRow {
   id: string;
@@ -36,7 +37,7 @@ const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { st
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function Invitaciones() {
-  const { role } = useAuth();
+  const { role, empresaId, user } = useAuth();
   const { toast } = useToast();
   const [invitaciones, setInvitaciones] = useState<InvitacionRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,6 +68,11 @@ export default function Invitaciones() {
       setGeneratedLink(link);
       setGenerateOpen(false);
       setLinkDialogOpen(true);
+      // Audit log
+      if (empresaId) {
+        const accion = selectedRol === "CONDUCTOR" ? "LINK_CONDUCTOR_GENERADO" : "LINK_PROPIETARIO_GENERADO";
+        insertAuditLog({ empresa_id: empresaId, accion, user_id: user?.id, rol: "GERENCIA", despues: { rol: selectedRol } });
+      }
       setSelectedRol("");
       loadData();
     } catch (err: any) {

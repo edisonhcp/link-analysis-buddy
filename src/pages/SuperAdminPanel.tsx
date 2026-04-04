@@ -33,6 +33,7 @@ import {
 import { generateInvitation } from "@/services/invitacionesService";
 import { PROVINCIAS_ECUADOR } from "@/constants/provinciasEcuador";
 import { fetchSolicitudesPendientes, resolverSolicitud } from "@/services/solicitudesBajaService";
+import { insertAuditLog } from "@/services/auditService";
 
 interface EmpresaRow {
   id: string;
@@ -117,6 +118,7 @@ export default function SuperAdminPanel() {
     if (deleteErr) {
       toast({ title: "Error al eliminar", description: deleteErr.message, variant: "destructive" });
     } else {
+      insertAuditLog({ empresa_id: solicitud.empresa_id, accion: "SOLICITUD_BAJA_APROBADA", user_id: user?.id, rol: "SUPER_ADMIN" });
       toast({ title: "Solicitud aprobada y compañía eliminada" });
       loadData();
     }
@@ -128,6 +130,9 @@ export default function SuperAdminPanel() {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
+      // We need the empresa_id; find it from rechazandoId
+      const sol = solicitudes.find((s: any) => s.id === id);
+      if (sol) insertAuditLog({ empresa_id: sol.empresa_id, accion: "SOLICITUD_BAJA_RECHAZADA", user_id: user?.id, rol: "SUPER_ADMIN", despues: { motivo_rechazo: motivoRechazo } });
       toast({ title: "Solicitud rechazada" });
     }
     setRechazandoId(null);
@@ -167,14 +172,21 @@ export default function SuperAdminPanel() {
     if (!deletingEmpresa) return;
     const { error } = await deleteEmpresa(deletingEmpresa.id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Compañía eliminada" }); loadData(); }
+    else {
+      insertAuditLog({ empresa_id: deletingEmpresa.id, accion: "EMPRESA_ELIMINADA", user_id: user?.id, rol: "SUPER_ADMIN", antes: { nombre: deletingEmpresa.nombre, ruc: deletingEmpresa.ruc } });
+      toast({ title: "Compañía eliminada" }); loadData();
+    }
     setDeleteAlertOpen(false);
   };
 
   const handleToggleSuspend = async (empresa: EmpresaRow) => {
     const { error } = await toggleEmpresaSuspend(empresa);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: empresa.activo ? "Compañía suspendida" : "Compañía reactivada" }); loadData(); }
+    else {
+      const accion = empresa.activo ? "EMPRESA_SUSPENDIDA" : "EMPRESA_REACTIVADA";
+      insertAuditLog({ empresa_id: empresa.id, accion, user_id: user?.id, rol: "SUPER_ADMIN", despues: { nombre: empresa.nombre } });
+      toast({ title: empresa.activo ? "Compañía suspendida" : "Compañía reactivada" }); loadData();
+    }
   };
 
   const handleGenerateLink = async (empresaId?: string) => {
@@ -184,6 +196,9 @@ export default function SuperAdminPanel() {
       const link = `${window.location.origin}/registro/${data.token}`;
       setGeneratedLink(link);
       setLinkDialogOpen(true);
+      if (empresaId) {
+        insertAuditLog({ empresa_id: empresaId, accion: "LINK_GERENCIA_GENERADO", user_id: user?.id, rol: "SUPER_ADMIN" });
+      }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {

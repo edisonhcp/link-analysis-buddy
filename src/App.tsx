@@ -13,6 +13,7 @@ import AdminConductores from "./pages/admin/AdminConductores";
 import AdminPropietarios from "./pages/admin/AdminPropietarios";
 import AdminConsolidadoViajes from "./pages/admin/AdminConsolidadoViajes";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminAuditoria from "./pages/admin/AdminAuditoria";
 import AgencyPropietarios from "./pages/agency/AgencyPropietarios";
 import AgencyVehiculos from "./pages/agency/AgencyVehiculos";
 import AgencyConductores from "./pages/agency/AgencyConductores";
@@ -68,6 +69,7 @@ const App = () => (
             <Route path="/admin/conductores" element={<ProtectedRoute><AdminConductores /></ProtectedRoute>} />
             <Route path="/admin/propietarios" element={<ProtectedRoute><AdminPropietarios /></ProtectedRoute>} />
             <Route path="/admin/consolidado-viajes" element={<ProtectedRoute><AdminConsolidadoViajes /></ProtectedRoute>} />
+            <Route path="/admin/auditoria" element={<ProtectedRoute><AdminAuditoria /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

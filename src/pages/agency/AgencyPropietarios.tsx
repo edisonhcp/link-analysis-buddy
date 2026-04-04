@@ -20,12 +20,13 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { fetchPropietarios, deletePropietario } from "@/services/propietariosService";
+import { insertAuditLog } from "@/services/auditService";
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function AgencyPropietarios() {
-  const { role } = useAuth();
+  const { role, empresaId, user } = useAuth();
   const { toast } = useToast();
   const [propietarios, setPropietarios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +46,9 @@ export default function AgencyPropietarios() {
     if (!deleteAlert) return;
     const { error } = await deletePropietario(deleteAlert);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); setDeleteAlert(null); return; }
+    if (empresaId) {
+      insertAuditLog({ empresa_id: empresaId, accion: "PROPIETARIO_ELIMINADO", user_id: user?.id, rol: "GERENCIA", antes: { nombres: deleteAlert.nombres, apellidos: deleteAlert.apellidos, identificacion: deleteAlert.identificacion } });
+    }
     toast({ title: "Propietario eliminado" });
     setDeleteAlert(null);
     loadData();

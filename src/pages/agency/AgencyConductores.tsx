@@ -25,12 +25,13 @@ import {
 import { fetchConductores, toggleConductorEstado, deleteConductor, unassignConductor } from "@/services/conductoresService";
 import { fetchVehiculosDisponiblesParaConductor, assignConductorToVehiculo } from "@/services/vehiculosService";
 import { fetchAlimentacionByVehiculos, VehiculoAlimentacion } from "@/services/alimentacionService";
+import { insertAuditLog } from "@/services/auditService";
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function AgencyConductores() {
-  const { role, empresaId } = useAuth();
+  const { role, empresaId, user } = useAuth();
   const { toast } = useToast();
   const [conductores, setConductores] = useState<any[]>([]);
   const [vehiculosDisponibles, setVehiculosDisponibles] = useState<any[]>([]);
@@ -78,7 +79,10 @@ export default function AgencyConductores() {
     if (!deleteAlert) return;
     if (deleteAlert.en_ruta) { toast({ title: "En ruta", description: enRutaMsg, variant: "destructive" }); setDeleteAlert(null); return; }
     const { error } = await deleteConductor(deleteAlert);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); setDeleteAlert(null); return; }
+    if (empresaId) {
+      insertAuditLog({ empresa_id: empresaId, accion: "CONDUCTOR_ELIMINADO", user_id: user?.id, rol: "GERENCIA", antes: { nombres: deleteAlert.nombres, apellidos: deleteAlert.apellidos, identificacion: deleteAlert.identificacion } });
+    }
     toast({ title: "Conductor eliminado" });
     setDeleteAlert(null);
     loadData();
@@ -95,7 +99,10 @@ export default function AgencyConductores() {
     if (!empresaId) return;
     const { error } = await assignConductorToVehiculo(vehiculoId, conductorId, empresaId);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Vehículo asignado al conductor" }); loadData(); }
+    else {
+      insertAuditLog({ empresa_id: empresaId, accion: "ASIGNACION_CREADA", user_id: user?.id, rol: "GERENCIA", despues: { conductor_id: conductorId, vehiculo_id: vehiculoId } });
+      toast({ title: "Vehículo asignado al conductor" }); loadData();
+    }
   };
 
   const filtered = conductores.filter(c =>

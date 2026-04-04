@@ -24,12 +24,13 @@ import {
 } from "@/components/ui/select";
 import { fetchVehiculos, toggleVehiculoEstado, deleteVehiculo, fetchConductoresDisponibles, assignConductorToVehiculo } from "@/services/vehiculosService";
 import { unassignConductor } from "@/services/conductoresService";
+import { insertAuditLog } from "@/services/auditService";
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function AgencyVehiculos() {
-  const { role, empresaId } = useAuth();
+  const { role, empresaId, user } = useAuth();
   const { toast } = useToast();
   const [vehiculos, setVehiculos] = useState<any[]>([]);
   const [conductoresDisponibles, setConductoresDisponibles] = useState<any[]>([]);
@@ -65,7 +66,12 @@ export default function AgencyVehiculos() {
     if (deleteAlert.en_ruta) { toast({ title: "En ruta", description: enRutaMsg, variant: "destructive" }); setDeleteAlert(null); return; }
     const { error } = await deleteVehiculo(deleteAlert);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Vehículo eliminado" }); loadData(); }
+    else {
+      if (empresaId) {
+        insertAuditLog({ empresa_id: empresaId, accion: "VEHICULO_ELIMINADO", user_id: user?.id, rol: "GERENCIA", antes: { placa: deleteAlert.placa, marca: deleteAlert.marca, modelo: deleteAlert.modelo } });
+      }
+      toast({ title: "Vehículo eliminado" }); loadData();
+    }
     setDeleteAlert(null);
   };
 
@@ -73,7 +79,10 @@ export default function AgencyVehiculos() {
     if (!empresaId) return;
     const { error } = await assignConductorToVehiculo(vehiculoId, conductorId, empresaId);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Conductor asignado al vehículo" }); loadData(); }
+    else {
+      insertAuditLog({ empresa_id: empresaId, accion: "ASIGNACION_CREADA", user_id: user?.id, rol: "GERENCIA", despues: { vehiculo_id: vehiculoId, conductor_id: conductorId } });
+      toast({ title: "Conductor asignado al vehículo" }); loadData();
+    }
   };
 
   const handleUnassignFromVehiculo = async (v: any) => {
