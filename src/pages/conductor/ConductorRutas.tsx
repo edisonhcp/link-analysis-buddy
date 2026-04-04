@@ -127,16 +127,6 @@ export default function ConductorRutas() {
     }
   }, [empresaInfo]);
 
-  // Available vehicles
-  const availableVehiculos = useMemo(() => {
-    const map = new Map<string, { placa: string; marca: string; modelo: string }>();
-    allViajes.forEach(v => {
-      if (v.vehiculo?.placa && !map.has(v.vehiculo.placa)) {
-        map.set(v.vehiculo.placa, v.vehiculo);
-      }
-    });
-    return Array.from(map.values()).sort((a, b) => a.placa.localeCompare(b.placa));
-  }, [allViajes]);
 
   // Available months
   const availableMonths = useMemo(() => {
