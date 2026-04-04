@@ -53,27 +53,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "asignaciones_conductor_id_fkey"
-            columns: ["conductor_id"]
-            isOneToOne: false
-            referencedRelation: "conductores"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "asignaciones_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "asignaciones_vehiculo_id_fkey"
-            columns: ["vehiculo_id"]
-            isOneToOne: false
-            referencedRelation: "vehiculos"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "fk_asignaciones_conductor"
             columns: ["conductor_id"]
             isOneToOne: false
@@ -132,15 +111,7 @@ export type Database = {
           vehiculo_id?: string | null
           viaje_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "audit_logs_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       conductores: {
         Row: {
@@ -212,15 +183,7 @@ export type Database = {
           nombres?: string
           tipo_licencia?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "conductores_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       dias_operacion: {
         Row: {
@@ -257,20 +220,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "dias_operacion_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "dias_operacion_semana_id_fkey"
-            columns: ["semana_id"]
-            isOneToOne: false
-            referencedRelation: "semanas"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "fk_dias_operacion_semana"
             columns: ["semana_id"]
@@ -345,20 +294,6 @@ export type Database = {
           viaje_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "egresos_viaje_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "egresos_viaje_viaje_id_fkey"
-            columns: ["viaje_id"]
-            isOneToOne: true
-            referencedRelation: "viajes"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "fk_egresos_viaje"
             columns: ["viaje_id"]
@@ -470,20 +405,6 @@ export type Database = {
             referencedRelation: "viajes"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "ingresos_viaje_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ingresos_viaje_viaje_id_fkey"
-            columns: ["viaje_id"]
-            isOneToOne: true
-            referencedRelation: "viajes"
-            referencedColumns: ["id"]
-          },
         ]
       }
       invitaciones: {
@@ -520,13 +441,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "fk_invitaciones_empresa"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invitaciones_empresa_id_fkey"
             columns: ["empresa_id"]
             isOneToOne: false
             referencedRelation: "empresas"
@@ -570,24 +484,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_profiles_conductor"
-            columns: ["conductor_id"]
-            isOneToOne: false
-            referencedRelation: "conductores"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "fk_profiles_conductor_fk"
             columns: ["conductor_id"]
             isOneToOne: false
             referencedRelation: "conductores"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_profiles_propietario"
-            columns: ["propietario_id"]
-            isOneToOne: false
-            referencedRelation: "propietarios"
             referencedColumns: ["id"]
           },
           {
@@ -658,15 +558,7 @@ export type Database = {
           nacionalidad?: string
           nombres?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "propietarios_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       semanas: {
         Row: {
@@ -747,27 +639,6 @@ export type Database = {
             referencedRelation: "vehiculos"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "semanas_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "semanas_propietario_id_fkey"
-            columns: ["propietario_id"]
-            isOneToOne: false
-            referencedRelation: "propietarios"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "semanas_vehiculo_id_fkey"
-            columns: ["vehiculo_id"]
-            isOneToOne: false
-            referencedRelation: "vehiculos"
-            referencedColumns: ["id"]
-          },
         ]
       }
       user_roles: {
@@ -833,20 +704,6 @@ export type Database = {
             referencedRelation: "vehiculos"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "vehiculo_alimentacion_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehiculo_alimentacion_vehiculo_id_fkey"
-            columns: ["vehiculo_id"]
-            isOneToOne: true
-            referencedRelation: "vehiculos"
-            referencedColumns: ["id"]
-          },
         ]
       }
       vehiculo_disponibilidad: {
@@ -883,20 +740,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "fk_vehiculo_disponibilidad_vehiculo"
-            columns: ["vehiculo_id"]
-            isOneToOne: true
-            referencedRelation: "vehiculos"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehiculo_disponibilidad_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehiculo_disponibilidad_vehiculo_id_fkey"
             columns: ["vehiculo_id"]
             isOneToOne: true
             referencedRelation: "vehiculos"
@@ -964,20 +807,6 @@ export type Database = {
             referencedRelation: "propietarios"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "vehiculos_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehiculos_propietario_id_fkey"
-            columns: ["propietario_id"]
-            isOneToOne: false
-            referencedRelation: "propietarios"
-            referencedColumns: ["id"]
-          },
         ]
       }
       viaje_dia_control: {
@@ -1029,20 +858,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "fk_viaje_dia_control_viaje"
-            columns: ["viaje_id"]
-            isOneToOne: true
-            referencedRelation: "viajes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "viaje_dia_control_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "viaje_dia_control_viaje_id_fkey"
             columns: ["viaje_id"]
             isOneToOne: true
             referencedRelation: "viajes"
@@ -1113,34 +928,6 @@ export type Database = {
           },
           {
             foreignKeyName: "fk_viajes_semana"
-            columns: ["semana_id"]
-            isOneToOne: false
-            referencedRelation: "semanas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "viajes_asignacion_id_fkey"
-            columns: ["asignacion_id"]
-            isOneToOne: false
-            referencedRelation: "asignaciones"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "viajes_dia_operacion_id_fkey"
-            columns: ["dia_operacion_id"]
-            isOneToOne: false
-            referencedRelation: "dias_operacion"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "viajes_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "viajes_semana_id_fkey"
             columns: ["semana_id"]
             isOneToOne: false
             referencedRelation: "semanas"
