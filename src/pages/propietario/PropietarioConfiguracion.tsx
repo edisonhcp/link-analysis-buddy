@@ -357,7 +357,7 @@ export default function PropietarioConfiguracion() {
                 onClick={() => vehiculoFotoRef.current?.click()}
               >
                 {vehiculoFotoPreview ? (
-                  <img src={vehiculoFotoPreview} alt="Vehículo" className="w-full h-full object-cover" />
+                  <StorageImage src={vehiculoFotoPreview} alt="Vehículo" className="w-full h-full object-cover" />
                 ) : (
                   <Camera className="w-6 h-6 text-muted-foreground" />
                 )}
