@@ -42,14 +42,24 @@ export default function AdminAuditoria() {
     });
   }, []);
 
+  const getMonthRange = (mesValue: string) => {
+    if (mesValue === "all") return { desde: undefined, hasta: undefined };
+    const [year, month] = mesValue.split("-").map(Number);
+    const desde = `${year}-${String(month).padStart(2, "0")}-01`;
+    const lastDay = new Date(year, month, 0).getDate();
+    const hasta = `${year}-${String(month).padStart(2, "0")}-${lastDay}`;
+    return { desde, hasta };
+  };
+
   const loadLogs = async () => {
     setLoading(true);
     try {
+      const { desde, hasta } = getMonthRange(filterMes);
       const data = await fetchAuditLogs({
         empresaId: filterEmpresa !== "all" ? filterEmpresa : undefined,
         accion: filterAccion !== "all" ? filterAccion : undefined,
-        desde: filterDesde || undefined,
-        hasta: filterHasta || undefined,
+        desde,
+        hasta,
       });
       setLogs(data);
     } catch (err) {
@@ -58,7 +68,7 @@ export default function AdminAuditoria() {
     setLoading(false);
   };
 
-  useEffect(() => { loadLogs(); }, []);
+  useEffect(() => { loadLogs(); }, [filterEmpresa, filterAccion, filterMes]);
 
   if (role !== "SUPER_ADMIN") return <Navigate to="/dashboard" replace />;
 
