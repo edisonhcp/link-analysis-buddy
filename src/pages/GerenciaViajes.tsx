@@ -239,7 +239,7 @@ export default function GerenciaViajes() {
           <div className="h-48 rounded-xl bg-muted animate-pulse" />
         ) : (
           <>
-            {vehicleKeys.map((key) => {
+            {filteredVehicleKeys.map((key) => {
               const veh = vehicleMap[key];
               const isOpen = expanded === key;
               return (
@@ -324,7 +324,7 @@ export default function GerenciaViajes() {
                       <div className="flex items-center gap-2">
                         <LayoutList className="w-5 h-5 text-primary" />
                         <span>Consolidado</span>
-                        <span className="text-muted-foreground text-xs">({vehicleKeys.length} vehículos)</span>
+                        <span className="text-muted-foreground text-xs">({filteredVehicleKeys.length} vehículos)</span>
                       </div>
                       <Button size="sm" variant="outline" onClick={handlePrint}>
                         <Printer className="w-4 h-4 mr-1" />
@@ -333,7 +333,7 @@ export default function GerenciaViajes() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ConsolidadoTable vehicleMap={vehicleMap} vehicleKeys={vehicleKeys} empresaInfo={empresaInfo} />
+                    <ConsolidadoTable vehicleMap={vehicleMap} vehicleKeys={filteredVehicleKeys} empresaInfo={empresaInfo} />
                   </CardContent>
                 </Card>
               </motion.div>
