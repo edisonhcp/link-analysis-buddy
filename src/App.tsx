@@ -17,6 +17,7 @@ import AdminAuditoria from "./pages/admin/AdminAuditoria";
 import AgencyPropietarios from "./pages/agency/AgencyPropietarios";
 import AgencyVehiculos from "./pages/agency/AgencyVehiculos";
 import AgencyConductores from "./pages/agency/AgencyConductores";
+import MiFlota from "./pages/agency/MiFlota";
 import RegistroInvitacion from "./pages/RegistroInvitacion";
 import Invitaciones from "./pages/Invitaciones";
 import PropietarioVehiculos from "./pages/PropietarioVehiculos";
