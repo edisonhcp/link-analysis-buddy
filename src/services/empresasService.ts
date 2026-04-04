@@ -169,7 +169,7 @@ export async function fetchEmpresaDetail(empresaId: string) {
     supabase.from("vehiculos").select("*, propietarios(nombres)").eq("empresa_id", empresaId),
     supabase.from("conductores").select("*").eq("empresa_id", empresaId),
     supabase.from("propietarios").select("*, vehiculos(placa, marca, modelo, anio, estado)").eq("empresa_id", empresaId),
-    supabase.from("asignaciones").select("conductor_id, vehiculo_id, conductores(nombres), vehiculos(placa, marca, modelo, anio, propietarios(nombres))").eq("empresa_id", empresaId).eq("estado", "ACTIVA"),
+    supabase.from("asignaciones").select("conductor_id, vehiculo_id, conductores!fk_asignaciones_conductor(nombres), vehiculos!fk_asignaciones_vehiculo(placa, marca, modelo, anio, propietarios!fk_vehiculos_propietario(nombres))").eq("empresa_id", empresaId).eq("estado", "ACTIVA"),
   ]);
   const asignaciones = aRes.data || [];
 
