@@ -88,7 +88,9 @@ export default function SuperAdminPanel() {
   const [detailConductores, setDetailConductores] = useState<any[]>([]);
   const [detailPropietarios, setDetailPropietarios] = useState<any[]>([]);
   const [detailLoading, setDetailLoading] = useState(false);
-
+  const [solicitudes, setSolicitudes] = useState<any[]>([]);
+  const [rechazandoId, setRechazandoId] = useState<string | null>(null);
+  const [motivoRechazo, setMotivoRechazo] = useState("");
   const loadData = async () => {
     const result = await fetchGlobalStats();
     setEmpresas(result.empresas as EmpresaRow[]);
