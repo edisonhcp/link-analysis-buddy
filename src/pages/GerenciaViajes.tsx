@@ -274,42 +274,42 @@ export default function GerenciaViajes() {
       .sort((a, b) => b.year - a.year || b.month - a.month);
   })();
 
-  // Periods for selected months
-  const availablePeriods = (() => {
-    const periods: PeriodRange[] = [];
-    for (const mk of selectedMonths) {
-      const [year, month] = mk.split("-").map(Number);
-      periods.push(...getPeriodsForMonth(year, month, frecuencia));
-    }
-    const seen = new Set<string>();
-    return periods.filter(p => {
-      if (seen.has(p.key)) return false;
-      seen.add(p.key);
-      return true;
-    }).sort((a, b) => a.start.getTime() - b.start.getTime());
-  })();
-
-  // Filter viajes by period and months
+  // Filter viajes by selected months
   const filteredViajes = (() => {
     let result = viajes;
-    if (selectedPeriodKey === "__all__") {
-      if (selectedMonths.length > 0 && availablePeriods.length > 0) {
-        result = result.filter(v => {
-          const d = new Date(v.fecha_salida);
-          return availablePeriods.some(r => d >= r.start && d <= r.end);
+    if (selectedMonths.length > 0) {
+      result = result.filter(v => {
+        const d = new Date(v.fecha_salida);
+        return selectedMonths.some(mk => {
+          const [year, month] = mk.split("-").map(Number);
+          const start = new Date(year, month, 1);
+          const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
+          return d >= start && d <= end;
         });
-      }
-    } else {
-      const period = availablePeriods.find(p => p.key === selectedPeriodKey);
-      if (period) {
-        result = result.filter(v => {
-          const d = new Date(v.fecha_salida);
-          return d >= period.start && d <= period.end;
-        });
-      }
+      });
     }
     return result;
   })();
+
+  // Current period viajes for Consolidado (independent, all vehicles)
+  const currentPeriod = getCurrentPeriod(frecuencia);
+  const consolidadoVehicleMap: Record<string, { placa: string; marca: string; modelo: string; propietario: string; viajes: any[] }> = {};
+  viajes.forEach((v) => {
+    const d = new Date(v.fecha_salida);
+    if (d < currentPeriod.start || d > currentPeriod.end) return;
+    const placa = v.vehiculo?.placa || "sin-vehiculo";
+    if (!consolidadoVehicleMap[placa]) {
+      consolidadoVehicleMap[placa] = {
+        placa: v.vehiculo?.placa || "—",
+        marca: v.vehiculo?.marca || "",
+        modelo: v.vehiculo?.modelo || "",
+        propietario: v.propietario_nombre || "—",
+        viajes: [],
+      };
+    }
+    consolidadoVehicleMap[placa].viajes.push(v);
+  });
+  const consolidadoVehicleKeys = Object.keys(consolidadoVehicleMap).sort();
 
   // Group by vehicle
   const vehicleMap: Record<string, { placa: string; marca: string; modelo: string; propietario: string; viajes: any[] }> = {};
