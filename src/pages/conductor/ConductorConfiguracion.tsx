@@ -189,7 +189,7 @@ export default function ConductorConfiguracion() {
               onClick={() => traseraRef.current?.click()}
             >
               {traseraPreview ? (
-                <img src={traseraPreview} alt="Trasero" className="w-full h-full object-cover" />
+                <StorageImage src={traseraPreview} alt="Trasero" className="w-full h-full object-cover" />
               ) : (
                 <div className="text-center">
                   <Upload className="w-6 h-6 mx-auto text-muted-foreground" />
