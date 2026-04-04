@@ -79,7 +79,10 @@ export default function AgencyConductores() {
     if (!deleteAlert) return;
     if (deleteAlert.en_ruta) { toast({ title: "En ruta", description: enRutaMsg, variant: "destructive" }); setDeleteAlert(null); return; }
     const { error } = await deleteConductor(deleteAlert);
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); setDeleteAlert(null); return; }
+    if (empresaId) {
+      insertAuditLog({ empresa_id: empresaId, accion: "CONDUCTOR_ELIMINADO", user_id: user?.id, rol: "GERENCIA", antes: { nombres: deleteAlert.nombres, apellidos: deleteAlert.apellidos, identificacion: deleteAlert.identificacion } });
+    }
     toast({ title: "Conductor eliminado" });
     setDeleteAlert(null);
     loadData();
