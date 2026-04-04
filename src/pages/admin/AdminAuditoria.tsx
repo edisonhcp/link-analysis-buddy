@@ -74,15 +74,14 @@ export default function AdminAuditoria() {
 
   const accionesDisponibles = Object.keys(ACCION_LABELS);
 
-  const handleApplyFilters = () => { loadLogs(); };
-
-  const handleClearFilters = () => {
-    setFilterEmpresa("all");
-    setFilterAccion("all");
-    setFilterDesde("");
-    setFilterHasta("");
-    setTimeout(loadLogs, 0);
-  };
+  // Generate last 12 months for the month picker
+  const mesesDisponibles = Array.from({ length: 12 }, (_, i) => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const label = d.toLocaleDateString("es-EC", { month: "long", year: "numeric" });
+    return { value, label: label.charAt(0).toUpperCase() + label.slice(1) };
+  });
 
   return (
     <DashboardLayout>
