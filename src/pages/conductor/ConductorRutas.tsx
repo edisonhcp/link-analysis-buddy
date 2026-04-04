@@ -209,11 +209,21 @@ export default function ConductorRutas() {
     }
   }, [empresaInfo]);
 
+  // Get unique vehicles from viajes
+  const availableVehiculos = useMemo(() => {
+    const map = new Map<string, { placa: string; marca: string; modelo: string }>();
+    allViajes.forEach(v => {
+      if (v.vehiculo?.placa && !map.has(v.vehiculo.placa)) {
+        map.set(v.vehiculo.placa, v.vehiculo);
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => a.placa.localeCompare(b.placa));
+  }, [allViajes]);
+
   // Get available months from all viajes
   const availableMonths = useMemo(() => {
     const months = new Set<string>();
     const now = new Date();
-    // Always include current month
     months.add(`${now.getFullYear()}-${now.getMonth()}`);
     
     allViajes.forEach(v => {
@@ -229,14 +239,20 @@ export default function ConductorRutas() {
       .sort((a, b) => a.year - b.year || a.month - b.month);
   }, [allViajes]);
 
-  // Filter viajes by selected period
+  // Filter viajes by selected period AND selected vehicles
   const filteredViajes = useMemo(() => {
-    if (!selectedPeriod) return allViajes;
-    return allViajes.filter(v => {
-      const fecha = new Date(v.fecha_salida);
-      return fecha >= selectedPeriod.start && fecha <= selectedPeriod.end;
-    });
-  }, [allViajes, selectedPeriod]);
+    let result = allViajes;
+    if (selectedPeriod) {
+      result = result.filter(v => {
+        const fecha = new Date(v.fecha_salida);
+        return fecha >= selectedPeriod.start && fecha <= selectedPeriod.end;
+      });
+    }
+    if (selectedVehiculos.length > 0) {
+      result = result.filter(v => v.vehiculo?.placa && selectedVehiculos.includes(v.vehiculo.placa));
+    }
+    return result;
+  }, [allViajes, selectedPeriod, selectedVehiculos]);
 
   const isCurrentPeriod = (start: Date, end: Date) => {
     if (!selectedPeriod) return false;
