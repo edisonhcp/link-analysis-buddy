@@ -26,7 +26,7 @@ const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { st
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function AgencyPropietarios() {
-  const { role } = useAuth();
+  const { role, empresaId, user } = useAuth();
   const { toast } = useToast();
   const [propietarios, setPropietarios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
