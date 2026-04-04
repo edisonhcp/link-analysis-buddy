@@ -168,7 +168,10 @@ export default function SuperAdminPanel() {
     if (!deletingEmpresa) return;
     const { error } = await deleteEmpresa(deletingEmpresa.id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Compañía eliminada" }); loadData(); }
+    else {
+      insertAuditLog({ empresa_id: deletingEmpresa.id, accion: "EMPRESA_ELIMINADA", user_id: user?.id, rol: "SUPER_ADMIN", antes: { nombre: deletingEmpresa.nombre, ruc: deletingEmpresa.ruc } });
+      toast({ title: "Compañía eliminada" }); loadData();
+    }
     setDeleteAlertOpen(false);
   };
 
