@@ -118,6 +118,7 @@ export default function SuperAdminPanel() {
     if (deleteErr) {
       toast({ title: "Error al eliminar", description: deleteErr.message, variant: "destructive" });
     } else {
+      insertAuditLog({ empresa_id: solicitud.empresa_id, accion: "SOLICITUD_BAJA_APROBADA", user_id: user?.id, rol: "SUPER_ADMIN" });
       toast({ title: "Solicitud aprobada y compañía eliminada" });
       loadData();
     }
