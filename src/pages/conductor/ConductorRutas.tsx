@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, ChevronRight, Calendar } from "lucide-react";
+import { ChevronDown, ChevronRight, Calendar, Truck, Check } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -9,6 +9,8 @@ import { fetchEmpresaInfo } from "@/services/dashboardService";
 import { ViajesTable } from "@/components/ViajesTable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Collapsible,
   CollapsibleContent,
@@ -178,6 +180,7 @@ export default function ConductorRutas() {
   const [empresaInfo, setEmpresaInfo] = useState<any>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<{ start: Date; end: Date } | null>(null);
   const [openMonths, setOpenMonths] = useState<Record<string, boolean>>({});
+  const [selectedVehiculos, setSelectedVehiculos] = useState<string[]>([]);
 
   const frecuencia = empresaInfo?.frecuencia_comision || "SEMANAL";
 
@@ -206,11 +209,21 @@ export default function ConductorRutas() {
     }
   }, [empresaInfo]);
 
+  // Get unique vehicles from viajes
+  const availableVehiculos = useMemo(() => {
+    const map = new Map<string, { placa: string; marca: string; modelo: string }>();
+    allViajes.forEach(v => {
+      if (v.vehiculo?.placa && !map.has(v.vehiculo.placa)) {
+        map.set(v.vehiculo.placa, v.vehiculo);
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => a.placa.localeCompare(b.placa));
+  }, [allViajes]);
+
   // Get available months from all viajes
   const availableMonths = useMemo(() => {
     const months = new Set<string>();
     const now = new Date();
-    // Always include current month
     months.add(`${now.getFullYear()}-${now.getMonth()}`);
     
     allViajes.forEach(v => {
@@ -226,14 +239,20 @@ export default function ConductorRutas() {
       .sort((a, b) => a.year - b.year || a.month - b.month);
   }, [allViajes]);
 
-  // Filter viajes by selected period
+  // Filter viajes by selected period AND selected vehicles
   const filteredViajes = useMemo(() => {
-    if (!selectedPeriod) return allViajes;
-    return allViajes.filter(v => {
-      const fecha = new Date(v.fecha_salida);
-      return fecha >= selectedPeriod.start && fecha <= selectedPeriod.end;
-    });
-  }, [allViajes, selectedPeriod]);
+    let result = allViajes;
+    if (selectedPeriod) {
+      result = result.filter(v => {
+        const fecha = new Date(v.fecha_salida);
+        return fecha >= selectedPeriod.start && fecha <= selectedPeriod.end;
+      });
+    }
+    if (selectedVehiculos.length > 0) {
+      result = result.filter(v => v.vehiculo?.placa && selectedVehiculos.includes(v.vehiculo.placa));
+    }
+    return result;
+  }, [allViajes, selectedPeriod, selectedVehiculos]);
 
   const isCurrentPeriod = (start: Date, end: Date) => {
     if (!selectedPeriod) return false;
@@ -258,6 +277,53 @@ export default function ConductorRutas() {
             Historial de viajes — Corte {frecuenciaLabel[frecuencia] || frecuencia}
           </p>
         </motion.div>
+
+        {/* Vehicle selector */}
+        {availableVehiculos.length > 1 && (
+          <motion.div variants={item}>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Truck className="w-4 h-4" />
+                  {selectedVehiculos.length === 0
+                    ? "Todos los vehículos"
+                    : `${selectedVehiculos.length} vehículo${selectedVehiculos.length > 1 ? "s" : ""}`}
+                  <ChevronDown className="w-3.5 h-3.5 ml-1 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-2" align="start">
+                <div className="space-y-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start text-xs h-7 text-muted-foreground"
+                    onClick={() => setSelectedVehiculos([])}
+                  >
+                    {selectedVehiculos.length === 0 && <Check className="w-3 h-3 mr-2" />}
+                    Todos
+                  </Button>
+                  {availableVehiculos.map(v => {
+                    const checked = selectedVehiculos.includes(v.placa);
+                    return (
+                      <label key={v.placa} className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer text-xs">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(c) => {
+                            setSelectedVehiculos(prev =>
+                              c ? [...prev, v.placa] : prev.filter(p => p !== v.placa)
+                            );
+                          }}
+                        />
+                        <span className="font-medium">{v.placa}</span>
+                        <span className="text-muted-foreground">{v.marca} {v.modelo}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </motion.div>
+        )}
 
         {/* Period navigator */}
         <motion.div variants={item}>
