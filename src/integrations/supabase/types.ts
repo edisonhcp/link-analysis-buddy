@@ -641,6 +641,42 @@ export type Database = {
           },
         ]
       }
+      solicitudes_baja: {
+        Row: {
+          created_at: string
+          empresa_id: string
+          estado: string
+          id: string
+          motivo: string
+          motivo_rechazo: string | null
+          resuelto_at: string | null
+          resuelto_por: string | null
+          solicitado_por: string
+        }
+        Insert: {
+          created_at?: string
+          empresa_id: string
+          estado?: string
+          id?: string
+          motivo?: string
+          motivo_rechazo?: string | null
+          resuelto_at?: string | null
+          resuelto_por?: string | null
+          solicitado_por: string
+        }
+        Update: {
+          created_at?: string
+          empresa_id?: string
+          estado?: string
+          id?: string
+          motivo?: string
+          motivo_rechazo?: string | null
+          resuelto_at?: string | null
+          resuelto_por?: string | null
+          solicitado_por?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
