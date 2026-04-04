@@ -350,6 +350,60 @@ export default function PropietarioVehiculos() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog detalle conductor */}
+      <Dialog open={!!conductorDetalle} onOpenChange={open => { if (!open) setConductorDetalle(null); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl flex items-center gap-2">
+              <Users className="w-5 h-5" /> Información del Conductor
+            </DialogTitle>
+          </DialogHeader>
+          {conductorDetalle && (
+            <div className="space-y-4 py-2">
+              <div className="flex items-center gap-4">
+                {conductorDetalle.foto_url ? (
+                  <img src={conductorDetalle.foto_url} alt="Foto" className="w-16 h-16 rounded-full object-cover border-2 border-border" />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Users className="w-8 h-8 text-primary" />
+                  </div>
+                )}
+                <div>
+                  <h3 className="font-semibold text-foreground">{conductorDetalle.nombres} {conductorDetalle.apellidos}</h3>
+                  <p className="text-xs text-muted-foreground">{conductorDetalle.nacionalidad}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <CreditCard className="w-4 h-4 shrink-0" />
+                  <span>Cédula: <span className="text-foreground">{conductorDetalle.identificacion}</span></span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Phone className="w-4 h-4 shrink-0" />
+                  <span>{conductorDetalle.celular}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Mail className="w-4 h-4 shrink-0" />
+                  <span>{conductorDetalle.email}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <MapPin className="w-4 h-4 shrink-0" />
+                  <span>{conductorDetalle.domicilio}</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Shield className="w-4 h-4 shrink-0" />
+                  <span>Licencia: <span className="text-foreground">{conductorDetalle.tipo_licencia}</span></span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Vence: {conductorDetalle.fecha_caducidad_licencia ? new Date(conductorDetalle.fecha_caducidad_licencia).toLocaleDateString("es-EC") : "—"}
+                </p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }
