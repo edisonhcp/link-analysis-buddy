@@ -547,15 +547,15 @@ export default function GerenciaViajes() {
               );
             })}
 
-            {filteredViajes.length > 0 && (
+            {viajes.length > 0 && (
               <motion.div variants={item} className={printingVehicle ? "print:hidden" : ""}>
                 <Card className="border-primary/30">
                   <CardHeader className="pb-2">
                     <CardTitle className="flex items-center justify-between text-base">
                       <div className="flex items-center gap-2">
                         <LayoutList className="w-5 h-5 text-primary" />
-                        <span>Consolidado</span>
-                        <span className="text-muted-foreground text-xs">({filteredVehicleKeys.length} vehículos)</span>
+                        <span>Consolidado — Período Actual</span>
+                        <span className="text-muted-foreground text-xs">({consolidadoVehicleKeys.length} vehículos)</span>
                       </div>
                       <Button size="sm" variant="outline" onClick={() => window.print()}>
                         <Printer className="w-4 h-4 mr-1" />
@@ -564,7 +564,7 @@ export default function GerenciaViajes() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ConsolidadoTable vehicleMap={vehicleMap} vehicleKeys={filteredVehicleKeys} empresaInfo={empresaInfo} />
+                    <ConsolidadoTable vehicleMap={consolidadoVehicleMap} vehicleKeys={consolidadoVehicleKeys} empresaInfo={empresaInfo} />
                   </CardContent>
                 </Card>
               </motion.div>
