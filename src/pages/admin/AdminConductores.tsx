@@ -26,7 +26,7 @@ export default function AdminConductores() {
     const fetchData = async () => {
       const [condRes, asigRes] = await Promise.all([
         supabase.from("conductores").select("*, empresas(nombre)").order("created_at", { ascending: false }),
-        supabase.from("asignaciones").select("conductor_id, vehiculos(placa, marca, modelo, anio, propietarios(nombres, apellidos))").eq("estado", "ACTIVA"),
+        supabase.from("asignaciones").select("conductor_id, vehiculos!fk_asignaciones_vehiculo(placa, marca, modelo, anio, propietarios!fk_vehiculos_propietario(nombres, apellidos))").eq("estado", "ACTIVA"),
       ]);
 
       const asignaciones = asigRes.data || [];
