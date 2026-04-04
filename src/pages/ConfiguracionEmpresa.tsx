@@ -169,7 +169,7 @@ export default function ConfiguracionEmpresa() {
                 onClick={() => fileRef.current?.click()}
               >
                 {logoPreview ? (
-                  <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
+                  <StorageImage src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
                 ) : (
                   <Camera className="w-8 h-8 text-muted-foreground" />
                 )}
