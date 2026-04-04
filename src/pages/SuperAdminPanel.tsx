@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2, Users, Truck, Search, Shield, Link2, Pencil,
-  Trash2, Ban, CheckCircle2, Copy, MoreVertical, UserCheck, Eye, Bell, X
+  Trash2, Ban, CheckCircle2, Copy, MoreVertical, UserCheck, Bell, X, ChevronUp
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -84,7 +84,7 @@ export default function SuperAdminPanel() {
   const [generatedLink, setGeneratedLink] = useState("");
   const [generatingLink, setGeneratingLink] = useState(false);
 
-  const [detailEmpresa, setDetailEmpresa] = useState<EmpresaRow | null>(null);
+  const [expandedEmpresaId, setExpandedEmpresaId] = useState<string | null>(null);
   const [detailVehiculos, setDetailVehiculos] = useState<any[]>([]);
   const [detailConductores, setDetailConductores] = useState<any[]>([]);
   const [detailPropietarios, setDetailPropietarios] = useState<any[]>([]);
@@ -140,8 +140,12 @@ export default function SuperAdminPanel() {
     loadSolicitudes();
   };
 
-  const handleViewDetail = async (empresa: EmpresaRow) => {
-    setDetailEmpresa(empresa);
+  const handleToggleExpand = async (empresa: EmpresaRow) => {
+    if (expandedEmpresaId === empresa.id) {
+      setExpandedEmpresaId(null);
+      return;
+    }
+    setExpandedEmpresaId(empresa.id);
     setDetailLoading(true);
     const detail = await fetchEmpresaDetail(empresa.id);
     setDetailVehiculos(detail.vehiculos);
@@ -217,162 +221,6 @@ export default function SuperAdminPanel() {
     e.ciudad.toLowerCase().includes(search.toLowerCase())
   );
 
-
-  if (detailEmpresa) {
-    return (
-      <DashboardLayout>
-        <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
-          <motion.div variants={item} className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => setDetailEmpresa(null)}>← Volver</Button>
-            <div>
-              <h1 className="text-2xl font-display font-bold text-foreground">{detailEmpresa.nombre}</h1>
-              <p className="text-muted-foreground text-sm">RUC: {detailEmpresa.ruc} · {detailEmpresa.ciudad}</p>
-            </div>
-          </motion.div>
-
-          <motion.div variants={item}>
-            <Tabs defaultValue="vehiculos">
-              <TabsList>
-                <TabsTrigger value="vehiculos" className="gap-1"><Truck className="w-4 h-4" /> Vehículos ({detailVehiculos.length})</TabsTrigger>
-                <TabsTrigger value="conductores" className="gap-1"><Users className="w-4 h-4" /> Conductores ({detailConductores.length})</TabsTrigger>
-                <TabsTrigger value="propietarios" className="gap-1"><UserCheck className="w-4 h-4" /> Propietarios ({detailPropietarios.length})</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="vehiculos">
-                <Card className="border-0 shadow-sm">
-                  <CardContent className="p-0">
-                    {detailLoading ? (
-                      <div className="p-8 text-center text-muted-foreground">Cargando...</div>
-                    ) : detailVehiculos.length === 0 ? (
-                      <div className="p-8 text-center text-muted-foreground">No hay vehículos registrados</div>
-                    ) : (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Placa</TableHead>
-                            <TableHead>Marca / Modelo</TableHead>
-                            <TableHead>Color</TableHead>
-                            <TableHead>Conductor</TableHead>
-                            <TableHead>Propietario</TableHead>
-                            <TableHead>Estado</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {detailVehiculos.map((v: any) => (
-                            <TableRow key={v.id}>
-                              <TableCell className="font-medium">{v.placa}</TableCell>
-                              <TableCell>{v.marca} {v.modelo}</TableCell>
-                              <TableCell>{v.color}</TableCell>
-                              <TableCell>{v.conductor_nombre || <span className="text-muted-foreground text-xs">Sin asignar</span>}</TableCell>
-                              <TableCell>{v.propietarios?.nombres || "—"}</TableCell>
-                              <TableCell><Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"}>{v.estado}</Badge></TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="conductores">
-                <Card className="border-0 shadow-sm">
-                  <CardContent className="p-0">
-                    {detailLoading ? (
-                      <div className="p-8 text-center text-muted-foreground">Cargando...</div>
-                    ) : detailConductores.length === 0 ? (
-                      <div className="p-8 text-center text-muted-foreground">No hay conductores registrados</div>
-                    ) : (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Nombres</TableHead>
-                            <TableHead>Identificación</TableHead>
-                            <TableHead>Marca</TableHead>
-                            <TableHead>Modelo</TableHead>
-                            <TableHead>Año</TableHead>
-                            <TableHead>Placa</TableHead>
-                            <TableHead>Propietario</TableHead>
-                            <TableHead>Estado</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {detailConductores.map((c: any) => (
-                            <TableRow key={c.id}>
-                              <TableCell className="font-medium">{c.nombres}</TableCell>
-                              <TableCell>{c.identificacion}</TableCell>
-                              <TableCell>{c.vehiculo_marca || "—"}</TableCell>
-                              <TableCell>{c.vehiculo_modelo || "—"}</TableCell>
-                              <TableCell>{c.vehiculo_anio || "—"}</TableCell>
-                              <TableCell>{c.vehiculo_placa || <span className="text-muted-foreground text-xs">Sin asignar</span>}</TableCell>
-                              <TableCell>{c.propietario_nombre || "—"}</TableCell>
-                              <TableCell><Badge variant={c.estado === "HABILITADO" ? "default" : "destructive"}>{c.estado}</Badge></TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="propietarios">
-                <Card className="border-0 shadow-sm">
-                  <CardContent className="p-0">
-                    {detailLoading ? (
-                      <div className="p-8 text-center text-muted-foreground">Cargando...</div>
-                    ) : detailPropietarios.length === 0 ? (
-                      <div className="p-8 text-center text-muted-foreground">No hay propietarios registrados</div>
-                    ) : (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Nombres</TableHead>
-                            <TableHead>Identificación</TableHead>
-                            <TableHead>Marca</TableHead>
-                            <TableHead>Modelo</TableHead>
-                            <TableHead>Año</TableHead>
-                            <TableHead>Placa</TableHead>
-                            <TableHead>Estado</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {detailPropietarios.flatMap((p: any) => {
-                            const vehs = p.vehiculos || [];
-                            if (vehs.length === 0) {
-                              return [(
-                                <TableRow key={p.id}>
-                                  <TableCell className="font-medium">{p.nombres}</TableCell>
-                                  <TableCell>{p.identificacion}</TableCell>
-                                  <TableCell colSpan={4}><span className="text-muted-foreground text-xs">Sin vehículos</span></TableCell>
-                                  <TableCell><Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"}>{p.estado}</Badge></TableCell>
-                                </TableRow>
-                              )];
-                            }
-                            return vehs.map((v: any, i: number) => (
-                              <TableRow key={`${p.id}-${i}`}>
-                                <TableCell className="font-medium">{i === 0 ? p.nombres : ""}</TableCell>
-                                <TableCell>{i === 0 ? p.identificacion : ""}</TableCell>
-                                <TableCell>{v.marca}</TableCell>
-                                <TableCell>{v.modelo}</TableCell>
-                                <TableCell>{v.anio || "—"}</TableCell>
-                                <TableCell>{v.placa}</TableCell>
-                                <TableCell>{i === 0 && <Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"}>{p.estado}</Badge>}</TableCell>
-                              </TableRow>
-                            ));
-                          })}
-                        </TableBody>
-                      </Table>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </motion.div>
-        </motion.div>
-      </DashboardLayout>
-    );
-  }
 
   return (
     <DashboardLayout>
@@ -483,61 +331,194 @@ export default function SuperAdminPanel() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filtered.map(empresa => (
-                      <TableRow
-                        key={empresa.id}
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => handleViewDetail(empresa)}
-                      >
-                        <TableCell className="font-medium">{empresa.nombre}</TableCell>
-                        <TableCell>{empresa.propietario_nombre} {empresa.propietario_apellidos}</TableCell>
-                        <TableCell>{empresa.ruc}</TableCell>
-                        <TableCell>{PROVINCIAS_ECUADOR.some(p => p.toLowerCase() === empresa.ciudad.toLowerCase()) ? empresa.ciudad : "Pichincha"}</TableCell>
-                        <TableCell>{(empresa as any).ciudad_real || empresa.ciudad}</TableCell>
-                        <TableCell className="text-xs">{empresa.email}</TableCell>
-                        <TableCell>{empresa.celular}</TableCell>
-                        <TableCell className="text-xs">
-                          <div>{empresa.tipo_comision === "PORCENTAJE" ? `${Math.round((empresa.comision_pct || 0) * 100)}%` : `$${empresa.comision_fija || 0}`}</div>
-                          <div className="text-muted-foreground capitalize">{(empresa.frecuencia_comision || "SEMANAL").toLowerCase()}</div>
-                        </TableCell>
-                        <TableCell>{new Date(empresa.created_at).toLocaleDateString("es-ES")}</TableCell>
-                        <TableCell>
-                          <Badge variant={empresa.activo ? "default" : "destructive"} className="text-xs">
-                            {empresa.activo ? "Activa" : "Suspendida"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell onClick={e => e.stopPropagation()}>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreVertical className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => { setEditingEmpresa(empresa); setEditDialogOpen(true); }}>
-                                <Pencil className="w-4 h-4 mr-2" /> Editar
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleViewDetail(empresa)}>
-                                <Eye className="w-4 h-4 mr-2" /> Ver detalle
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleToggleSuspend(empresa)}>
-                                {empresa.activo ? (
-                                  <><Ban className="w-4 h-4 mr-2" /> Suspender</>
-                                ) : (
-                                  <><CheckCircle2 className="w-4 h-4 mr-2" /> Reactivar</>
-                                )}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-destructive"
-                                onClick={() => { setDeletingEmpresa(empresa); setDeleteAlertOpen(true); }}
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" /> Eliminar
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {filtered.map(empresa => {
+                      const isExpanded = expandedEmpresaId === empresa.id;
+                      return (
+                        <React.Fragment key={empresa.id}>
+                          <TableRow
+                            className={`cursor-pointer hover:bg-muted/50 ${isExpanded ? "bg-muted/30" : ""}`}
+                            onClick={() => handleToggleExpand(empresa)}
+                          >
+                            <TableCell className="font-medium">{empresa.nombre}</TableCell>
+                            <TableCell>{empresa.propietario_nombre} {empresa.propietario_apellidos}</TableCell>
+                            <TableCell>{empresa.ruc}</TableCell>
+                            <TableCell>{PROVINCIAS_ECUADOR.some(p => p.toLowerCase() === empresa.ciudad.toLowerCase()) ? empresa.ciudad : "Pichincha"}</TableCell>
+                            <TableCell>{(empresa as any).ciudad_real || empresa.ciudad}</TableCell>
+                            <TableCell className="text-xs">{empresa.email}</TableCell>
+                            <TableCell>{empresa.celular}</TableCell>
+                            <TableCell className="text-xs">
+                              <div>{empresa.tipo_comision === "PORCENTAJE" ? `${Math.round((empresa.comision_pct || 0) * 100)}%` : `$${empresa.comision_fija || 0}`}</div>
+                              <div className="text-muted-foreground capitalize">{(empresa.frecuencia_comision || "SEMANAL").toLowerCase()}</div>
+                            </TableCell>
+                            <TableCell>{new Date(empresa.created_at).toLocaleDateString("es-ES")}</TableCell>
+                            <TableCell>
+                              <Badge variant={empresa.activo ? "default" : "destructive"} className="text-xs">
+                                {empresa.activo ? "Activa" : "Suspendida"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell onClick={e => e.stopPropagation()}>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <MoreVertical className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => { setEditingEmpresa(empresa); setEditDialogOpen(true); }}>
+                                    <Pencil className="w-4 h-4 mr-2" /> Editar
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleToggleSuspend(empresa)}>
+                                    {empresa.activo ? (
+                                      <><Ban className="w-4 h-4 mr-2" /> Suspender</>
+                                    ) : (
+                                      <><CheckCircle2 className="w-4 h-4 mr-2" /> Reactivar</>
+                                    )}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="text-destructive"
+                                    onClick={() => { setDeletingEmpresa(empresa); setDeleteAlertOpen(true); }}
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                          <AnimatePresence>
+                            {isExpanded && (
+                              <tr>
+                                <td colSpan={11} className="p-0">
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="p-4 border border-foreground rounded-md m-2 text-xs font-medium bg-muted"
+                                  >
+                                    <div className="flex items-center justify-between mb-3">
+                                      <h3 className="text-sm font-semibold text-foreground">{empresa.nombre} — Detalle</h3>
+                                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); setExpandedEmpresaId(null); }}>
+                                        <ChevronUp className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                    {detailLoading ? (
+                                      <div className="p-6 text-center text-muted-foreground">Cargando...</div>
+                                    ) : (
+                                      <Tabs defaultValue="vehiculos">
+                                        <TabsList>
+                                          <TabsTrigger value="vehiculos" className="gap-1 text-xs"><Truck className="w-3 h-3" /> Vehículos ({detailVehiculos.length})</TabsTrigger>
+                                          <TabsTrigger value="conductores" className="gap-1 text-xs"><Users className="w-3 h-3" /> Conductores ({detailConductores.length})</TabsTrigger>
+                                          <TabsTrigger value="propietarios" className="gap-1 text-xs"><UserCheck className="w-3 h-3" /> Propietarios ({detailPropietarios.length})</TabsTrigger>
+                                        </TabsList>
+
+                                        <TabsContent value="vehiculos">
+                                          {detailVehiculos.length === 0 ? (
+                                            <p className="p-4 text-muted-foreground text-center">No hay vehículos registrados</p>
+                                          ) : (
+                                            <Table>
+                                              <TableHeader>
+                                                <TableRow>
+                                                  <TableHead>Placa</TableHead>
+                                                  <TableHead>Marca / Modelo</TableHead>
+                                                  <TableHead>Color</TableHead>
+                                                  <TableHead>Conductor</TableHead>
+                                                  <TableHead>Propietario</TableHead>
+                                                  <TableHead>Estado</TableHead>
+                                                </TableRow>
+                                              </TableHeader>
+                                              <TableBody>
+                                                {detailVehiculos.map((v: any) => (
+                                                  <TableRow key={v.id}>
+                                                    <TableCell className="font-medium">{v.placa}</TableCell>
+                                                    <TableCell>{v.marca} {v.modelo}</TableCell>
+                                                    <TableCell>{v.color}</TableCell>
+                                                    <TableCell>{v.conductor_nombre || <span className="text-muted-foreground">Sin asignar</span>}</TableCell>
+                                                    <TableCell>{v.propietarios?.nombres || "—"}</TableCell>
+                                                    <TableCell><Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"}>{v.estado}</Badge></TableCell>
+                                                  </TableRow>
+                                                ))}
+                                              </TableBody>
+                                            </Table>
+                                          )}
+                                        </TabsContent>
+
+                                        <TabsContent value="conductores">
+                                          {detailConductores.length === 0 ? (
+                                            <p className="p-4 text-muted-foreground text-center">No hay conductores registrados</p>
+                                          ) : (
+                                            <Table>
+                                              <TableHeader>
+                                                <TableRow>
+                                                  <TableHead>Nombres</TableHead>
+                                                  <TableHead>Identificación</TableHead>
+                                                  <TableHead>Placa</TableHead>
+                                                  <TableHead>Propietario</TableHead>
+                                                  <TableHead>Estado</TableHead>
+                                                </TableRow>
+                                              </TableHeader>
+                                              <TableBody>
+                                                {detailConductores.map((c: any) => (
+                                                  <TableRow key={c.id}>
+                                                    <TableCell className="font-medium">{c.nombres}</TableCell>
+                                                    <TableCell>{c.identificacion}</TableCell>
+                                                    <TableCell>{c.vehiculo_placa || <span className="text-muted-foreground">Sin asignar</span>}</TableCell>
+                                                    <TableCell>{c.propietario_nombre || "—"}</TableCell>
+                                                    <TableCell><Badge variant={c.estado === "HABILITADO" ? "default" : "destructive"}>{c.estado}</Badge></TableCell>
+                                                  </TableRow>
+                                                ))}
+                                              </TableBody>
+                                            </Table>
+                                          )}
+                                        </TabsContent>
+
+                                        <TabsContent value="propietarios">
+                                          {detailPropietarios.length === 0 ? (
+                                            <p className="p-4 text-muted-foreground text-center">No hay propietarios registrados</p>
+                                          ) : (
+                                            <Table>
+                                              <TableHeader>
+                                                <TableRow>
+                                                  <TableHead>Nombres</TableHead>
+                                                  <TableHead>Identificación</TableHead>
+                                                  <TableHead>Vehículos</TableHead>
+                                                  <TableHead>Estado</TableHead>
+                                                </TableRow>
+                                              </TableHeader>
+                                              <TableBody>
+                                                {detailPropietarios.flatMap((p: any) => {
+                                                  const vehs = p.vehiculos || [];
+                                                  if (vehs.length === 0) {
+                                                    return [(
+                                                      <TableRow key={p.id}>
+                                                        <TableCell className="font-medium">{p.nombres}</TableCell>
+                                                        <TableCell>{p.identificacion}</TableCell>
+                                                        <TableCell><span className="text-muted-foreground">Sin vehículos</span></TableCell>
+                                                        <TableCell><Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"}>{p.estado}</Badge></TableCell>
+                                                      </TableRow>
+                                                    )];
+                                                  }
+                                                  return vehs.map((v: any, i: number) => (
+                                                    <TableRow key={`${p.id}-${i}`}>
+                                                      <TableCell className="font-medium">{i === 0 ? p.nombres : ""}</TableCell>
+                                                      <TableCell>{i === 0 ? p.identificacion : ""}</TableCell>
+                                                      <TableCell>{v.marca} {v.modelo} — {v.placa}</TableCell>
+                                                      <TableCell>{i === 0 && <Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"}>{p.estado}</Badge>}</TableCell>
+                                                    </TableRow>
+                                                  ));
+                                                })}
+                                              </TableBody>
+                                            </Table>
+                                          )}
+                                        </TabsContent>
+                                      </Tabs>
+                                    )}
+                                  </motion.div>
+                                </td>
+                              </tr>
+                            )}
+                          </AnimatePresence>
+                        </React.Fragment>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </CardContent>
