@@ -39,7 +39,7 @@ export function PrintHeader({ reportTitle, subtitle, vehicleInfo, periodInfo }: 
       {/* Logo centered 30mm x 30mm */}
       {empresa.logo_url && (
         <div className="flex justify-center mb-2">
-          <img
+          <StorageImage
             src={empresa.logo_url}
             alt="Logo"
             className="object-contain rounded"
