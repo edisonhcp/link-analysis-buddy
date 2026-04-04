@@ -191,11 +191,6 @@ export default function ConductorRutas() {
     setSelectedPeriodKey("__all__");
   };
 
-  const toggleVehiculo = (placa: string) => {
-    setSelectedVehiculos(prev =>
-      prev.includes(placa) ? prev.filter(k => k !== placa) : [...prev, placa]
-    );
-  };
 
   const frecuenciaLabel: Record<string, string> = {
     SEMANAL: "Semanal",
