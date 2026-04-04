@@ -622,10 +622,10 @@ export default function Dashboard() {
         {/* Tablero de Despacho */}
         {(() => {
           const board = buildDespachoBoard(viajesActivos, activeAssignmentsMap);
-          const fixedCities = ["STO", "QTO", "MTA", "GYE"];
-          const otherCities = Object.keys(board).filter(c => !fixedCities.includes(c) && board[c].length > 0).sort();
-          const allCities = [...fixedCities, ...otherCities];
-          const hasAny = allCities.some(c => (board[c] || []).length > 0);
+          const allCitiesRaw = Object.keys(board);
+          const cityOrder = ["STO", "QTO", "MTA", "GYE"];
+          const allCities = [...cityOrder.filter(c => (board[c] || []).length > 0), ...allCitiesRaw.filter(c => !cityOrder.includes(c) && board[c].length > 0).sort()];
+          const hasAny = allCities.length > 0;
           if (!hasAny) return null;
           const maxRows = Math.max(...allCities.map(c => (board[c] || []).length), 1);
 
