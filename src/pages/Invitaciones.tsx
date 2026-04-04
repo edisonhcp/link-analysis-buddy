@@ -37,7 +37,7 @@ const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { st
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function Invitaciones() {
-  const { role } = useAuth();
+  const { role, empresaId, user } = useAuth();
   const { toast } = useToast();
   const [invitaciones, setInvitaciones] = useState<InvitacionRow[]>([]);
   const [loading, setLoading] = useState(true);
