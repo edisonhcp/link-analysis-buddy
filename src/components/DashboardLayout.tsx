@@ -2,7 +2,7 @@ import { ReactNode, useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Truck, Users, Route, ClipboardList,
-  Settings, LogOut, Menu, X, Building2, Shield, Link2, UserCheck
+  Settings, LogOut, Menu, X, Building2, Shield, Link2, UserCheck, FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
