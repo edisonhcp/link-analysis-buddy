@@ -80,21 +80,12 @@ function getCutoffDate(frecuencia: string): Date {
   }
 }
 
-function shouldHideFinalizadoViaje(viaje: any, frecuencia: string): boolean {
+function shouldHideFinalizadoViaje(viaje: any): boolean {
   if (viaje.estado !== "FINALIZADO") return false;
-  
-  const cutoffDate = getCutoffDate(frecuencia);
-  // Add 24 hours grace period after the cutoff
-  const cutoffPlus24h = new Date(cutoffDate.getTime() + 24 * 60 * 60 * 1000);
+  const fechaLlegada = viaje.fecha_llegada ? new Date(viaje.fecha_llegada) : null;
+  if (!fechaLlegada) return false;
   const now = new Date();
-  
-  // If we're past 24h after the cutoff, hide FINALIZADO trips from before the cutoff
-  if (now >= cutoffPlus24h) {
-    const fechaSalida = new Date(viaje.fecha_salida);
-    return fechaSalida < cutoffDate;
-  }
-  
-  return false;
+  return now.getTime() - fechaLlegada.getTime() > 24 * 60 * 60 * 1000;
 }
 
 export default function ConductorAsignaciones() {
