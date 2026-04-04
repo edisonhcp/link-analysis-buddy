@@ -1,6 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { LayoutList, Printer, Filter } from "lucide-react";
+import { Printer, Filter } from "lucide-react";
 import { PrintHeader } from "@/components/PrintHeader";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
@@ -8,12 +8,10 @@ import { Navigate } from "react-router-dom";
 import { fetchViajesConDetalle } from "@/services/egresosService";
 import { fetchEmpresaInfo } from "@/services/dashboardService";
 import { ViajesTable } from "@/components/ViajesTable";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
 
 const MONTH_NAMES = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -121,97 +119,6 @@ function getCurrentPeriod(frecuencia: string): { start: Date; end: Date } {
   }
 }
 
-function getNextSunday(dateStr: string): string {
-  const d = new Date(dateStr);
-  const day = d.getDay();
-  const diff = day === 0 ? 0 : 7 - day;
-  d.setDate(d.getDate() + diff);
-  return d.toISOString().split("T")[0];
-}
-
-function calcAlim(eg: any, valorComida: number = 3): number {
-  if (!eg) return 0;
-  let c = 0;
-  if (eg.desayuno) c++;
-  if (eg.almuerzo) c++;
-  if (eg.merienda) c++;
-  return c * valorComida;
-}
-
-function ConsolidadoTable({ vehicleMap, vehicleKeys, empresaInfo }: { vehicleMap: Record<string, any>; vehicleKeys: string[]; empresaInfo: any }) {
-  let latestSunday = "";
-  vehicleKeys.forEach((key) => {
-    vehicleMap[key].viajes.forEach((v: any) => {
-      const sun = getNextSunday(v.fecha_salida);
-      if (sun > latestSunday) latestSunday = sun;
-    });
-  });
-
-  const tipoComision = empresaInfo?.tipo_comision || "PORCENTAJE";
-  const comisionPct = empresaInfo?.comision_pct || 0.10;
-  const comisionFija = empresaInfo?.comision_fija || 0;
-
-  const rows = vehicleKeys.map((key, idx) => {
-    const veh = vehicleMap[key];
-    const finalizados = veh.viajes.filter((v: any) => v.estado === "FINALIZADO");
-    const totalIngreso = finalizados.reduce((s: number, v: any) => s + Number(v.ingresos?.total_ingreso || 0), 0);
-    const totalEgreso = finalizados.reduce((s: number, v: any) => {
-      const eg = v.egresos;
-      if (!eg) return s;
-      const alim = calcAlim(eg, v.valor_comida);
-      return s + Number(eg.peaje || 0) + Number(eg.hotel || 0) + Number(eg.combustible || 0) + Number(eg.varios || 0) + Number(eg.pago_conductor || 0) + alim;
-    }, 0);
-    const totalCompania = tipoComision === "PORCENTAJE"
-      ? totalIngreso * comisionPct
-      : comisionFija;
-
-    return { idx: idx + 1, placa: veh.placa, propietario: veh.propietario, totalIngreso, totalEgreso, totalCompania };
-  });
-
-  const grandIngreso = rows.reduce((s, r) => s + r.totalIngreso, 0);
-  const grandEgreso = rows.reduce((s, r) => s + r.totalEgreso, 0);
-  const grandCompania = rows.reduce((s, r) => s + r.totalCompania, 0);
-
-  return (
-    <div className="overflow-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-12">#</TableHead>
-            <TableHead>Vehículo</TableHead>
-            <TableHead>Propietario</TableHead>
-            <TableHead className="text-center">Fecha de Corte</TableHead>
-            <TableHead className="text-right">Total Ingreso</TableHead>
-            <TableHead className="text-right">Total Egreso</TableHead>
-            <TableHead className="text-right">Total Compañía</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((r) => (
-            <TableRow key={r.placa}>
-              <TableCell>{r.idx}</TableCell>
-              <TableCell className="font-medium">{r.placa}</TableCell>
-              <TableCell>{r.propietario}</TableCell>
-              <TableCell className="text-center">{latestSunday}</TableCell>
-              <TableCell className="text-right">${r.totalIngreso.toFixed(2)}</TableCell>
-              <TableCell className="text-right">${r.totalEgreso.toFixed(2)}</TableCell>
-              <TableCell className="text-right">${r.totalCompania.toFixed(2)}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={4} className="font-bold">TOTAL GENERAL</TableCell>
-            <TableCell className="text-right font-bold">${grandIngreso.toFixed(2)}</TableCell>
-            <TableCell className="text-right font-bold">${grandEgreso.toFixed(2)}</TableCell>
-            <TableCell className="text-right font-bold">${grandCompania.toFixed(2)}</TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
-    </div>
-  );
-}
-
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
@@ -228,8 +135,6 @@ export default function GerenciaViajes() {
   const [loading, setLoading] = useState(true);
   const [empresaInfo, setEmpresaInfo] = useState<any>(null);
   const [selectedVehiculos, setSelectedVehiculos] = useState<string[]>([]);
-  const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
-  
 
   useEffect(() => {
     const load = async () => {
@@ -238,8 +143,6 @@ export default function GerenciaViajes() {
       setViajes(data);
       const info = await fetchEmpresaInfo(empresaId);
       setEmpresaInfo(info);
-      const now = new Date();
-      setSelectedMonths([`${now.getFullYear()}-${now.getMonth()}`]);
       setLoading(false);
     };
     load();
@@ -250,37 +153,13 @@ export default function GerenciaViajes() {
   const frecuencia = empresaInfo?.frecuencia_comision || "SEMANAL";
   const frecuenciaLabel = FRECUENCIA_LABELS[frecuencia] || "Período";
 
-  // Available months from viajes
-  const availableMonths = (() => {
-    const months = new Set<string>();
-    const now = new Date();
-    months.add(`${now.getFullYear()}-${now.getMonth()}`);
-    viajes.forEach(v => {
-      const d = new Date(v.fecha_salida);
-      months.add(`${d.getFullYear()}-${d.getMonth()}`);
-    });
-    return Array.from(months)
-      .map(key => {
-        const [year, month] = key.split("-").map(Number);
-        return { year, month, key, label: `${MONTH_NAMES[month]} ${year}` };
-      })
-      .sort((a, b) => b.year - a.year || b.month - a.month);
-  })();
-
-  // Filter viajes by selected months and vehicles
+  // Filter viajes by current period and selected vehicles
+  const currentPeriod = getCurrentPeriod(frecuencia);
   const filteredViajes = (() => {
-    let result = viajes;
-    if (selectedMonths.length > 0) {
-      result = result.filter(v => {
-        const d = new Date(v.fecha_salida);
-        return selectedMonths.some(mk => {
-          const [year, month] = mk.split("-").map(Number);
-          const start = new Date(year, month, 1);
-          const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
-          return d >= start && d <= end;
-        });
-      });
-    }
+    let result = viajes.filter(v => {
+      const d = new Date(v.fecha_salida);
+      return d >= currentPeriod.start && d <= currentPeriod.end;
+    });
     if (selectedVehiculos.length > 0) {
       result = result.filter(v => {
         const placa = v.vehiculo?.placa || "sin-vehiculo";
@@ -290,51 +169,27 @@ export default function GerenciaViajes() {
     return result;
   })();
 
-  // Current period viajes for Consolidado (independent, all vehicles)
-  const currentPeriod = getCurrentPeriod(frecuencia);
-  const consolidadoVehicleMap: Record<string, { placa: string; marca: string; modelo: string; propietario: string; viajes: any[] }> = {};
-  viajes.forEach((v) => {
+  // All vehicle keys from current period viajes (for the vehicle filter)
+  const periodViajes = viajes.filter(v => {
     const d = new Date(v.fecha_salida);
-    if (d < currentPeriod.start || d > currentPeriod.end) return;
-    const placa = v.vehiculo?.placa || "sin-vehiculo";
-    if (!consolidadoVehicleMap[placa]) {
-      consolidadoVehicleMap[placa] = {
-        placa: v.vehiculo?.placa || "—",
-        marca: v.vehiculo?.marca || "",
-        modelo: v.vehiculo?.modelo || "",
-        propietario: v.propietario_nombre || "—",
-        viajes: [],
-      };
-    }
-    consolidadoVehicleMap[placa].viajes.push(v);
+    return d >= currentPeriod.start && d <= currentPeriod.end;
   });
-  const consolidadoVehicleKeys = Object.keys(consolidadoVehicleMap).sort();
-
-  // All vehicle keys from unfiltered viajes (for the vehicle filter)
   const allVehicleKeysUnfiltered = (() => {
     const keys = new Set<string>();
-    viajes.forEach(v => {
+    periodViajes.forEach(v => {
       const placa = v.vehiculo?.placa || "sin-vehiculo";
       keys.add(placa);
     });
     return Array.from(keys).sort();
   })();
 
-  // All vehicle info for the filter
   const allVehicleInfo: Record<string, { placa: string; marca: string; modelo: string }> = {};
-  viajes.forEach(v => {
+  periodViajes.forEach(v => {
     const placa = v.vehiculo?.placa || "sin-vehiculo";
     if (!allVehicleInfo[placa]) {
       allVehicleInfo[placa] = { placa: v.vehiculo?.placa || "—", marca: v.vehiculo?.marca || "", modelo: v.vehiculo?.modelo || "" };
     }
   });
-
-
-  const toggleMonth = (key: string) => {
-    setSelectedMonths(prev =>
-      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
-    );
-  };
 
   const toggleVehiculo = (placa: string) => {
     setSelectedVehiculos(prev =>
@@ -342,99 +197,73 @@ export default function GerenciaViajes() {
     );
   };
 
-  const selectedMonthsLabel = selectedMonths.length === 0
-    ? "Seleccionar meses"
-    : selectedMonths.length <= 2
-      ? selectedMonths.map(k => { const [y, m] = k.split("-").map(Number); return `${MONTH_NAMES[m].substring(0, 3)} ${y}`; }).join(", ")
-      : `${selectedMonths.length} meses`;
-
   const selectedVehiculosLabel = selectedVehiculos.length === 0
     ? "Todos los vehículos"
     : selectedVehiculos.length <= 2
       ? selectedVehiculos.join(", ")
       : `${selectedVehiculos.length} vehículos`;
 
+  const formatPeriodDate = (d: Date) => d.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" });
+  const periodLabel = `${formatPeriodDate(currentPeriod.start)} — ${formatPeriodDate(currentPeriod.end)}`;
+
   return (
     <DashboardLayout>
       <PrintHeader
         reportTitle="Consolidado Rutas"
-        subtitle="Registro completo de rutas con ingresos y egresos"
+        subtitle={`Período actual: ${periodLabel}`}
       />
       <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
         <motion.div variants={item} className="no-print flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-display font-bold text-foreground">Consolidado Rutas</h1>
-            <p className="text-muted-foreground mt-1">Registro completo de rutas con ingresos y egresos</p>
+            <p className="text-muted-foreground mt-1">
+              Período actual ({frecuenciaLabel}): {periodLabel}
+            </p>
           </div>
+          <Button size="sm" variant="outline" onClick={() => window.print()} className="no-print">
+            <Printer className="w-4 h-4 mr-1" />
+            Imprimir
+          </Button>
         </motion.div>
 
-        {/* Filters card */}
+        {/* Vehicle filter */}
         {!loading && (
           <motion.div variants={item} className="no-print">
             <Card>
               <CardContent className="pt-4 pb-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Filter className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-semibold text-foreground">Filtros</span>
+                  <span className="text-sm font-semibold text-foreground">Filtrar por vehículo</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {/* Meses */}
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Meses</label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full justify-start text-sm font-normal h-10">
-                          {selectedMonthsLabel}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-56 p-2 max-h-64 overflow-y-auto" align="start">
-                        {availableMonths.map(m => (
-                          <label key={m.key} className="flex items-center gap-2 px-2 py-1.5 hover:bg-accent rounded cursor-pointer text-sm">
-                            <Checkbox
-                              checked={selectedMonths.includes(m.key)}
-                              onCheckedChange={() => toggleMonth(m.key)}
-                            />
-                            {m.label}
-                          </label>
-                        ))}
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-
-                  {/* Vehículos */}
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Vehículos</label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full justify-start text-sm font-normal h-10">
-                          {selectedVehiculosLabel}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-56 p-2 max-h-64 overflow-y-auto" align="start">
-                        <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-accent rounded cursor-pointer text-sm text-muted-foreground">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-full md:w-72 justify-start text-sm font-normal h-10">
+                      {selectedVehiculosLabel}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 p-2 max-h-64 overflow-y-auto" align="start">
+                    <label className="flex items-center gap-2 px-2 py-1.5 hover:bg-accent rounded cursor-pointer text-sm text-muted-foreground">
+                      <Checkbox
+                        checked={selectedVehiculos.length === 0}
+                        onCheckedChange={() => setSelectedVehiculos([])}
+                      />
+                      Todos
+                    </label>
+                    {allVehicleKeysUnfiltered.map(placa => {
+                      const info = allVehicleInfo[placa];
+                      return (
+                        <label key={placa} className="flex items-center gap-2 px-2 py-1.5 hover:bg-accent rounded cursor-pointer text-sm">
                           <Checkbox
-                            checked={selectedVehiculos.length === 0}
-                            onCheckedChange={() => setSelectedVehiculos([])}
+                            checked={selectedVehiculos.includes(placa)}
+                            onCheckedChange={() => toggleVehiculo(placa)}
                           />
-                          Todos
+                          <span className="font-medium">{info?.placa || placa}</span>
+                          <span className="text-muted-foreground text-xs">{info?.marca} {info?.modelo}</span>
                         </label>
-                        {allVehicleKeysUnfiltered.map(placa => {
-                          const info = allVehicleInfo[placa];
-                          return (
-                            <label key={placa} className="flex items-center gap-2 px-2 py-1.5 hover:bg-accent rounded cursor-pointer text-sm">
-                              <Checkbox
-                                checked={selectedVehiculos.includes(placa)}
-                                onCheckedChange={() => toggleVehiculo(placa)}
-                              />
-                              <span className="font-medium">{info?.placa || placa}</span>
-                              <span className="text-muted-foreground text-xs">{info?.marca} {info?.modelo}</span>
-                            </label>
-                          );
-                        })}
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </div>
+                      );
+                    })}
+                  </PopoverContent>
+                </Popover>
               </CardContent>
             </Card>
           </motion.div>
@@ -442,49 +271,26 @@ export default function GerenciaViajes() {
 
         {loading ? (
           <div className="h-48 rounded-xl bg-muted animate-pulse" />
+        ) : filteredViajes.length > 0 ? (
+          <motion.div variants={item}>
+            <ViajesTable
+              viajes={filteredViajes}
+              showEgresos
+              showConductorColumn
+              comisionPct={empresaInfo?.comision_pct || 0.10}
+              comisionFija={empresaInfo?.comision_fija || 0}
+              tipoComision={empresaInfo?.tipo_comision || "PORCENTAJE"}
+              frecuenciaComision={empresaInfo?.frecuencia_comision || "SEMANAL"}
+            />
+          </motion.div>
         ) : (
-          <>
-            {/* Filtered viajes table */}
-            {filteredViajes.length > 0 && (
-              <motion.div variants={item}>
-                <ViajesTable
-                  viajes={filteredViajes}
-                  showEgresos
-                  showConductorColumn
-                  comisionPct={empresaInfo?.comision_pct || 0.10}
-                  comisionFija={empresaInfo?.comision_fija || 0}
-                  tipoComision={empresaInfo?.tipo_comision || "PORCENTAJE"}
-                  frecuenciaComision={empresaInfo?.frecuencia_comision || "SEMANAL"}
-                />
-              </motion.div>
-            )}
-
-            {viajes.length > 0 && (
-              <motion.div variants={item}>
-                <Card className="border-primary/30">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center justify-between text-base">
-                      <div className="flex items-center gap-2">
-                        <LayoutList className="w-5 h-5 text-primary" />
-                        <span>Consolidado — Período Actual</span>
-                        <span className="text-muted-foreground text-xs">({consolidadoVehicleKeys.length} vehículos)</span>
-                      </div>
-                      <Button size="sm" variant="outline" onClick={() => window.print()}>
-                        <Printer className="w-4 h-4 mr-1" />
-                        Imprimir
-                      </Button>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ConsolidadoTable vehicleMap={consolidadoVehicleMap} vehicleKeys={consolidadoVehicleKeys} empresaInfo={empresaInfo} />
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-          </>
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              No hay viajes en el período actual
+            </CardContent>
+          </Card>
         )}
       </motion.div>
-
     </DashboardLayout>
   );
 }
