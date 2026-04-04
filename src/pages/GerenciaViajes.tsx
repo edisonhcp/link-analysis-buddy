@@ -360,7 +360,6 @@ export default function GerenciaViajes() {
     setSelectedMonths(prev =>
       prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
     );
-    setSelectedPeriodKey("__all__");
   };
 
   const toggleVehiculo = (placa: string) => {
