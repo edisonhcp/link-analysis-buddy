@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Building2, Users, Truck, Search, Shield, Link2, Pencil,
-  Trash2, Ban, CheckCircle2, Copy, MoreVertical, UserCheck, Eye
+  Trash2, Ban, CheckCircle2, Copy, MoreVertical, UserCheck, Eye, Bell, X
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ import {
 } from "@/services/empresasService";
 import { generateInvitation } from "@/services/invitacionesService";
 import { PROVINCIAS_ECUADOR } from "@/constants/provinciasEcuador";
+import { fetchSolicitudesPendientes, resolverSolicitud } from "@/services/solicitudesBajaService";
 
 interface EmpresaRow {
   id: string;
@@ -87,7 +88,9 @@ export default function SuperAdminPanel() {
   const [detailConductores, setDetailConductores] = useState<any[]>([]);
   const [detailPropietarios, setDetailPropietarios] = useState<any[]>([]);
   const [detailLoading, setDetailLoading] = useState(false);
-
+  const [solicitudes, setSolicitudes] = useState<any[]>([]);
+  const [rechazandoId, setRechazandoId] = useState<string | null>(null);
+  const [motivoRechazo, setMotivoRechazo] = useState("");
   const loadData = async () => {
     const result = await fetchGlobalStats();
     setEmpresas(result.empresas as EmpresaRow[]);
@@ -95,9 +98,42 @@ export default function SuperAdminPanel() {
     setLoading(false);
   };
 
-  useEffect(() => { loadData(); }, []);
+  const loadSolicitudes = async () => {
+    const data = await fetchSolicitudesPendientes();
+    setSolicitudes(data);
+  };
+
+  useEffect(() => { loadData(); loadSolicitudes(); }, []);
 
   if (role !== "SUPER_ADMIN") return <Navigate to="/dashboard" replace />;
+
+  const handleAprobarSolicitud = async (solicitud: any) => {
+    const { error: resolveErr } = await resolverSolicitud(solicitud.id, "APROBADA", "SUPER_ADMIN");
+    if (resolveErr) {
+      toast({ title: "Error", description: resolveErr.message, variant: "destructive" });
+      return;
+    }
+    const { error: deleteErr } = await deleteEmpresa(solicitud.empresa_id);
+    if (deleteErr) {
+      toast({ title: "Error al eliminar", description: deleteErr.message, variant: "destructive" });
+    } else {
+      toast({ title: "Solicitud aprobada y compañía eliminada" });
+      loadData();
+    }
+    loadSolicitudes();
+  };
+
+  const handleRechazarSolicitud = async (id: string) => {
+    const { error } = await resolverSolicitud(id, "RECHAZADA", "SUPER_ADMIN", motivoRechazo);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Solicitud rechazada" });
+    }
+    setRechazandoId(null);
+    setMotivoRechazo("");
+    loadSolicitudes();
+  };
 
   const handleViewDetail = async (empresa: EmpresaRow) => {
     setDetailEmpresa(empresa);
@@ -345,6 +381,60 @@ export default function SuperAdminPanel() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Buscar por nombre, RUC o ciudad..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
         </motion.div>
+
+        {/* Solicitudes de Baja */}
+        {solicitudes.length > 0 && (
+          <motion.div variants={item}>
+            <Card className="border border-amber-300 shadow-sm bg-amber-50/50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Bell className="w-5 h-5 text-amber-600" />
+                  <h3 className="font-display font-semibold text-foreground">
+                    Solicitudes de Baja ({solicitudes.length})
+                  </h3>
+                </div>
+                <div className="space-y-3">
+                  {solicitudes.map((sol: any) => (
+                    <div key={sol.id} className="flex items-center justify-between gap-4 p-3 bg-background rounded-lg border">
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground">{sol.empresas?.nombre || "Compañía"}</p>
+                        {sol.motivo && <p className="text-sm text-muted-foreground truncate">{sol.motivo}</p>}
+                        <p className="text-xs text-muted-foreground">{new Date(sol.created_at).toLocaleDateString("es-ES")}</p>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        {rechazandoId === sol.id ? (
+                          <div className="flex items-center gap-2">
+                            <Input
+                              placeholder="Motivo del rechazo..."
+                              value={motivoRechazo}
+                              onChange={(e) => setMotivoRechazo(e.target.value)}
+                              className="w-48 h-8 text-sm"
+                            />
+                            <Button size="sm" variant="destructive" onClick={() => handleRechazarSolicitud(sol.id)}>
+                              Confirmar
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => { setRechazandoId(null); setMotivoRechazo(""); }}>
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <Button size="sm" variant="outline" onClick={() => setRechazandoId(sol.id)}>
+                              Rechazar
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={() => handleAprobarSolicitud(sol)}>
+                              Aprobar y Eliminar
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         <motion.div variants={item}>
           {loading ? (

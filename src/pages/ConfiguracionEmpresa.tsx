@@ -1,24 +1,35 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Building2, Save, Upload, Camera } from "lucide-react";
+import { Building2, Save, Upload, Camera, AlertTriangle, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { fetchEmpresaInfo, updateEmpresaInfo, uploadEmpresaLogo } from "@/services/dashboardService";
 import { PROVINCIAS_ECUADOR } from "@/constants/provinciasEcuador";
+import { fetchSolicitudPendiente, crearSolicitudBaja } from "@/services/solicitudesBajaService";
 
 export default function ConfiguracionEmpresa() {
-  const { empresaId } = useAuth();
+  const { empresaId, user: authUser } = useAuth();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [bajaDialogOpen, setBajaDialogOpen] = useState(false);
+  const [bajaMotivo, setBajaMotivo] = useState("");
+  const [bajaSending, setBajaSending] = useState(false);
+  const [solicitudPendiente, setSolicitudPendiente] = useState<any>(null);
   const [form, setForm] = useState({
     nombre: "",
     ruc: "",
@@ -59,6 +70,26 @@ export default function ConfiguracionEmpresa() {
       setLoading(false);
     });
   }, [empresaId]);
+
+  useEffect(() => {
+    if (!empresaId) return;
+    fetchSolicitudPendiente(empresaId).then(setSolicitudPendiente);
+  }, [empresaId]);
+
+  const handleSolicitarBaja = async () => {
+    if (!empresaId || !authUser) return;
+    setBajaSending(true);
+    const { error } = await crearSolicitudBaja(empresaId, authUser.id, bajaMotivo);
+    setBajaSending(false);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Solicitud enviada", description: "El administrador revisará tu solicitud" });
+      setBajaDialogOpen(false);
+      setBajaMotivo("");
+      fetchSolicitudPendiente(empresaId).then(setSolicitudPendiente);
+    }
+  };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -289,7 +320,71 @@ export default function ConfiguracionEmpresa() {
             {saving ? "Guardando..." : "Guardar Cambios"}
           </Button>
         </div>
+
+        {/* Solicitar Baja */}
+        <Card className="border border-destructive/30 shadow-sm">
+          <CardHeader>
+            <CardTitle className="font-display text-lg text-destructive flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" /> Zona de Peligro
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {solicitudPendiente ? (
+              <div className="flex items-center gap-3 p-4 rounded-lg bg-amber-50 border border-amber-200">
+                <Clock className="w-5 h-5 text-amber-600 shrink-0" />
+                <div>
+                  <p className="font-medium text-amber-800">Solicitud de baja pendiente</p>
+                  <p className="text-sm text-amber-600">
+                    Enviada el {new Date(solicitudPendiente.created_at).toLocaleDateString("es-ES")}. El administrador revisará tu solicitud.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-foreground">Solicitar baja de la compañía</p>
+                  <p className="text-sm text-muted-foreground">
+                    Envía una solicitud al administrador para eliminar tu cuenta y toda la flota asociada.
+                  </p>
+                </div>
+                <Button variant="destructive" onClick={() => setBajaDialogOpen(true)} className="gap-2 shrink-0">
+                  <AlertTriangle className="w-4 h-4" /> Solicitar Baja
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </motion.div>
+
+      <AlertDialog open={bajaDialogOpen} onOpenChange={setBajaDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Solicitar baja de la compañía?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta solicitud será enviada al administrador. Si es aprobada, se eliminarán permanentemente todos los datos: conductores, propietarios, vehículos y cuentas de usuario. Los registros de viajes se conservarán para auditoría.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2">
+            <Label className="mb-2 block">Motivo (opcional)</Label>
+            <Textarea
+              placeholder="Describe el motivo de la solicitud..."
+              value={bajaMotivo}
+              onChange={(e) => setBajaMotivo(e.target.value)}
+              rows={3}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSolicitarBaja}
+              disabled={bajaSending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {bajaSending ? "Enviando..." : "Confirmar Solicitud"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }
