@@ -55,15 +55,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .single();
 
         if (empresa && !empresa.activo) {
-          // For GERENCIA: full block (no access at all)
-          // For CONDUCTOR/PROPIETARIO: show message but allow access
           setSuspended({
             type: "empresa",
             message: `Compañía ${empresa.nombre} se encuentra suspendida, por favor contáctese con soporte mediante WhatsApp.`,
           });
-          // Only block GERENCIA completely - CONDUCTOR/PROPIETARIO can still enter
-          if (userRole === "GERENCIA") return;
-          // For CONDUCTOR/PROPIETARIO, we set suspended but don't return - they can still use the app
+          return;
         }
       }
 
