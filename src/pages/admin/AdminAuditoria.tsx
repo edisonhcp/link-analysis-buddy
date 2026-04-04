@@ -30,8 +30,7 @@ export default function AdminAuditoria() {
   // Filters
   const [filterEmpresa, setFilterEmpresa] = useState("all");
   const [filterAccion, setFilterAccion] = useState("all");
-  const [filterDesde, setFilterDesde] = useState("");
-  const [filterHasta, setFilterHasta] = useState("");
+  const [filterMes, setFilterMes] = useState("all");
 
   useEffect(() => {
     supabase.from("empresas").select("id, nombre").order("nombre").then(({ data }) => {
