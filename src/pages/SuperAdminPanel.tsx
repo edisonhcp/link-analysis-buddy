@@ -84,7 +84,7 @@ export default function SuperAdminPanel() {
   const [generatedLink, setGeneratedLink] = useState("");
   const [generatingLink, setGeneratingLink] = useState(false);
 
-  const [detailEmpresa, setDetailEmpresa] = useState<EmpresaRow | null>(null);
+  const [expandedEmpresaId, setExpandedEmpresaId] = useState<string | null>(null);
   const [detailVehiculos, setDetailVehiculos] = useState<any[]>([]);
   const [detailConductores, setDetailConductores] = useState<any[]>([]);
   const [detailPropietarios, setDetailPropietarios] = useState<any[]>([]);
