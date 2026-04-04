@@ -232,7 +232,7 @@ export default function PropietarioConfiguracion() {
                 onClick={() => fotoRef.current?.click()}
               >
                 {fotoPreview ? (
-                  <img src={fotoPreview} alt="Foto" className="w-full h-full object-cover" />
+                  <StorageImage src={fotoPreview} alt="Foto" className="w-full h-full object-cover" />
                 ) : (
                   <Camera className="w-8 h-8 text-muted-foreground" />
                 )}
