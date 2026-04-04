@@ -65,7 +65,7 @@ const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { st
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export default function SuperAdminPanel() {
-  const { role } = useAuth();
+  const { role, user } = useAuth();
   const { toast } = useToast();
   const [empresas, setEmpresas] = useState<EmpresaRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -108,7 +108,7 @@ export default function SuperAdminPanel() {
   if (role !== "SUPER_ADMIN") return <Navigate to="/dashboard" replace />;
 
   const handleAprobarSolicitud = async (solicitud: any) => {
-    const { error: resolveErr } = await resolverSolicitud(solicitud.id, "APROBADA", "SUPER_ADMIN");
+    const { error: resolveErr } = await resolverSolicitud(solicitud.id, "APROBADA", user?.id || "");
     if (resolveErr) {
       toast({ title: "Error", description: resolveErr.message, variant: "destructive" });
       return;
@@ -124,7 +124,7 @@ export default function SuperAdminPanel() {
   };
 
   const handleRechazarSolicitud = async (id: string) => {
-    const { error } = await resolverSolicitud(id, "RECHAZADA", "SUPER_ADMIN", motivoRechazo);
+    const { error } = await resolverSolicitud(id, "RECHAZADA", user?.id || "", motivoRechazo);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
