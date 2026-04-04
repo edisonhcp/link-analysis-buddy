@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Building2, Users, Truck, Search, Shield, Link2, Pencil,
-  Trash2, Ban, CheckCircle2, Copy, MoreVertical, UserCheck, Eye, Bell, X, ChevronUp
+  Trash2, Ban, CheckCircle2, Copy, MoreVertical, UserCheck, Bell, X, ChevronUp
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
