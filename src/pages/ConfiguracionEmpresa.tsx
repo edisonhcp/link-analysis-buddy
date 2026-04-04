@@ -1,15 +1,22 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Building2, Save, Upload, Camera } from "lucide-react";
+import { Building2, Save, Upload, Camera, AlertTriangle, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { fetchEmpresaInfo, updateEmpresaInfo, uploadEmpresaLogo } from "@/services/dashboardService";
 import { PROVINCIAS_ECUADOR } from "@/constants/provinciasEcuador";
+import { fetchSolicitudPendiente, crearSolicitudBaja } from "@/services/solicitudesBajaService";
 
 export default function ConfiguracionEmpresa() {
   const { empresaId } = useAuth();
