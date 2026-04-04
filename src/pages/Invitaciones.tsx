@@ -68,6 +68,11 @@ export default function Invitaciones() {
       setGeneratedLink(link);
       setGenerateOpen(false);
       setLinkDialogOpen(true);
+      // Audit log
+      if (empresaId) {
+        const accion = selectedRol === "CONDUCTOR" ? "LINK_CONDUCTOR_GENERADO" : "LINK_PROPIETARIO_GENERADO";
+        insertAuditLog({ empresa_id: empresaId, accion, user_id: user?.id, rol: "GERENCIA", despues: { rol: selectedRol } });
+      }
       setSelectedRol("");
       loadData();
     } catch (err: any) {

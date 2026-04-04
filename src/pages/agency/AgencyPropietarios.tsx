@@ -46,6 +46,9 @@ export default function AgencyPropietarios() {
     if (!deleteAlert) return;
     const { error } = await deletePropietario(deleteAlert);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); setDeleteAlert(null); return; }
+    if (empresaId) {
+      insertAuditLog({ empresa_id: empresaId, accion: "PROPIETARIO_ELIMINADO", user_id: user?.id, rol: "GERENCIA", antes: { nombres: deleteAlert.nombres, apellidos: deleteAlert.apellidos, identificacion: deleteAlert.identificacion } });
+    }
     toast({ title: "Propietario eliminado" });
     setDeleteAlert(null);
     loadData();

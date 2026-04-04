@@ -99,7 +99,10 @@ export default function AgencyConductores() {
     if (!empresaId) return;
     const { error } = await assignConductorToVehiculo(vehiculoId, conductorId, empresaId);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Vehículo asignado al conductor" }); loadData(); }
+    else {
+      insertAuditLog({ empresa_id: empresaId, accion: "ASIGNACION_CREADA", user_id: user?.id, rol: "GERENCIA", despues: { conductor_id: conductorId, vehiculo_id: vehiculoId } });
+      toast({ title: "Vehículo asignado al conductor" }); loadData();
+    }
   };
 
   const filtered = conductores.filter(c =>
