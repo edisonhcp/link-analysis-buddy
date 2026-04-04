@@ -48,7 +48,7 @@ export async function fetchAuditLogs(filters?: {
     query = query.eq("empresa_id", filters.empresaId);
   }
   if (filters?.accion) {
-    query = query.eq("accion", filters.accion);
+    query = query.eq("accion", filters.accion as any);
   }
   if (filters?.desde) {
     query = query.gte("created_at", filters.desde);
