@@ -28,7 +28,7 @@ export default function AdminAuditoria() {
 
   // Filters
   const [filterEmpresa, setFilterEmpresa] = useState("all");
-  const [filterAccion, setFilterAccion] = useState("all");
+  
   const [filterMes, setFilterMes] = useState("all");
 
   useEffect(() => {
