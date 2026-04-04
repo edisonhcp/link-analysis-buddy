@@ -114,6 +114,8 @@ export default function MiFlota() {
     });
   }, [conductores, filterConductor, filterPlaca]);
 
+  if (role !== "GERENCIA") return <Navigate to="/dashboard" replace />;
+
   const calcAge = (fecha: string) => {
     const birth = new Date(fecha);
     const today = new Date();
