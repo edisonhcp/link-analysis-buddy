@@ -56,7 +56,6 @@ export default function AdminAuditoria() {
       const { desde, hasta } = getMonthRange(filterMes);
       const data = await fetchAuditLogs({
         empresaId: filterEmpresa !== "all" ? filterEmpresa : undefined,
-        accion: filterAccion !== "all" ? filterAccion : undefined,
         desde,
         hasta,
       });
