@@ -427,22 +427,6 @@ export default function GerenciaViajes() {
                     </Popover>
                   </div>
 
-                  {/* Período */}
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1 block">Período</label>
-                    <Select value={selectedPeriodKey} onValueChange={setSelectedPeriodKey}>
-                      <SelectTrigger className="h-10">
-                        <SelectValue placeholder="Todos los períodos" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__all__">Todos los períodos</SelectItem>
-                        {availablePeriods.map(p => (
-                          <SelectItem key={p.key} value={p.key}>{p.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
                   {/* Vehículos */}
                   <div>
                     <label className="text-xs font-medium text-muted-foreground mb-1 block">Vehículos</label>
