@@ -236,7 +236,7 @@ export default function GerenciaViajes() {
   const [finalizarAlert, setFinalizarAlert] = useState<{ placa: string; hasEnRuta: boolean } | null>(null);
   const [selectedVehiculos, setSelectedVehiculos] = useState<string[]>([]);
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
-  const [selectedPeriodKey, setSelectedPeriodKey] = useState<string>("__all__");
+  
 
   useEffect(() => {
     const load = async () => {
