@@ -213,7 +213,10 @@ export default function PropietarioVehiculos() {
                     <p className="text-sm text-muted-foreground">{v.marca} {v.modelo} {v.anio || ""}</p>
                     <p className="text-xs text-muted-foreground mt-1">{v.color} · {v.tipo} · Cap: {v.capacidad}</p>
                     {v.conductor && (
-                      <div className="mt-2 p-2 rounded-lg bg-muted/50 border border-border">
+                      <div
+                        className="mt-2 p-2 rounded-lg bg-muted/50 border border-border cursor-pointer hover:bg-muted transition-colors"
+                        onClick={() => setConductorDetalle(v.conductor)}
+                      >
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
                           <Users className="w-3 h-3" />
                           Conductor: <span className="font-medium text-foreground">{v.conductor.nombres} {v.conductor.apellidos}</span>
