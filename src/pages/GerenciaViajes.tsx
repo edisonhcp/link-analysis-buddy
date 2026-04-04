@@ -228,8 +228,6 @@ export default function GerenciaViajes() {
   const [loading, setLoading] = useState(true);
   const [empresaInfo, setEmpresaInfo] = useState<any>(null);
   const [selectedVehiculos, setSelectedVehiculos] = useState<string[]>([]);
-  const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
-  
 
   useEffect(() => {
     const load = async () => {
@@ -238,8 +236,6 @@ export default function GerenciaViajes() {
       setViajes(data);
       const info = await fetchEmpresaInfo(empresaId);
       setEmpresaInfo(info);
-      const now = new Date();
-      setSelectedMonths([`${now.getFullYear()}-${now.getMonth()}`]);
       setLoading(false);
     };
     load();
