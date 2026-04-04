@@ -329,9 +329,6 @@ export default function GerenciaViajes() {
     }
   });
 
-  const handleFinalizarPeriodo = (placa: string) => {
-    toast.success(`Corte de ${frecuenciaLabel.toLowerCase()} realizado para vehículo ${placa}`);
-  };
 
   const toggleMonth = (key: string) => {
     setSelectedMonths(prev =>
