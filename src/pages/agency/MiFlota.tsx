@@ -284,8 +284,6 @@ export default function MiFlota() {
           </motion.div>
 
 
-
-
           {/* Tab: Propietarios */}
           <TabsContent value="propietarios">
             <Card className="border-0 shadow-sm">
@@ -310,33 +308,86 @@ export default function MiFlota() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredPropietarios.map(p => (
-                        <TableRow
-                          key={p.id}
-                          className={`cursor-pointer ${selected?.type === "propietario" && selected?.item?.id === p.id ? "bg-accent" : ""}`}
-                          onClick={() => setSelected(selected?.type === "propietario" && selected?.item?.id === p.id ? null : { type: "propietario", item: p })}
-                        >
-                          <TableCell className="font-medium">{p.nombres}</TableCell>
-                          <TableCell>{p.apellidos}</TableCell>
-                          <TableCell>{p.identificacion}</TableCell>
-                          <TableCell>{p.celular}</TableCell>
-                          <TableCell>
-                            <Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">{p.estado}</Badge>
-                          </TableCell>
-                          <TableCell onClick={e => e.stopPropagation()}>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem className="text-destructive" onClick={() => setDeleteAlert({ type: "propietario", item: p })}>
-                                  <Trash2 className="w-4 h-4 mr-2" /> Eliminar
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {filteredPropietarios.map(p => {
+                        const isOpen = selected?.type === "propietario" && selected?.item?.id === p.id;
+                        return (
+                          <React.Fragment key={p.id}>
+                            <TableRow
+                              className={`cursor-pointer ${isOpen ? "bg-accent" : ""}`}
+                              onClick={() => setSelected(isOpen ? null : { type: "propietario", item: p })}
+                            >
+                              <TableCell className="font-medium">{p.nombres}</TableCell>
+                              <TableCell>{p.apellidos}</TableCell>
+                              <TableCell>{p.identificacion}</TableCell>
+                              <TableCell>{p.celular}</TableCell>
+                              <TableCell>
+                                <Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">{p.estado}</Badge>
+                              </TableCell>
+                              <TableCell onClick={e => e.stopPropagation()}>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem className="text-destructive" onClick={() => setDeleteAlert({ type: "propietario", item: p })}>
+                                      <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
+                            {isOpen && (
+                              <tr>
+                                <td colSpan={6} className="p-0 border-b">
+                                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="p-4 bg-muted/30">
+                                    <div className="flex items-start justify-between mb-3">
+                                      <div className="flex items-center gap-3">
+                                        {p.foto_url ? (
+                                          <StorageImage src={p.foto_url} alt="Foto" className="w-12 h-12 rounded-full object-cover border-2 border-primary/20" />
+                                        ) : (
+                                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center"><User className="w-6 h-6 text-primary" /></div>
+                                        )}
+                                        <p className="font-semibold text-sm">{p.nombres} {p.apellidos}</p>
+                                      </div>
+                                      <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={(e) => { e.stopPropagation(); setSelected(null); }}>
+                                        <ChevronUp className="w-3 h-3" /> Cerrar
+                                      </Button>
+                                    </div>
+                                    <div className="grid grid-cols-4 gap-3 text-xs mb-3">
+                                      <div className="flex items-center gap-2 text-muted-foreground"><Mail className="w-3.5 h-3.5" /><span className="truncate">{p.email}</span></div>
+                                      <div className="flex items-center gap-2 text-muted-foreground"><Phone className="w-3.5 h-3.5" /><span>{p.celular}</span></div>
+                                      <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="w-3.5 h-3.5" /><span className="truncate">{p.direccion}</span></div>
+                                      <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="w-3.5 h-3.5" /><span>{calcAge(p.fecha_nacimiento)} años</span></div>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2 text-xs mb-3">
+                                      <div><span className="text-muted-foreground">Identificación:</span> <span className="font-medium">{p.identificacion}</span></div>
+                                      <div><span className="text-muted-foreground">Nacionalidad:</span> <span className="font-medium">{p.nacionalidad}</span></div>
+                                      <div><span className="text-muted-foreground">Estado civil:</span> <span className="font-medium">{p.estado_civil}</span></div>
+                                    </div>
+                                    <Separator className="my-3" />
+                                    <h4 className="text-xs font-semibold flex items-center gap-2 mb-2"><Car className="w-3.5 h-3.5 text-primary" /> Vehículos ({p.vehiculos?.length || 0})</h4>
+                                    {!p.vehiculos || p.vehiculos.length === 0 ? (
+                                      <p className="text-xs text-muted-foreground">Sin vehículos registrados</p>
+                                    ) : (
+                                      <div className="flex flex-wrap gap-2">
+                                        {p.vehiculos.map((v: any) => (
+                                          <div key={v.id} className="p-2 rounded-lg bg-background border text-xs space-y-0.5 min-w-[160px]">
+                                            <div className="flex items-center justify-between">
+                                              <span className="font-semibold">{v.placa}</span>
+                                              <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"} className="text-[10px]">{v.estado}</Badge>
+                                            </div>
+                                            <div className="text-muted-foreground">{v.marca} {v.modelo} {v.anio ? `(${v.anio})` : ""}</div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </motion.div>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 )}
@@ -369,62 +420,118 @@ export default function MiFlota() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredVehiculos.map(v => (
-                        <TableRow
-                          key={v.id}
-                          className={`cursor-pointer ${selected?.type === "vehiculo" && selected?.item?.id === v.id ? "bg-accent" : ""}`}
-                          onClick={() => setSelected(selected?.type === "vehiculo" && selected?.item?.id === v.id ? null : { type: "vehiculo", item: v })}
-                        >
-                          <TableCell className="font-medium">{v.placa}</TableCell>
-                          <TableCell>{v.marca} {v.modelo}</TableCell>
-                          <TableCell>{v.tipo}</TableCell>
-                          <TableCell>{v.propietarios?.nombres || "—"}</TableCell>
-                          <TableCell onClick={e => e.stopPropagation()}>
-                            {v.conductor_nombre ? (
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="text-xs">{v.conductor_nombre}</Badge>
-                                {!v.en_ruta && (
-                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleUnassignFromVeh(v)}>
-                                    <Ban className="w-3 h-3 text-muted-foreground" />
-                                  </Button>
+                      {filteredVehiculos.map(v => {
+                        const isOpen = selected?.type === "vehiculo" && selected?.item?.id === v.id;
+                        return (
+                          <React.Fragment key={v.id}>
+                            <TableRow
+                              className={`cursor-pointer ${isOpen ? "bg-accent" : ""}`}
+                              onClick={() => setSelected(isOpen ? null : { type: "vehiculo", item: v })}
+                            >
+                              <TableCell className="font-medium">{v.placa}</TableCell>
+                              <TableCell>{v.marca} {v.modelo}</TableCell>
+                              <TableCell>{v.tipo}</TableCell>
+                              <TableCell>{v.propietarios?.nombres || "—"}</TableCell>
+                              <TableCell onClick={e => e.stopPropagation()}>
+                                {v.conductor_nombre ? (
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant="outline" className="text-xs">{v.conductor_nombre}</Badge>
+                                    {!v.en_ruta && (
+                                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleUnassignFromVeh(v)}>
+                                        <Ban className="w-3 h-3 text-muted-foreground" />
+                                      </Button>
+                                    )}
+                                    {v.en_ruta && <Badge variant="secondary" className="text-xs">En uso</Badge>}
+                                  </div>
+                                ) : v.estado === "INHABILITADO" ? (
+                                  <span className="text-xs text-muted-foreground">Suspendido</span>
+                                ) : (
+                                  <Select onValueChange={(cId) => handleAssignConductorToVeh(v.id, cId)}>
+                                    <SelectTrigger className="h-8 w-[160px] text-xs"><SelectValue placeholder="Asignar" /></SelectTrigger>
+                                    <SelectContent>
+                                      {conductoresDisponibles.length === 0 ? (
+                                        <div className="px-2 py-1.5 text-xs text-muted-foreground">No hay disponibles</div>
+                                      ) : conductoresDisponibles.map(c => (
+                                        <SelectItem key={c.id} value={c.id} className="text-xs">{c.nombres} {c.apellidos}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                 )}
-                                {v.en_ruta && <Badge variant="secondary" className="text-xs">En uso</Badge>}
-                              </div>
-                            ) : v.estado === "INHABILITADO" ? (
-                              <span className="text-xs text-muted-foreground">Suspendido</span>
-                            ) : (
-                              <Select onValueChange={(cId) => handleAssignConductorToVeh(v.id, cId)}>
-                                <SelectTrigger className="h-8 w-[160px] text-xs"><SelectValue placeholder="Asignar" /></SelectTrigger>
-                                <SelectContent>
-                                  {conductoresDisponibles.length === 0 ? (
-                                    <div className="px-2 py-1.5 text-xs text-muted-foreground">No hay disponibles</div>
-                                  ) : conductoresDisponibles.map(c => (
-                                    <SelectItem key={c.id} value={c.id} className="text-xs">{c.nombres} {c.apellidos}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">{v.estado}</Badge>
+                              </TableCell>
+                              <TableCell onClick={e => e.stopPropagation()}>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleToggleVehiculoEstado(v)}>
+                                      {v.estado === "HABILITADO" ? <><Ban className="w-4 h-4 mr-2" /> Suspender</> : <><CheckCircle2 className="w-4 h-4 mr-2" /> Habilitar</>}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="text-destructive" onClick={() => setDeleteAlert({ type: "vehiculo", item: v })}>
+                                      <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
+                            {isOpen && (
+                              <tr>
+                                <td colSpan={7} className="p-0 border-b">
+                                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="p-4 bg-muted/30">
+                                    <div className="flex items-start justify-between mb-3">
+                                      <div className="flex items-center gap-3">
+                                        {v.foto_url ? (
+                                          <StorageImage src={v.foto_url} alt="Vehículo" className="w-12 h-12 rounded-lg object-cover border" />
+                                        ) : (
+                                          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center"><Car className="w-6 h-6 text-primary" /></div>
+                                        )}
+                                        <div>
+                                          <p className="font-semibold text-sm">{v.placa} — {v.marca} {v.modelo}</p>
+                                          <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"} className="text-[10px] mt-1">{v.estado}</Badge>
+                                        </div>
+                                      </div>
+                                      <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={(e) => { e.stopPropagation(); setSelected(null); }}>
+                                        <ChevronUp className="w-3 h-3" /> Cerrar
+                                      </Button>
+                                    </div>
+                                    <div className="grid grid-cols-6 gap-3 text-xs mb-3">
+                                      <div className="flex items-center gap-2 text-muted-foreground"><Palette className="w-3.5 h-3.5" /> Color: <span className="font-medium text-foreground">{v.color}</span></div>
+                                      <div className="flex items-center gap-2 text-muted-foreground"><Gauge className="w-3.5 h-3.5" /> Cap: <span className="font-medium text-foreground">{v.capacidad}</span></div>
+                                      <div><span className="text-muted-foreground">Tipo:</span> <span className="font-medium">{v.tipo}</span></div>
+                                      <div><span className="text-muted-foreground">Año:</span> <span className="font-medium">{v.anio || "—"}</span></div>
+                                      <div className="flex items-center gap-1"><Shield className="w-3 h-3" /> GPS: <span className="font-medium">{v.gps ? "Sí" : "No"}</span></div>
+                                      <div className="flex items-center gap-1"><Shield className="w-3 h-3" /> Seguro: <span className="font-medium">{v.seguro ? "Sí" : "No"}</span></div>
+                                    </div>
+                                    <Separator className="my-3" />
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div>
+                                        <h4 className="text-xs font-semibold flex items-center gap-2 mb-2"><User className="w-3.5 h-3.5 text-primary" /> Propietario</h4>
+                                        {v.propietarios ? (
+                                          <div className="p-2 rounded-lg bg-background border text-xs">
+                                            <div className="font-semibold">{v.propietarios.nombres}</div>
+                                            <div className="text-muted-foreground">{v.propietarios.email}</div>
+                                          </div>
+                                        ) : <p className="text-xs text-muted-foreground">Sin propietario</p>}
+                                      </div>
+                                      <div>
+                                        <h4 className="text-xs font-semibold flex items-center gap-2 mb-2"><User className="w-3.5 h-3.5 text-primary" /> Conductor</h4>
+                                        {v.conductor_nombre ? (
+                                          <div className="p-2 rounded-lg bg-background border text-xs">
+                                            <div className="font-semibold">{v.conductor_nombre}</div>
+                                          </div>
+                                        ) : <p className="text-xs text-muted-foreground">Sin conductor asignado</p>}
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                </td>
+                              </tr>
                             )}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={v.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">{v.estado}</Badge>
-                          </TableCell>
-                          <TableCell onClick={e => e.stopPropagation()}>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleToggleVehiculoEstado(v)}>
-                                  {v.estado === "HABILITADO" ? <><Ban className="w-4 h-4 mr-2" /> Suspender</> : <><CheckCircle2 className="w-4 h-4 mr-2" /> Habilitar</>}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="text-destructive" onClick={() => setDeleteAlert({ type: "vehiculo", item: v })}>
-                                  <Trash2 className="w-4 h-4 mr-2" /> Eliminar
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                          </React.Fragment>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 )}
@@ -457,66 +564,118 @@ export default function MiFlota() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredConductores.map(c => (
-                        <TableRow
-                          key={c.id}
-                          className={`cursor-pointer ${selected?.type === "conductor" && selected?.item?.id === c.id ? "bg-accent" : ""}`}
-                          onClick={() => setSelected(selected?.type === "conductor" && selected?.item?.id === c.id ? null : { type: "conductor", item: c })}
-                        >
-                          <TableCell className="font-medium">{c.nombres}</TableCell>
-                          <TableCell>{c.apellidos}</TableCell>
-                          <TableCell>{c.identificacion}</TableCell>
-                          <TableCell>{c.celular}</TableCell>
-                          <TableCell onClick={e => e.stopPropagation()}>
-                            {c.vehiculo ? (
-                              c.vehiculo.estado === "INHABILITADO" ? (
-                                <Badge variant="destructive" className="text-xs">INHABILITADO</Badge>
-                              ) : (
-                                <div className="flex items-center gap-2">
-                                  <Badge variant="outline" className="text-xs">{c.vehiculo.placa}</Badge>
-                                  {!c.en_ruta && (
-                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleUnassignConductor(c)}>
-                                      <Ban className="w-3 h-3 text-muted-foreground" />
-                                    </Button>
-                                  )}
-                                  {c.en_ruta && <Badge variant="secondary" className="text-xs">En uso</Badge>}
-                                </div>
-                              )
-                            ) : c.estado === "INHABILITADO" ? (
-                              <span className="text-xs text-muted-foreground">Suspendido</span>
-                            ) : (
-                              <Select onValueChange={(vId) => handleAssignVehToConductor(c.id, vId)}>
-                                <SelectTrigger className="h-8 w-[160px] text-xs"><SelectValue placeholder="Asignar" /></SelectTrigger>
-                                <SelectContent>
-                                  {vehiculosDisponibles.length === 0 ? (
-                                    <div className="px-2 py-1.5 text-xs text-muted-foreground">No hay disponibles</div>
-                                  ) : vehiculosDisponibles.map(v => (
-                                    <SelectItem key={v.id} value={v.id} className="text-xs">{v.placa} — {v.marca}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                      {filteredConductores.map(c => {
+                        const isOpen = selected?.type === "conductor" && selected?.item?.id === c.id;
+                        return (
+                          <React.Fragment key={c.id}>
+                            <TableRow
+                              className={`cursor-pointer ${isOpen ? "bg-accent" : ""}`}
+                              onClick={() => setSelected(isOpen ? null : { type: "conductor", item: c })}
+                            >
+                              <TableCell className="font-medium">{c.nombres}</TableCell>
+                              <TableCell>{c.apellidos}</TableCell>
+                              <TableCell>{c.identificacion}</TableCell>
+                              <TableCell>{c.celular}</TableCell>
+                              <TableCell onClick={e => e.stopPropagation()}>
+                                {c.vehiculo ? (
+                                  c.vehiculo.estado === "INHABILITADO" ? (
+                                    <Badge variant="destructive" className="text-xs">INHABILITADO</Badge>
+                                  ) : (
+                                    <div className="flex items-center gap-2">
+                                      <Badge variant="outline" className="text-xs">{c.vehiculo.placa}</Badge>
+                                      {!c.en_ruta && (
+                                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleUnassignConductor(c)}>
+                                          <Ban className="w-3 h-3 text-muted-foreground" />
+                                        </Button>
+                                      )}
+                                      {c.en_ruta && <Badge variant="secondary" className="text-xs">En uso</Badge>}
+                                    </div>
+                                  )
+                                ) : c.estado === "INHABILITADO" ? (
+                                  <span className="text-xs text-muted-foreground">Suspendido</span>
+                                ) : (
+                                  <Select onValueChange={(vId) => handleAssignVehToConductor(c.id, vId)}>
+                                    <SelectTrigger className="h-8 w-[160px] text-xs"><SelectValue placeholder="Asignar" /></SelectTrigger>
+                                    <SelectContent>
+                                      {vehiculosDisponibles.length === 0 ? (
+                                        <div className="px-2 py-1.5 text-xs text-muted-foreground">No hay disponibles</div>
+                                      ) : vehiculosDisponibles.map(v => (
+                                        <SelectItem key={v.id} value={v.id} className="text-xs">{v.placa} — {v.marca}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={c.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">{c.estado}</Badge>
+                              </TableCell>
+                              <TableCell onClick={e => e.stopPropagation()}>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleToggleConductorEstado(c)}>
+                                      {c.estado === "HABILITADO" ? <><Ban className="w-4 h-4 mr-2" /> Suspender</> : <><CheckCircle2 className="w-4 h-4 mr-2" /> Habilitar</>}
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="text-destructive" onClick={() => setDeleteAlert({ type: "conductor", item: c })}>
+                                      <Trash2 className="w-4 h-4 mr-2" /> Eliminar
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
+                            {isOpen && (
+                              <tr>
+                                <td colSpan={7} className="p-0 border-b">
+                                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="p-4 bg-muted/30">
+                                    <div className="flex items-start justify-between mb-3">
+                                      <div className="flex items-center gap-3">
+                                        {c.foto_url ? (
+                                          <StorageImage src={c.foto_url} alt="Foto" className="w-12 h-12 rounded-full object-cover border-2 border-primary/20" />
+                                        ) : (
+                                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center"><User className="w-6 h-6 text-primary" /></div>
+                                        )}
+                                        <p className="font-semibold text-sm">{c.nombres} {c.apellidos}</p>
+                                      </div>
+                                      <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={(e) => { e.stopPropagation(); setSelected(null); }}>
+                                        <ChevronUp className="w-3 h-3" /> Cerrar
+                                      </Button>
+                                    </div>
+                                    <div className="grid grid-cols-4 gap-3 text-xs mb-3">
+                                      <div className="flex items-center gap-2 text-muted-foreground"><Mail className="w-3.5 h-3.5" /><span className="truncate">{c.email}</span></div>
+                                      <div className="flex items-center gap-2 text-muted-foreground"><Phone className="w-3.5 h-3.5" /><span>{c.celular}</span></div>
+                                      <div className="flex items-center gap-2 text-muted-foreground"><MapPin className="w-3.5 h-3.5" /><span className="truncate">{c.domicilio}</span></div>
+                                      <div className="flex items-center gap-2 text-muted-foreground"><Calendar className="w-3.5 h-3.5" /><span>{calcAge(c.fecha_nacimiento)} años</span></div>
+                                    </div>
+                                    <div className="grid grid-cols-4 gap-2 text-xs mb-3">
+                                      <div><span className="text-muted-foreground">Identificación:</span> <span className="font-medium">{c.identificacion}</span></div>
+                                      <div><span className="text-muted-foreground">Nacionalidad:</span> <span className="font-medium">{c.nacionalidad}</span></div>
+                                      <div><span className="text-muted-foreground">Estado civil:</span> <span className="font-medium">{c.estado_civil}</span></div>
+                                      <div className="flex items-center gap-1"><CreditCard className="w-3 h-3" /> Licencia: <span className="font-medium">{c.tipo_licencia}</span></div>
+                                    </div>
+                                    <div className="flex items-center gap-4 mb-3">
+                                      <Badge variant={c.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">{c.estado}</Badge>
+                                      <span className="text-xs text-muted-foreground">Cad. licencia: <span className="font-medium text-foreground">{c.fecha_caducidad_licencia}</span></span>
+                                    </div>
+                                    <Separator className="my-3" />
+                                    <h4 className="text-xs font-semibold flex items-center gap-2 mb-2"><Car className="w-3.5 h-3.5 text-primary" /> Vehículo Asignado</h4>
+                                    {c.vehiculo ? (
+                                      <div className="p-2 rounded-lg bg-background border text-xs space-y-0.5 max-w-xs">
+                                        <div className="flex items-center justify-between">
+                                          <span className="font-semibold">{c.vehiculo.placa}</span>
+                                          <Badge variant={c.vehiculo.estado === "HABILITADO" ? "default" : "destructive"} className="text-[10px]">{c.vehiculo.estado}</Badge>
+                                        </div>
+                                        <div className="text-muted-foreground">{c.vehiculo.marca} {c.vehiculo.modelo}</div>
+                                      </div>
+                                    ) : <p className="text-xs text-muted-foreground">Sin vehículo asignado</p>}
+                                  </motion.div>
+                                </td>
+                              </tr>
                             )}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={c.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">{c.estado}</Badge>
-                          </TableCell>
-                          <TableCell onClick={e => e.stopPropagation()}>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleToggleConductorEstado(c)}>
-                                  {c.estado === "HABILITADO" ? <><Ban className="w-4 h-4 mr-2" /> Suspender</> : <><CheckCircle2 className="w-4 h-4 mr-2" /> Habilitar</>}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="text-destructive" onClick={() => setDeleteAlert({ type: "conductor", item: c })}>
-                                  <Trash2 className="w-4 h-4 mr-2" /> Eliminar
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                          </React.Fragment>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 )}
