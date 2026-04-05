@@ -213,15 +213,15 @@ export default function GerenciaViajes() {
         subtitle={`Período actual: ${periodLabel}`}
       />
       <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
-        <motion.div variants={item} className="no-print flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">Consolidado Rutas</h1>
-            <p className="text-muted-foreground mt-1">
-              Período actual ({frecuenciaLabel}): {periodLabel}
+        <motion.div variants={item} className="no-print flex items-center justify-between flex-wrap gap-2 sm:gap-4">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-3xl font-display font-bold text-foreground">Consolidado Rutas</h1>
+            <p className="text-muted-foreground text-xs sm:text-sm mt-1 truncate">
+              Período ({frecuenciaLabel}): {periodLabel}
             </p>
           </div>
-          <Button size="sm" variant="outline" onClick={() => window.print()} className="no-print">
-            <Printer className="w-4 h-4 mr-1" />
+          <Button size="sm" variant="outline" onClick={() => window.print()} className="no-print h-8 px-2 sm:h-9 sm:px-3 text-xs sm:text-sm shrink-0">
+            <Printer className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
             Imprimir
           </Button>
         </motion.div>
