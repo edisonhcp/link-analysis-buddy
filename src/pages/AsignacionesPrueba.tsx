@@ -117,7 +117,6 @@ export default function AsignacionesPrueba() {
   };
 
   // Edit a specific reservacion within a viaje
-  const [editingReservacionId, setEditingReservacionId] = useState<string | null>(null);
 
   const handleEditReservacion = (viaje: any, reserva: any) => {
     setEditingId(viaje.id);
