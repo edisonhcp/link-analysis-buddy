@@ -31,6 +31,7 @@ import PropietarioAsignaciones from "./pages/propietario/PropietarioAsignaciones
 import PropietarioViajes from "./pages/propietario/PropietarioViajes";
 import ConfiguracionEmpresa from "./pages/ConfiguracionEmpresa";
 import GestionGerencia from "./pages/GestionGerencia";
+import Soporte from "./pages/Soporte";
 import ConductorConfiguracion from "./pages/conductor/ConductorConfiguracion";
 import PropietarioConfiguracion from "./pages/propietario/PropietarioConfiguracion";
 
