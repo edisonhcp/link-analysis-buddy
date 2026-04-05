@@ -209,26 +209,28 @@ export default function AsignacionesPrueba() {
     }
   };
 
-  const handleEnviarWhatsApp = (a: any) => {
+  const handleCopiarReserva = async (a: any) => {
     const fechaStr = a.fecha_salida ? format(new Date(a.fecha_salida), "dd/MM/yyyy") : "—";
     const horaStr = a.hora_salida || "—";
     const reserva = a.reservacion;
 
     let texto = `*RESERVA DE VIAJE*\n`;
-    texto += `*FECHA Y HORA:* ${fechaStr} ${horaStr}\n`;
-    texto += `*RUTA:* ${a.origen} → ${a.destino}\n`;
-    if (reserva?.parada) texto += `*PARADA:* ${reserva.parada}\n`;
-    texto += `*CANTIDAD DE PASAJEROS:* ${a.cantidad_pasajeros}\n`;
-    if (reserva?.nombre_pasajero) texto += `*PASAJERO:* ${reserva.nombre_pasajero}\n`;
-    if (reserva?.celular_pasajero) texto += `*CELULAR PASAJERO:* ${reserva.celular_pasajero}\n`;
-    if (reserva?.detalle) texto += `*DETALLE:* ${reserva.detalle}\n`;
-    texto += `*PRECIO PASAJEROS:* $${a.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}\n`;
-    texto += `*ENCOMIENDA:* $${a.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}`;
+    texto += `*Fecha y Hora:* ${fechaStr} ${horaStr}\n`;
+    texto += `*Ruta:* ${a.origen} → ${a.destino}\n`;
+    if (reserva?.parada) texto += `*Parada:* ${reserva.parada}\n`;
+    texto += `*Cantidad de Pasajeros:* ${a.cantidad_pasajeros}\n`;
+    if (reserva?.nombre_pasajero) texto += `*Pasajero:* ${reserva.nombre_pasajero}\n`;
+    if (reserva?.celular_pasajero) texto += `*Celular Pasajero:* ${reserva.celular_pasajero}\n`;
+    if (reserva?.detalle) texto += `*Detalle:* ${reserva.detalle}\n`;
+    texto += `*Precio Pasajeros:* $${a.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}\n`;
+    texto += `*Encomienda:* $${a.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}`;
 
-    const conductorCelular = a.conductor?.celular || "";
-    const phone = conductorCelular ? `593${conductorCelular.replace(/^0/, "")}` : "";
-    const encoded = encodeURIComponent(texto);
-    window.location.href = `https://wa.me/${phone}?text=${encoded}`;
+    try {
+      await navigator.clipboard.writeText(texto);
+      toast({ title: "Reserva copiada", description: "Pega el texto en WhatsApp para enviarlo al conductor" });
+    } catch {
+      toast({ title: "Error", description: "No se pudo copiar al portapapeles", variant: "destructive" });
+    }
   };
 
   return (
