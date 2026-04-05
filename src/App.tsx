@@ -28,7 +28,6 @@ import GerenciaViajes from "./pages/GerenciaViajes";
 import ConductorAsignaciones from "./pages/conductor/ConductorAsignaciones";
 import ConductorRutas from "./pages/conductor/ConductorRutas";
 import PropietarioAsignaciones from "./pages/propietario/PropietarioAsignaciones";
-import PropietarioAsignacionesPrueba from "./pages/propietario/PropietarioAsignacionesPrueba";
 import PropietarioViajes from "./pages/propietario/PropietarioViajes";
 import ConfiguracionEmpresa from "./pages/ConfiguracionEmpresa";
 import GestionGerencia from "./pages/GestionGerencia";
