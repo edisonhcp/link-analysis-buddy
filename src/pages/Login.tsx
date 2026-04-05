@@ -75,9 +75,8 @@ export default function Login() {
           className="relative z-10 text-center"
         >
           {/* Ec Esfera Software - Developer branding */}
-          <div className="mb-6 flex flex-col items-center gap-2">
+          <div className="mb-6 flex flex-col items-center">
             <img src={logoEcEsfera} alt="Ec Esfera Software" className="w-20 h-20 rounded-2xl" loading="lazy" width={512} height={512} />
-            <span className="text-xs text-sidebar-foreground/50 font-medium tracking-wide">Ec Esfera Software</span>
           </div>
 
           {/* DoorToDoor logo */}
