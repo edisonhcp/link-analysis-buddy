@@ -3,7 +3,7 @@ import { StorageImage } from "@/components/StorageImage";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Truck, Users, Route, ClipboardList,
-  Settings, LogOut, Menu, X, Building2, Shield, Link2, UserCheck, FileText, Layers
+  Settings, LogOut, Menu, X, Building2, Shield, Link2, UserCheck, FileText, Layers, HeadsetIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +17,7 @@ const gerenciaNavItems = [
   { label: "Consolidado Rutas", icon: Route, href: "/dashboard/viajes" },
   { label: "Invitaciones", icon: Link2, href: "/dashboard/invitaciones" },
   { label: "Gestión", icon: Building2, href: "/dashboard/gestion" },
+  { label: "Soporte", icon: HeadsetIcon, href: "/dashboard/soporte" },
   { label: "Configuración", icon: Settings, href: "/dashboard/config" },
 ];
 
