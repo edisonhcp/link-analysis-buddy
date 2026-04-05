@@ -557,10 +557,11 @@ export default function MiFlota() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Nombres</TableHead>
                         <TableHead>Apellidos</TableHead>
+                        <TableHead>Nombres</TableHead>
                         <TableHead>Identificación</TableHead>
                         <TableHead>Celular</TableHead>
+                        <TableHead>Correo Electrónico</TableHead>
                         <TableHead>Vehículo</TableHead>
                         <TableHead>Estado</TableHead>
                         <TableHead className="w-10"></TableHead>
