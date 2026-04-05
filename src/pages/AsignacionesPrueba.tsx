@@ -66,6 +66,7 @@ export default function AsignacionesPrueba() {
   const [pasajeroNombre, setPasajeroNombre] = useState("");
   const [pasajeroCelular, setPasajeroCelular] = useState("");
   const [pasajeroDetalle, setPasajeroDetalle] = useState("");
+  const [pasajeroDireccion, setPasajeroDireccion] = useState("");
 
   const clearForm = () => {
     setSelectedVehiculo("");
