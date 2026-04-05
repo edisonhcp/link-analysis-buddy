@@ -224,56 +224,68 @@ function ConductorDashboard({ profile, suspended }: { profile: any; suspended: a
         </motion.div>
 
 
-        {/* Rutas asignadas */}
-        {rutasAsignadas.length > 0 && (
-          <motion.div variants={item}>
-            <h2 className="text-xl font-display font-semibold text-foreground mb-4">Rutas Asignadas</h2>
-            <div className="space-y-3">
-              {rutasAsignadas.map((ruta) => (
-                <Card key={ruta.id} className={`border-0 shadow-sm ${ruta.estado === "EN_RUTA" ? "border-l-4 border-l-primary" : "border-l-4 border-l-muted"}`}>
-                  <CardContent className="p-5">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap mb-2">
-                          <Route className="w-5 h-5 text-primary" />
-                          <span className="font-display font-semibold text-foreground">
-                            {ruta.origen} → {ruta.destino}
-                          </span>
-                          <Badge variant={ruta.estado === "EN_RUTA" ? "default" : "secondary"}>
-                            {ruta.estado === "EN_RUTA" ? "Ruta Iniciada" : "Asignado"}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                          {ruta.hora_salida && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{ruta.hora_salida}</span>}
-                          <span className="flex items-center gap-1"><Users className="w-3 h-3" />{ruta.cantidad_pasajeros} pasajeros</span>
-                          {ruta.vehiculo && <span><Truck className="w-3 h-3 inline mr-1" />{ruta.vehiculo.placa}</span>}
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                          <span>Valor pasajeros: ${ruta.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}</span>
-                          <span>Encomienda: ${ruta.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}</span>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        {ruta.estado === "ASIGNADO" && (
-                          <Button onClick={() => handleIniciarRuta(ruta.id)} className="gap-2">
-                            <Route className="w-4 h-4" />
-                            Iniciar Ruta
-                          </Button>
-                        )}
-                        {ruta.estado === "EN_RUTA" && (
-                          <Button onClick={() => handleFinalizarRuta(ruta.id)} variant="outline" className="gap-2">
-                            <CheckCircle2 className="w-4 h-4" />
-                            Finalizar Ruta
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </motion.div>
-        )}
+        {/* Rutas asignadas - tabla informativa */}
+        {(() => {
+          const activeRutas = rutasAsignadas.filter(r => r.estado !== "FINALIZADO");
+          if (activeRutas.length === 0) return null;
+
+          // Group by vehicle + route + date + time
+          const groups: Record<string, RutaAsignada[]> = {};
+          for (const r of activeRutas) {
+            const fechaStr = r.fecha_salida ? new Date(r.fecha_salida).toLocaleDateString("es-EC") : "";
+            const key = `${r.asignacion_id || ""}_${r.origen}_${r.destino}_${fechaStr}_${r.hora_salida || ""}`;
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(r);
+          }
+
+          return (
+            <motion.div variants={item}>
+              <h2 className="text-xl font-display font-semibold text-foreground mb-4">Rutas Asignadas</h2>
+              <Card className="border-0 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/50">
+                        <th className="text-left p-3 font-medium text-muted-foreground">Ruta</th>
+                        <th className="text-left p-3 font-medium text-muted-foreground">Fecha / Hora</th>
+                        <th className="text-left p-3 font-medium text-muted-foreground">Vehículo</th>
+                        <th className="text-center p-3 font-medium text-muted-foreground">Pasajeros</th>
+                        <th className="text-right p-3 font-medium text-muted-foreground">Valor Pasajeros</th>
+                        <th className="text-right p-3 font-medium text-muted-foreground">Encomienda</th>
+                        <th className="text-center p-3 font-medium text-muted-foreground">Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.values(groups).map((items, idx) => {
+                        const first = items[0];
+                        const totalPasajeros = items.reduce((s, v) => s + (v.cantidad_pasajeros || 0), 0);
+                        const totalMonto = items.reduce((s, v) => s + (v.ingresos?.pasajeros_monto || 0), 0);
+                        const totalEnc = items.reduce((s, v) => s + (v.ingresos?.encomiendas_monto || 0), 0);
+                        const badge = first.estado === "EN_RUTA"
+                          ? { label: "En Ruta", variant: "default" as const }
+                          : { label: "Asignado", variant: "secondary" as const };
+
+                        return (
+                          <tr key={idx} className="border-b border-border last:border-0 hover:bg-muted/30">
+                            <td className="p-3 font-medium text-foreground">{first.origen} → {first.destino}</td>
+                            <td className="p-3 text-muted-foreground">
+                              {first.fecha_salida ? new Date(first.fecha_salida).toLocaleDateString("es-EC") : "—"} {first.hora_salida || ""}
+                            </td>
+                            <td className="p-3 text-muted-foreground">{first.vehiculo?.placa || "—"}</td>
+                            <td className="p-3 text-center font-medium text-foreground">{totalPasajeros}</td>
+                            <td className="p-3 text-right text-foreground">${totalMonto.toFixed(2)}</td>
+                            <td className="p-3 text-right text-foreground">${totalEnc.toFixed(2)}</td>
+                            <td className="p-3 text-center"><Badge variant={badge.variant}>{badge.label}</Badge></td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            </motion.div>
+          );
+        })()}
 
         <motion.div variants={item}>
           <Button variant="destructive" size="sm" className="gap-2" onClick={() => setDeleteAccountAlert(true)}>
