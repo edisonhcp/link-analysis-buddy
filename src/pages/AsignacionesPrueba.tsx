@@ -249,6 +249,7 @@ export default function AsignacionesPrueba() {
       const pasajeros = reserva._viaje?.cantidad_pasajeros || 1;
       texto += `${idx + 1}. PASAJERO (${pasajeros}): ${reserva.nombre_pasajero || "—"}${detalle}\n`;
       if (reserva.celular_pasajero) texto += `   Celular: ${reserva.celular_pasajero}\n`;
+      if (reserva.direccion) texto += `   Dirección: ${reserva.direccion}\n`;
       texto += `   Precio: $${reserva._viaje?.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}\n`;
       texto += `   Encomienda: $${reserva._viaje?.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}\n\n`;
     });
