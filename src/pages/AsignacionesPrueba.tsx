@@ -80,6 +80,7 @@ export default function AsignacionesPrueba() {
     setPasajeroCelular("");
     setPasajeroDetalle("");
     setEditingId(null);
+    setEditingReservacionId(null);
   };
 
   const loadData = async () => {
