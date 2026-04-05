@@ -303,6 +303,7 @@ export default function MiFlota() {
                         <TableHead>Apellidos</TableHead>
                         <TableHead>Identificación</TableHead>
                         <TableHead>Celular</TableHead>
+                        <TableHead>Correo Electrónico</TableHead>
                         <TableHead>Estado</TableHead>
                         <TableHead className="w-10"></TableHead>
                       </TableRow>
@@ -320,6 +321,7 @@ export default function MiFlota() {
                               <TableCell>{p.apellidos}</TableCell>
                               <TableCell>{p.identificacion}</TableCell>
                               <TableCell>{p.celular}</TableCell>
+                              <TableCell className="text-xs truncate max-w-[180px]">{p.email}</TableCell>
                               <TableCell>
                                 <Badge variant={p.estado === "HABILITADO" ? "default" : "destructive"} className="text-xs">{p.estado}</Badge>
                               </TableCell>
@@ -338,7 +340,7 @@ export default function MiFlota() {
                             </TableRow>
                             {isOpen && (
                               <tr>
-                                <td colSpan={6} className="p-0 border-b">
+                                <td colSpan={7} className="p-0 border-b">
                                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="p-4 bg-muted border border-foreground rounded-md m-2">
                                     <div className="flex items-start justify-between mb-3">
                                       <div className="flex items-center gap-3">
@@ -417,6 +419,7 @@ export default function MiFlota() {
                         <TableHead>Conductor</TableHead>
                         <TableHead>Estado</TableHead>
                         <TableHead className="w-10"></TableHead>
+
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -431,11 +434,11 @@ export default function MiFlota() {
                               <TableCell className="font-medium">{v.placa}</TableCell>
                               <TableCell>{v.marca} {v.modelo}</TableCell>
                               <TableCell>{v.tipo}</TableCell>
-                              <TableCell>{v.propietarios?.nombres || "—"}</TableCell>
+                              <TableCell>{v.propietarios ? `${v.propietarios.apellidos || ""} ${v.propietarios.nombres}`.trim() : "—"}</TableCell>
                               <TableCell onClick={e => e.stopPropagation()}>
                                 {v.conductor_nombre ? (
                                   <div className="flex items-center gap-2">
-                                    <Badge variant="outline" className="text-xs">{v.conductor_nombre}</Badge>
+                                    <Badge variant="outline" className="text-xs">{v.conductor_apellidos ? `${v.conductor_apellidos} ${v.conductor_nombre}` : v.conductor_nombre}</Badge>
                                     {!v.en_ruta && (
                                       <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleUnassignFromVeh(v)}>
                                         <Ban className="w-3 h-3 text-muted-foreground" />
@@ -554,10 +557,11 @@ export default function MiFlota() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Nombres</TableHead>
                         <TableHead>Apellidos</TableHead>
+                        <TableHead>Nombres</TableHead>
                         <TableHead>Identificación</TableHead>
                         <TableHead>Celular</TableHead>
+                        <TableHead>Correo Electrónico</TableHead>
                         <TableHead>Vehículo</TableHead>
                         <TableHead>Estado</TableHead>
                         <TableHead className="w-10"></TableHead>
@@ -572,10 +576,11 @@ export default function MiFlota() {
                               className={`cursor-pointer ${isOpen ? "bg-accent" : ""}`}
                               onClick={() => setSelected(isOpen ? null : { type: "conductor", item: c })}
                             >
-                              <TableCell className="font-medium">{c.nombres}</TableCell>
-                              <TableCell>{c.apellidos}</TableCell>
+                              <TableCell className="font-medium">{c.apellidos}</TableCell>
+                              <TableCell>{c.nombres}</TableCell>
                               <TableCell>{c.identificacion}</TableCell>
                               <TableCell>{c.celular}</TableCell>
+                              <TableCell className="text-xs truncate max-w-[180px]">{c.email}</TableCell>
                               <TableCell onClick={e => e.stopPropagation()}>
                                 {c.vehiculo ? (
                                   c.vehiculo.estado === "INHABILITADO" ? (
@@ -627,8 +632,8 @@ export default function MiFlota() {
                             </TableRow>
                             {isOpen && (
                               <tr>
-                                <td colSpan={7} className="p-0 border-b">
-                                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="p-4 border border-foreground rounded-md m-2 text-xs font-medium bg-[sidebar-primary-foreground] bg-muted">
+                                 <td colSpan={8} className="p-0 border-b">
+                                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="p-4 border border-foreground rounded-md m-2 text-xs font-medium bg-[sidebar-primary-foreground] bg-muted">
                                     <div className="flex items-start justify-between mb-3">
                                       <div className="flex items-center gap-3">
                                         {c.foto_url ? (
