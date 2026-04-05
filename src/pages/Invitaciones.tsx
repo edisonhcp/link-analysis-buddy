@@ -109,15 +109,16 @@ export default function Invitaciones() {
 
   return (
     <DashboardLayout>
-      <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      <motion.div variants={container} initial="hidden" animate="show" className="space-y-6 max-w-full overflow-hidden">
         <motion.div variants={item} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="min-w-0">
             <h1 className="text-xl sm:text-3xl font-display font-bold text-foreground">Invitaciones</h1>
             <p className="text-muted-foreground mt-1 text-xs sm:text-sm">Genera links de registro para conductores y propietarios</p>
           </div>
-          <Button onClick={() => setGenerateOpen(true)} size="sm" className="gap-2 font-display w-full sm:w-auto h-9 sm:h-10 text-xs sm:text-sm">
+          <Button onClick={() => setGenerateOpen(true)} size="sm" className="gap-2 font-display w-full sm:w-auto h-9 sm:h-10 text-xs sm:text-sm shrink-0">
             <Plus className="w-4 h-4" />
-            Generar Invitación
+            <span className="hidden sm:inline">Generar Invitación</span>
+            <span className="sm:hidden">Generar</span>
           </Button>
         </motion.div>
 
@@ -151,7 +152,7 @@ export default function Invitaciones() {
         </motion.div>
 
         <motion.div variants={item}>
-          <Card className="border-0 shadow-sm">
+          <Card className="border-0 shadow-sm overflow-hidden">
             <CardContent className="p-0">
               {loading ? (
                 <div className="p-8 text-center text-muted-foreground">Cargando...</div>
@@ -163,6 +164,7 @@ export default function Invitaciones() {
                   </p>
                 </div>
               ) : (
+                <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -238,6 +240,7 @@ export default function Invitaciones() {
                     })}
                   </TableBody>
                 </Table>
+                </div>
               )}
             </CardContent>
           </Card>

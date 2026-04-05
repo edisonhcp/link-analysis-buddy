@@ -183,7 +183,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
       )}
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen min-w-0">
         {/* Top bar */}
         <header className="h-16 flex items-center gap-4 px-6 border-b border-border bg-card">
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-foreground">
@@ -196,7 +196,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         </header>
 
         {/* Content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 sm:p-6 overflow-x-hidden">
           {children}
         </main>
       </div>
