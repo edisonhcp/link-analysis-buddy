@@ -240,6 +240,7 @@ export default function Invitaciones() {
                     })}
                   </TableBody>
                 </Table>
+                </div>
               )}
             </CardContent>
           </Card>
