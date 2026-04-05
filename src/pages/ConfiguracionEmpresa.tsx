@@ -163,9 +163,9 @@ export default function ConfiguracionEmpresa() {
         <Card className="border-0 shadow-sm">
           <CardHeader><CardTitle className="font-display text-lg">Logo de la Compañía</CardTitle></CardHeader>
           <CardContent>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 sm:gap-6">
               <div
-                className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-dashed border-border cursor-pointer hover:border-primary transition-colors"
+                className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-dashed border-border cursor-pointer hover:border-primary transition-colors shrink-0"
                 onClick={() => fileRef.current?.click()}
               >
                 {logoPreview ? (
