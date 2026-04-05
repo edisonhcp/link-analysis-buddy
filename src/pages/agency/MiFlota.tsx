@@ -230,8 +230,8 @@ export default function MiFlota() {
     <DashboardLayout>
       <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
         <motion.div variants={anim}>
-          <h1 className="text-3xl font-display font-bold text-foreground">Mi Flota</h1>
-          <p className="text-muted-foreground mt-1">Vista consolidada de propietarios, vehículos y conductores</p>
+          <h1 className="text-xl sm:text-3xl font-display font-bold text-foreground">Mi Flota</h1>
+          <p className="text-muted-foreground mt-1 text-xs sm:text-sm truncate">Vista consolidada de propietarios, vehículos y conductores</p>
         </motion.div>
 
         <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setSelected(null); }}>
@@ -277,7 +277,7 @@ export default function MiFlota() {
                 placeholder="Propietario..."
                 value={filterPropietario}
                 onChange={e => setFilterPropietario(e.target.value)}
-                className="h-9 w-full md:w-44 text-sm"
+                className="h-8 sm:h-9 w-full md:w-44 text-xs sm:text-sm"
               />
             </div>
             <div className="relative w-[calc(50%-4px)] md:w-auto">
@@ -285,7 +285,7 @@ export default function MiFlota() {
                 placeholder="Placa..."
                 value={filterPlaca}
                 onChange={e => setFilterPlaca(e.target.value)}
-                className="h-9 w-full md:w-36 text-sm"
+                className="h-8 sm:h-9 w-full md:w-36 text-xs sm:text-sm"
               />
             </div>
             <div className="relative w-[calc(50%-4px)] md:w-auto">
@@ -293,7 +293,7 @@ export default function MiFlota() {
                 placeholder="Conductor..."
                 value={filterConductor}
                 onChange={e => setFilterConductor(e.target.value)}
-                className="h-9 w-full md:w-44 text-sm"
+                className="h-8 sm:h-9 w-full md:w-44 text-xs sm:text-sm"
               />
             </div>
             {hasFilters && (
