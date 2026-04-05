@@ -340,7 +340,7 @@ export default function MiFlota() {
                             </TableRow>
                             {isOpen && (
                               <tr>
-                                <td colSpan={6} className="p-0 border-b">
+                                <td colSpan={7} className="p-0 border-b">
                                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="p-4 bg-muted border border-foreground rounded-md m-2">
                                     <div className="flex items-start justify-between mb-3">
                                       <div className="flex items-center gap-3">
