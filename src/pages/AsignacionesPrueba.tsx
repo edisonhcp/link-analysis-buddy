@@ -597,7 +597,12 @@ export default function AsignacionesPrueba() {
                                           {reserva.detalle}
                                         </span>
                                       )}
-                                    </div>
+                                      {reserva.direccion && (
+                                        <span className="flex items-center gap-1">
+                                          <MapPin className="w-3 h-3" />
+                                          {reserva.direccion}
+                                        </span>
+                                      )}
                                   </div>
                                   <div className="flex gap-2 shrink-0">
                                     <Button variant="outline" size="sm" className="gap-1" onClick={() => handleEditReservacion(reserva._viaje, reserva)}>
