@@ -213,17 +213,15 @@ export default function AsignacionesPrueba() {
     const fechaStr = a.fecha_salida ? format(new Date(a.fecha_salida), "dd/MM/yyyy") : "—";
     const horaStr = a.hora_salida || "—";
     const reserva = a.reservacion;
+    const pasajeros = a.cantidad_pasajeros || 1;
+    const nombrePasajero = reserva?.nombre_pasajero || "—";
+    const detalle = reserva?.detalle ? `, ${reserva.detalle}` : "";
 
-    let texto = `*RESERVA DE VIAJE*\n`;
-    texto += `*Fecha y Hora:* ${fechaStr} ${horaStr}\n`;
-    texto += `*Ruta:* ${a.origen} → ${a.destino}\n`;
-    if (reserva?.parada) texto += `*Parada:* ${reserva.parada}\n`;
-    texto += `*Cantidad de Pasajeros:* ${a.cantidad_pasajeros}\n`;
-    if (reserva?.nombre_pasajero) texto += `*Pasajero:* ${reserva.nombre_pasajero}\n`;
-    if (reserva?.celular_pasajero) texto += `*Celular Pasajero:* ${reserva.celular_pasajero}\n`;
-    if (reserva?.detalle) texto += `*Detalle:* ${reserva.detalle}\n`;
-    texto += `*Precio Pasajeros:* $${a.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}\n`;
-    texto += `*Encomienda:* $${a.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}`;
+    let texto = `*RESERVA DE VIAJE PARA ${pasajeros} PASAJERO${pasajeros > 1 ? "S" : ""}*, PARA EL ${fechaStr} ${horaStr} EN LA RUTA: ${a.origen} → ${a.destino}\n\n`;
+    texto += `${pasajeros} PASAJERO: ${nombrePasajero}${detalle}\n`;
+    if (reserva?.celular_pasajero) texto += `Celular: ${reserva.celular_pasajero}\n`;
+    texto += `Precio: $${a.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}\n`;
+    texto += `Encomienda: $${a.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}`;
 
     try {
       await navigator.clipboard.writeText(texto);
