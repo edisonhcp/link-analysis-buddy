@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Route, Truck, Plus, Clock, MapPin, Users, DollarSign, Package, Pencil, X, CalendarIcon, Send, User, Phone, FileText, MapPinned } from "lucide-react";
+import { Route, Truck, Plus, Clock, MapPin, Users, DollarSign, Package, Pencil, X, CalendarIcon, Copy, User, Phone, FileText, MapPinned } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -209,26 +209,28 @@ export default function AsignacionesPrueba() {
     }
   };
 
-  const handleEnviarWhatsApp = (a: any) => {
+  const handleCopiarReserva = async (a: any) => {
     const fechaStr = a.fecha_salida ? format(new Date(a.fecha_salida), "dd/MM/yyyy") : "—";
     const horaStr = a.hora_salida || "—";
     const reserva = a.reservacion;
 
     let texto = `*RESERVA DE VIAJE*\n`;
-    texto += `*FECHA Y HORA:* ${fechaStr} ${horaStr}\n`;
-    texto += `*RUTA:* ${a.origen} → ${a.destino}\n`;
-    if (reserva?.parada) texto += `*PARADA:* ${reserva.parada}\n`;
-    texto += `*CANTIDAD DE PASAJEROS:* ${a.cantidad_pasajeros}\n`;
-    if (reserva?.nombre_pasajero) texto += `*PASAJERO:* ${reserva.nombre_pasajero}\n`;
-    if (reserva?.celular_pasajero) texto += `*CELULAR PASAJERO:* ${reserva.celular_pasajero}\n`;
-    if (reserva?.detalle) texto += `*DETALLE:* ${reserva.detalle}\n`;
-    texto += `*PRECIO PASAJEROS:* $${a.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}\n`;
-    texto += `*ENCOMIENDA:* $${a.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}`;
+    texto += `*Fecha y Hora:* ${fechaStr} ${horaStr}\n`;
+    texto += `*Ruta:* ${a.origen} → ${a.destino}\n`;
+    if (reserva?.parada) texto += `*Parada:* ${reserva.parada}\n`;
+    texto += `*Cantidad de Pasajeros:* ${a.cantidad_pasajeros}\n`;
+    if (reserva?.nombre_pasajero) texto += `*Pasajero:* ${reserva.nombre_pasajero}\n`;
+    if (reserva?.celular_pasajero) texto += `*Celular Pasajero:* ${reserva.celular_pasajero}\n`;
+    if (reserva?.detalle) texto += `*Detalle:* ${reserva.detalle}\n`;
+    texto += `*Precio Pasajeros:* $${a.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}\n`;
+    texto += `*Encomienda:* $${a.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}`;
 
-    const conductorCelular = a.conductor?.celular || "";
-    const phone = conductorCelular ? `593${conductorCelular.replace(/^0/, "")}` : "";
-    const encoded = encodeURIComponent(texto);
-    window.location.href = `https://wa.me/${phone}?text=${encoded}`;
+    try {
+      await navigator.clipboard.writeText(texto);
+      toast({ title: "Reserva copiada", description: "Pega el texto en WhatsApp para enviarlo al conductor" });
+    } catch {
+      toast({ title: "Error", description: "No se pudo copiar al portapapeles", variant: "destructive" });
+    }
   };
 
   return (
@@ -569,9 +571,9 @@ export default function AsignacionesPrueba() {
                                     <Pencil className="w-3.5 h-3.5" />
                                     Editar
                                   </Button>
-                                  <Button variant="outline" size="sm" className="gap-1" onClick={() => handleEnviarWhatsApp(a)}>
-                                    <Send className="w-3.5 h-3.5" />
-                                    Enviar a WhatsApp
+                                  <Button variant="outline" size="sm" className="gap-1" onClick={() => handleCopiarReserva(a)}>
+                                    <Copy className="w-3.5 h-3.5" />
+                                    Copiar Reserva
                                   </Button>
                                 </div>
                               </div>
