@@ -559,7 +559,7 @@ export default function AsignacionesPrueba() {
                               {allReservaciones.map((reserva: any, idx: number) => (
                                 <div key={reserva.id} className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 rounded-lg bg-muted/30">
                                   <div className="flex-1 min-w-0 space-y-1">
-                                    <span className="text-xs font-semibold text-foreground">Reserva #{idx + 1}</span>
+                                    <span className="text-xs font-semibold text-foreground">Reserva #{idx + 1} — {reserva._viaje?.cantidad_pasajeros || 0} pasajero{(reserva._viaje?.cantidad_pasajeros || 0) !== 1 ? "s" : ""}</span>
                                     {reserva.parada && (
                                       <span className="flex items-center gap-1 text-sm text-muted-foreground">
                                         <MapPinned className="w-3 h-3" />
