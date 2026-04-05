@@ -240,7 +240,6 @@ export default function ConductorAsignaciones() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {/* Summary cards — group viajes by route + date + time */}
             {(() => {
               const groups: Record<string, any[]> = {};
               for (const v of filteredViajes) {
@@ -249,191 +248,192 @@ export default function ConductorAsignaciones() {
                 if (!groups[key]) groups[key] = [];
                 groups[key].push(v);
               }
-              const multiGroups = Object.entries(groups).filter(([, items]) => items.length > 1);
-              if (multiGroups.length === 0) return null;
-              return multiGroups.map(([key, items]) => {
+
+              return Object.entries(groups).map(([groupKey, items]) => {
                 const first = items[0];
-                const totalPasajeros = items.reduce((s, v) => s + (v.cantidad_pasajeros || 0), 0);
-                const totalPasajerosMonto = items.reduce((s, v) => s + (v.ingresos?.pasajeros_monto || 0), 0);
-                const totalEncomienda = items.reduce((s, v) => s + (v.ingresos?.encomiendas_monto || 0), 0);
+                const totalPasajeros = items.reduce((s: number, v: any) => s + (v.cantidad_pasajeros || 0), 0);
+                const totalPasajerosMonto = items.reduce((s: number, v: any) => s + (v.ingresos?.pasajeros_monto || 0), 0);
+                const totalEncomienda = items.reduce((s: number, v: any) => s + (v.ingresos?.encomiendas_monto || 0), 0);
+                const isGroup = items.length > 1;
+                const groupBadge = estadoBadge[first.estado] || { label: first.estado, variant: "secondary" as const };
+
                 return (
-                  <Card key={`summary-${key}`} className="border-0 shadow-sm border-l-4 border-l-primary bg-primary/5">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Users className="w-5 h-5 text-primary" />
-                        <span className="font-display font-semibold text-foreground">
-                          Resumen: {first.origen} → {first.destino}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {first.fecha_salida ? new Date(first.fecha_salida).toLocaleDateString("es-EC") : ""} {first.hora_salida || ""}
-                        </span>
-                        {first.vehiculo && <span><Truck className="w-3 h-3 inline mr-1" />{first.vehiculo.placa}</span>}
-                      </div>
-                      <div className="flex items-center gap-6 mt-2 text-sm font-medium flex-wrap">
-                        <span className="flex items-center gap-1 text-foreground">
-                          <Users className="w-4 h-4 text-primary" />
-                          {totalPasajeros} pasajeros total
-                        </span>
-                        <span className="flex items-center gap-1 text-foreground">
-                          <DollarSign className="w-4 h-4 text-primary" />
-                          Pasajeros: ${totalPasajerosMonto.toFixed(2)}
-                        </span>
-                        <span className="flex items-center gap-1 text-foreground">
-                          <Package className="w-4 h-4 text-primary" />
-                          Encomienda: ${totalEncomienda.toFixed(2)}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <motion.div key={groupKey} variants={item}>
+                    <Card className={`border-0 shadow-sm ${first.estado === "EN_RUTA" ? "border-l-4 border-l-primary" : "border-l-4 border-l-muted"}`}>
+                      <CardContent className="p-5 space-y-4">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <Route className="w-5 h-5 text-primary" />
+                              <span className="font-display font-semibold text-foreground">
+                                {first.origen} → {first.destino}
+                              </span>
+                              <Badge variant={groupBadge.variant}>{groupBadge.label}</Badge>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                              {first.fecha_salida && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />Salida: {new Date(first.fecha_salida).toLocaleDateString("es-EC")} {first.hora_salida || ""}</span>}
+                              {first.estado === "FINALIZADO" && first.fecha_llegada && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />Llegada: {new Date(first.fecha_llegada).toLocaleDateString("es-EC")} {new Date(first.fecha_llegada).toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" })}</span>}
+                              <span className="flex items-center gap-1"><Users className="w-3 h-3" />{totalPasajeros} pasajeros</span>
+                              {first.vehiculo && <span><Truck className="w-3 h-3 inline mr-1" />{first.vehiculo.placa}</span>}
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                              <span>Pasajeros: ${totalPasajerosMonto.toFixed(2)}</span>
+                              <span>Encomienda: ${totalEncomienda.toFixed(2)}</span>
+                            </div>
+                          </div>
+                          {!isGroup && (
+                            <div className="flex gap-2 flex-wrap">
+                              {first.estado === "ASIGNADO" && (
+                                <Button onClick={() => handleIniciarRuta(first.id)} className="gap-2" size="sm">
+                                  <Route className="w-4 h-4" /> Iniciar Ruta
+                                </Button>
+                              )}
+                              {first.estado === "EN_RUTA" && (
+                                <Button onClick={() => handleFinalizarRuta(first.id)} variant="outline" className="gap-2" size="sm">
+                                  <CheckCircle2 className="w-4 h-4" /> Finalizar Ruta
+                                </Button>
+                              )}
+                              <Button
+                                variant={editingEgresos === first.id ? "secondary" : "outline"}
+                                size="sm"
+                                onClick={() => editingEgresos === first.id ? setEditingEgresos(null) : openEgresoEditor(first)}
+                                className="gap-1"
+                              >
+                                <Save className="w-3.5 h-3.5" />
+                                {editingEgresos === first.id ? "Cerrar" : "Egresos"}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+
+                        {isGroup && (
+                          <div className="border-t border-border pt-3 space-y-3">
+                            {items.map((v: any) => {
+                              const badge = estadoBadge[v.estado] || { label: v.estado, variant: "secondary" as const };
+                              const isEditing = editingEgresos === v.id;
+                              const alimConfig = getAlimConfig(v);
+                              return (
+                                <div key={v.id} className="p-3 rounded-lg bg-muted/30 space-y-3">
+                                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                                    <div className="text-sm text-muted-foreground">
+                                      <span className="flex items-center gap-1"><Users className="w-3 h-3" />{v.cantidad_pasajeros} pasajeros</span>
+                                      <div className="flex items-center gap-4 mt-1">
+                                        <span>Pasajeros: ${v.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}</span>
+                                        <span>Encomienda: ${v.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}</span>
+                                      </div>
+                                    </div>
+                                    <div className="flex gap-2 flex-wrap">
+                                      {v.estado === "ASIGNADO" && (
+                                        <Button onClick={() => handleIniciarRuta(v.id)} className="gap-2" size="sm">
+                                          <Route className="w-4 h-4" /> Iniciar Ruta
+                                        </Button>
+                                      )}
+                                      {v.estado === "EN_RUTA" && (
+                                        <Button onClick={() => handleFinalizarRuta(v.id)} variant="outline" className="gap-2" size="sm">
+                                          <CheckCircle2 className="w-4 h-4" /> Finalizar Ruta
+                                        </Button>
+                                      )}
+                                      <Button
+                                        variant={isEditing ? "secondary" : "outline"}
+                                        size="sm"
+                                        onClick={() => isEditing ? setEditingEgresos(null) : openEgresoEditor(v)}
+                                        className="gap-1"
+                                      >
+                                        <Save className="w-3.5 h-3.5" />
+                                        {isEditing ? "Cerrar" : "Egresos"}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                  {isEditing && (
+                                    <div className="border-t border-border pt-4 space-y-4">
+                                      <h4 className="text-sm font-semibold text-foreground">Registro de Egresos</h4>
+                                      {(!alimConfig || alimConfig.alimentacion_habilitada) && (
+                                      <div className="space-y-2">
+                                        <Label className="text-xs text-muted-foreground">
+                                          Alimentación {alimConfig ? `($${alimConfig.valor_comida} c/u)` : "($3.00 c/u)"}
+                                        </Label>
+                                        <div className="flex gap-4">
+                                          {[
+                                            { key: "desayuno", label: "D (Desayuno)", enabled: !alimConfig || alimConfig.desayuno_habilitado },
+                                            { key: "almuerzo", label: "A (Almuerzo)", enabled: !alimConfig || alimConfig.almuerzo_habilitado },
+                                            { key: "merienda", label: "M (Merienda)", enabled: !alimConfig || alimConfig.merienda_habilitado },
+                                          ].filter(m => m.enabled).map(({ key, label }) => (
+                                            <div key={key} className="flex items-center gap-2">
+                                              <Checkbox checked={egresoForm[key as keyof typeof egresoForm] as boolean} onCheckedChange={(checked) => setEgresoForm(prev => ({ ...prev, [key]: !!checked }))} />
+                                              <Label className="text-xs">{label}</Label>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                      )}
+                                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        <div className="space-y-1"><Label className="text-xs text-muted-foreground">Peaje ($)</Label><Input type="number" min="0" step="0.01" value={egresoForm.peaje} onChange={e => setEgresoForm(prev => ({ ...prev, peaje: e.target.value }))} /></div>
+                                        <div className="space-y-1"><Label className="text-xs text-muted-foreground">Hotel ($)</Label><Input type="number" min="0" step="0.01" value={egresoForm.hotel} onChange={e => setEgresoForm(prev => ({ ...prev, hotel: e.target.value }))} /></div>
+                                        <div className="space-y-1"><Label className="text-xs text-muted-foreground">Pago conductor ($)</Label><Input type="number" min="0" step="0.01" value={egresoForm.pago_conductor} onChange={e => setEgresoForm(prev => ({ ...prev, pago_conductor: e.target.value }))} /></div>
+                                        <div className="space-y-1"><Label className="text-xs text-muted-foreground">Combustible ($)</Label><Input type="number" min="0" step="0.01" value={egresoForm.combustible} onChange={e => setEgresoForm(prev => ({ ...prev, combustible: e.target.value }))} /></div>
+                                      </div>
+                                      <div className="space-y-1"><Label className="text-xs text-muted-foreground">Foto combustible (opcional)</Label><Input type="file" accept="image/*" onChange={e => setCombustibleFile(e.target.files?.[0] || null)} className="text-xs" /></div>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div className="space-y-1"><Label className="text-xs text-muted-foreground">Varios ($)</Label><Input type="number" min="0" step="0.01" value={egresoForm.varios} onChange={e => setEgresoForm(prev => ({ ...prev, varios: e.target.value }))} /></div>
+                                        <div className="space-y-1"><Label className="text-xs text-muted-foreground">Nota (varios)</Label><Input value={egresoForm.varios_texto} onChange={e => setEgresoForm(prev => ({ ...prev, varios_texto: e.target.value }))} placeholder="Descripción..." /></div>
+                                      </div>
+                                      <div className="space-y-1"><Label className="text-xs text-muted-foreground">Foto varios (opcional)</Label><Input type="file" accept="image/*" onChange={e => setVariosFile(e.target.files?.[0] || null)} className="text-xs" /></div>
+                                      <Button onClick={() => handlePreSaveEgresos(v.id)} disabled={saving} className="gap-2" size="sm"><Save className="w-4 h-4" />{saving ? "Guardando..." : "Guardar Egresos"}</Button>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {!isGroup && editingEgresos === first.id && (
+                          <div className="border-t border-border pt-4 space-y-4">
+                            <h4 className="text-sm font-semibold text-foreground">Registro de Egresos</h4>
+                            {(() => { const alimConfig = getAlimConfig(first); return (
+                              <>
+                              {(!alimConfig || alimConfig.alimentacion_habilitada) && (
+                              <div className="space-y-2">
+                                <Label className="text-xs text-muted-foreground">
+                                  Alimentación {alimConfig ? `($${alimConfig.valor_comida} c/u)` : "($3.00 c/u)"}
+                                </Label>
+                                <div className="flex gap-4">
+                                  {[
+                                    { key: "desayuno", label: "D (Desayuno)", enabled: !alimConfig || alimConfig.desayuno_habilitado },
+                                    { key: "almuerzo", label: "A (Almuerzo)", enabled: !alimConfig || alimConfig.almuerzo_habilitado },
+                                    { key: "merienda", label: "M (Merienda)", enabled: !alimConfig || alimConfig.merienda_habilitado },
+                                  ].filter(m => m.enabled).map(({ key, label }) => (
+                                    <div key={key} className="flex items-center gap-2">
+                                      <Checkbox checked={egresoForm[key as keyof typeof egresoForm] as boolean} onCheckedChange={(checked) => setEgresoForm(prev => ({ ...prev, [key]: !!checked }))} />
+                                      <Label className="text-xs">{label}</Label>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              )}
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Peaje ($)</Label><Input type="number" min="0" step="0.01" value={egresoForm.peaje} onChange={e => setEgresoForm(prev => ({ ...prev, peaje: e.target.value }))} /></div>
+                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Hotel ($)</Label><Input type="number" min="0" step="0.01" value={egresoForm.hotel} onChange={e => setEgresoForm(prev => ({ ...prev, hotel: e.target.value }))} /></div>
+                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Pago conductor ($)</Label><Input type="number" min="0" step="0.01" value={egresoForm.pago_conductor} onChange={e => setEgresoForm(prev => ({ ...prev, pago_conductor: e.target.value }))} /></div>
+                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Combustible ($)</Label><Input type="number" min="0" step="0.01" value={egresoForm.combustible} onChange={e => setEgresoForm(prev => ({ ...prev, combustible: e.target.value }))} /></div>
+                              </div>
+                              <div className="space-y-1"><Label className="text-xs text-muted-foreground">Foto combustible (opcional)</Label><Input type="file" accept="image/*" onChange={e => setCombustibleFile(e.target.files?.[0] || null)} className="text-xs" /></div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Varios ($)</Label><Input type="number" min="0" step="0.01" value={egresoForm.varios} onChange={e => setEgresoForm(prev => ({ ...prev, varios: e.target.value }))} /></div>
+                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Nota (varios)</Label><Input value={egresoForm.varios_texto} onChange={e => setEgresoForm(prev => ({ ...prev, varios_texto: e.target.value }))} placeholder="Descripción..." /></div>
+                              </div>
+                              <div className="space-y-1"><Label className="text-xs text-muted-foreground">Foto varios (opcional)</Label><Input type="file" accept="image/*" onChange={e => setVariosFile(e.target.files?.[0] || null)} className="text-xs" /></div>
+                              <Button onClick={() => handlePreSaveEgresos(first.id)} disabled={saving} className="gap-2" size="sm"><Save className="w-4 h-4" />{saving ? "Guardando..." : "Guardar Egresos"}</Button>
+                              </>
+                            ); })()}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 );
               });
             })()}
-            {filteredViajes.map((v) => {
-              const badge = estadoBadge[v.estado] || { label: v.estado, variant: "secondary" as const };
-              const isEditing = editingEgresos === v.id;
-              const alimConfig = getAlimConfig(v);
-
-              return (
-                <motion.div key={v.id} variants={item}>
-                  <Card className={`border-0 shadow-sm ${v.estado === "EN_RUTA" ? "border-l-4 border-l-primary" : "border-l-4 border-l-muted"}`}>
-                    <CardContent className="p-5 space-y-4">
-                      {/* Route info */}
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <Route className="w-5 h-5 text-primary" />
-                            <span className="font-display font-semibold text-foreground">
-                              {v.origen} → {v.destino}
-                            </span>
-                            <Badge variant={badge.variant}>{badge.label}</Badge>
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                            {v.fecha_salida && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />Salida: {new Date(v.fecha_salida).toLocaleDateString("es-EC")} {v.hora_salida || ""}</span>}
-                            {v.estado === "FINALIZADO" && v.fecha_llegada && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />Llegada: {new Date(v.fecha_llegada).toLocaleDateString("es-EC")} {new Date(v.fecha_llegada).toLocaleTimeString("es-EC", { hour: "2-digit", minute: "2-digit" })}</span>}
-                            <span className="flex items-center gap-1"><Users className="w-3 h-3" />{v.cantidad_pasajeros} pasajeros</span>
-                            {v.vehiculo && <span><Truck className="w-3 h-3 inline mr-1" />{v.vehiculo.placa}</span>}
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                            <span>Pasajeros: ${v.ingresos?.pasajeros_monto?.toFixed(2) || "0.00"}</span>
-                            <span>Encomienda: ${v.ingresos?.encomiendas_monto?.toFixed(2) || "0.00"}</span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2 flex-wrap">
-                          {v.estado === "ASIGNADO" && (
-                            <Button onClick={() => handleIniciarRuta(v.id)} className="gap-2" size="sm">
-                              <Route className="w-4 h-4" /> Iniciar Ruta
-                            </Button>
-                          )}
-                          {v.estado === "EN_RUTA" && (
-                            <Button onClick={() => handleFinalizarRuta(v.id)} variant="outline" className="gap-2" size="sm">
-                              <CheckCircle2 className="w-4 h-4" /> Finalizar Ruta
-                            </Button>
-                          )}
-                          <Button
-                            variant={isEditing ? "secondary" : "outline"}
-                            size="sm"
-                            onClick={() => isEditing ? setEditingEgresos(null) : openEgresoEditor(v)}
-                            className="gap-1"
-                          >
-                            <Save className="w-3.5 h-3.5" />
-                            {isEditing ? "Cerrar" : "Egresos"}
-                          </Button>
-                        </div>
-                      </div>
-
-                      {/* Egresos editor */}
-                      {isEditing && (
-                        <div className="border-t border-border pt-4 space-y-4">
-                          <h4 className="text-sm font-semibold text-foreground">Registro de Egresos</h4>
-
-                          {/* Alimentación checkboxes */}
-                          {(!alimConfig || alimConfig.alimentacion_habilitada) && (
-                          <div className="space-y-2">
-                            <Label className="text-xs text-muted-foreground">
-                              Alimentación {alimConfig ? `($${alimConfig.valor_comida} c/u)` : "($3.00 c/u)"}
-                            </Label>
-                            <div className="flex gap-4">
-                              {[
-                                { key: "desayuno", label: "D (Desayuno)", enabled: !alimConfig || alimConfig.desayuno_habilitado },
-                                { key: "almuerzo", label: "A (Almuerzo)", enabled: !alimConfig || alimConfig.almuerzo_habilitado },
-                                { key: "merienda", label: "M (Merienda)", enabled: !alimConfig || alimConfig.merienda_habilitado },
-                              ].filter(m => m.enabled).map(({ key, label }) => (
-                                <div key={key} className="flex items-center gap-2">
-                                  <Checkbox
-                                    checked={egresoForm[key as keyof typeof egresoForm] as boolean}
-                                    onCheckedChange={(checked) =>
-                                      setEgresoForm(prev => ({ ...prev, [key]: !!checked }))
-                                    }
-                                  />
-                                  <Label className="text-xs">{label}</Label>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          )}
-
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Peaje ($)</Label>
-                              <Input type="number" min="0" step="0.01" value={egresoForm.peaje}
-                                onChange={e => setEgresoForm(prev => ({ ...prev, peaje: e.target.value }))} />
-                            </div>
-                            <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Hotel ($)</Label>
-                              <Input type="number" min="0" step="0.01" value={egresoForm.hotel}
-                                onChange={e => setEgresoForm(prev => ({ ...prev, hotel: e.target.value }))} />
-                            </div>
-                            <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Pago conductor ($)</Label>
-                              <Input type="number" min="0" step="0.01" value={egresoForm.pago_conductor}
-                                onChange={e => setEgresoForm(prev => ({ ...prev, pago_conductor: e.target.value }))} />
-                            </div>
-                            <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Combustible ($)</Label>
-                              <Input type="number" min="0" step="0.01" value={egresoForm.combustible}
-                                onChange={e => setEgresoForm(prev => ({ ...prev, combustible: e.target.value }))} />
-                            </div>
-                          </div>
-
-                          {/* Combustible photo */}
-                          <div className="space-y-1">
-                            <Label className="text-xs text-muted-foreground">Foto combustible (opcional)</Label>
-                            <Input type="file" accept="image/*" onChange={e => setCombustibleFile(e.target.files?.[0] || null)} className="text-xs" />
-                          </div>
-
-                          {/* Varios */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Varios ($)</Label>
-                              <Input type="number" min="0" step="0.01" value={egresoForm.varios}
-                                onChange={e => setEgresoForm(prev => ({ ...prev, varios: e.target.value }))} />
-                            </div>
-                            <div className="space-y-1">
-                              <Label className="text-xs text-muted-foreground">Nota (varios)</Label>
-                              <Input value={egresoForm.varios_texto}
-                                onChange={e => setEgresoForm(prev => ({ ...prev, varios_texto: e.target.value }))}
-                                placeholder="Descripción..." />
-                            </div>
-                          </div>
-                          <div className="space-y-1">
-                            <Label className="text-xs text-muted-foreground">Foto varios (opcional)</Label>
-                            <Input type="file" accept="image/*" onChange={e => setVariosFile(e.target.files?.[0] || null)} className="text-xs" />
-                          </div>
-
-                          <Button onClick={() => handlePreSaveEgresos(v.id)} disabled={saving} className="gap-2" size="sm">
-                            <Save className="w-4 h-4" />
-                            {saving ? "Guardando..." : "Guardar Egresos"}
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
           </div>
         )}
       </motion.div>
