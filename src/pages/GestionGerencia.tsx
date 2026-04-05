@@ -389,7 +389,7 @@ export default function GestionGerencia() {
                   <Filter className="w-4 h-4 text-primary" />
                   <span className="text-sm font-semibold text-foreground">Filtros</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                   {/* Month multi-select */}
                   <div>
                     <label className="text-xs font-medium text-muted-foreground mb-1 block">Meses</label>
