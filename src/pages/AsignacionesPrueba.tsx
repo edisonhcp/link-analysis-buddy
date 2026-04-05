@@ -81,6 +81,7 @@ export default function AsignacionesPrueba() {
     setPasajeroNombre("");
     setPasajeroCelular("");
     setPasajeroDetalle("");
+    setPasajeroDireccion("");
     setEditingId(null);
     setEditingReservacionId(null);
   };
