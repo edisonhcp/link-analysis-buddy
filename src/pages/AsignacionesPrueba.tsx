@@ -612,7 +612,7 @@ export default function AsignacionesPrueba() {
 
                           {/* Copy button */}
                           <div className="flex justify-end mt-3">
-                            <Button variant="outline" size="sm" className="gap-1" onClick={() => handleCopiarReserva(first)}>
+                            <Button variant="outline" size="sm" className="gap-1" onClick={() => handleCopiarReservaGrupo(viajes, allReservaciones)}>
                               <Copy className="w-3.5 h-3.5" />
                               Copiar Reserva
                             </Button>
