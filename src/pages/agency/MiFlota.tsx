@@ -303,6 +303,7 @@ export default function MiFlota() {
                         <TableHead>Apellidos</TableHead>
                         <TableHead>Identificación</TableHead>
                         <TableHead>Celular</TableHead>
+                        <TableHead>Correo Electrónico</TableHead>
                         <TableHead>Estado</TableHead>
                         <TableHead className="w-10"></TableHead>
                       </TableRow>
