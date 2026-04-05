@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Route, Truck, Plus, Clock, MapPin, Users, DollarSign, Package, Pencil, X, CalendarIcon, Copy, User, Phone, FileText, MapPinned } from "lucide-react";
+import { Route, Truck, Plus, Clock, MapPin, Users, DollarSign, Package, Pencil, X, CalendarIcon, Copy, User, Phone, FileText, MapPinned, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -584,6 +584,18 @@ export default function AsignacionesPrueba() {
                                     <Button variant="outline" size="sm" className="gap-1" onClick={() => handleEditReservacion(reserva._viaje, reserva)}>
                                       <Pencil className="w-3.5 h-3.5" />
                                       Editar
+                                    </Button>
+                                    <Button variant="destructive" size="sm" className="gap-1" onClick={async () => {
+                                      const { error } = await supabase.from("reservaciones").delete().eq("id", reserva.id);
+                                      if (error) {
+                                        toast({ title: "Error al eliminar", description: error.message, variant: "destructive" });
+                                      } else {
+                                        toast({ title: "Reserva eliminada" });
+                                        loadData();
+                                      }
+                                    }}>
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                      Eliminar
                                     </Button>
                                   </div>
                                 </div>
