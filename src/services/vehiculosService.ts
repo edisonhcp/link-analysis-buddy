@@ -2,8 +2,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export async function fetchVehiculos() {
   const [vehRes, asigRes, viajesRes] = await Promise.all([
-    supabase.from("vehiculos").select("*, propietarios(nombres, email)").order("created_at", { ascending: false }),
-    supabase.from("asignaciones").select("id, vehiculo_id, conductor_id, conductores!fk_asignaciones_conductor(nombres)").eq("estado", "ACTIVA"),
+    supabase.from("vehiculos").select("*, propietarios(nombres, apellidos, email)").order("created_at", { ascending: false }),
+    supabase.from("asignaciones").select("id, vehiculo_id, conductor_id, conductores!fk_asignaciones_conductor(nombres, apellidos)").eq("estado", "ACTIVA"),
     supabase.from("viajes").select("asignacion_id, estado").in("estado", ["ASIGNADO", "EN_RUTA"] as any),
   ]);
   const asignaciones = asigRes.data || [];
