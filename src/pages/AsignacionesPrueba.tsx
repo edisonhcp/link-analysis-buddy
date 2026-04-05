@@ -193,7 +193,7 @@ export default function AsignacionesPrueba() {
     <DashboardLayout>
       <motion.div variants={container} initial="hidden" animate="show" className="space-y-8">
         <motion.div variants={item}>
-          <h1 className="text-3xl font-display font-bold text-foreground">Asignaciones de Ruta</h1>
+          <h1 className="text-3xl font-display font-bold text-foreground">Asignaciones Prueba</h1>
           <p className="text-muted-foreground mt-1">Asigna vehículos a rutas y gestiona los ingresos</p>
         </motion.div>
 
