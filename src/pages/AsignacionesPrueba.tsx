@@ -181,8 +181,7 @@ export default function AsignacionesPrueba() {
       });
 
       if (!error) {
-        const currentAsig = asignaciones.find(a => a.id === editingId);
-        await saveReservacion(editingId, empresaId, currentAsig?.reservacion?.id);
+        await saveReservacion(editingId, empresaId, editingReservacionId || undefined);
       }
 
       setSubmitting(false);
