@@ -419,6 +419,13 @@ export default function AsignacionesPrueba() {
                         </Label>
                         <Input placeholder="Detalle adicional" value={pasajeroDetalle} onChange={(e) => setPasajeroDetalle(e.target.value)} />
                       </div>
+                      <div className="space-y-2">
+                        <Label className="text-muted-foreground flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5" />
+                          Dirección/Ubicación
+                        </Label>
+                        <Input placeholder="Dirección o ubicación del pasajero" value={pasajeroDireccion} onChange={(e) => setPasajeroDireccion(e.target.value)} />
+                      </div>
                     </div>
                   </div>
                 </div>
