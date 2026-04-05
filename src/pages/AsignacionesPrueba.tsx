@@ -134,6 +134,7 @@ export default function AsignacionesPrueba() {
     setPasajeroNombre(reserva.nombre_pasajero || "");
     setPasajeroCelular(reserva.celular_pasajero || "");
     setPasajeroDetalle(reserva.detalle || "");
+    setPasajeroDireccion(reserva.direccion || "");
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
