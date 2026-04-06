@@ -67,6 +67,49 @@ export default function AsignacionesPrueba() {
   const [pasajeroCelular, setPasajeroCelular] = useState("");
   const [pasajeroDetalle, setPasajeroDetalle] = useState("");
   const [pasajeroDireccion, setPasajeroDireccion] = useState("");
+  const [sugerenciasPasajeros, setSugerenciasPasajeros] = useState<any[]>([]);
+  const [showSugerencias, setShowSugerencias] = useState(false);
+  const nombreInputRef = useRef<HTMLInputElement>(null);
+  const sugerenciasRef = useRef<HTMLDivElement>(null);
+
+  // Search passengers by name for autocomplete
+  const buscarPasajeros = useCallback(async (query: string) => {
+    if (!empresaId || query.length < 2) {
+      setSugerenciasPasajeros([]);
+      setShowSugerencias(false);
+      return;
+    }
+    const { data } = await supabase
+      .from("pasajeros")
+      .select("*")
+      .eq("empresa_id", empresaId)
+      .ilike("nombre", `%${query}%`)
+      .limit(8);
+    setSugerenciasPasajeros(data || []);
+    setShowSugerencias((data || []).length > 0);
+  }, [empresaId]);
+
+  const seleccionarPasajero = (p: any) => {
+    setPasajeroNombre(p.nombre || "");
+    setPasajeroCelular(p.celular || "");
+    setPasajeroDetalle(p.detalle || "");
+    setPasajeroDireccion(p.direccion || "");
+    setParada(p.parada || "");
+    setCantidadPasajeros(String(p.cantidad_pasajeros || 1));
+    setShowSugerencias(false);
+  };
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (sugerenciasRef.current && !sugerenciasRef.current.contains(e.target as Node) &&
+          nombreInputRef.current && !nombreInputRef.current.contains(e.target as Node)) {
+        setShowSugerencias(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const clearForm = () => {
     setSelectedVehiculo("");
