@@ -104,8 +104,8 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
       >
         {/* Logo */}
         <div className="h-16 flex items-center gap-3 px-6 border-b border-sidebar-border">
-          <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center">
-            <Truck className="w-4 h-4 text-sidebar-primary-foreground" />
+          <div className="w-9 h-9 rounded-lg overflow-hidden flex items-center justify-center">
+            <img src={logoDoorToDoor} alt="DoorToDoor" className="w-full h-full object-cover" />
           </div>
           <span className="font-display font-bold text-lg text-sidebar-foreground">DoorToDoor</span>
           <button onClick={() => setSidebarOpen(false)} className="ml-auto lg:hidden text-sidebar-foreground">
