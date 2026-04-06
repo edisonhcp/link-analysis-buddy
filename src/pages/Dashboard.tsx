@@ -60,7 +60,6 @@ function ConductorDashboard({ profile, suspended }: { profile: any; suspended: a
   const [conductorInfo, setConductorInfo] = useState<any>(null);
   const [rutasAsignadas, setRutasAsignadas] = useState<RutaAsignada[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deleteAccountAlert, setDeleteAccountAlert] = useState(false);
   const [empresaInfo, setEmpresaInfo] = useState<any>(null);
 
   const loadRutas = async () => {
