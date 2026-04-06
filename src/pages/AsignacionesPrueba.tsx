@@ -99,12 +99,29 @@ export default function AsignacionesPrueba() {
     setShowSugerencias((data || []).length > 0);
   }, [empresaId]);
 
+  // Search cities for autocomplete (from viajes table)
+  const buscarCiudades = useCallback(async (query: string, field: "origen" | "destino") => {
+    if (!empresaId || query.length < 2) {
+      if (field === "origen") { setSugerenciasOrigen([]); setShowSugerenciasOrigen(false); }
+      else { setSugerenciasDestino([]); setShowSugerenciasDestino(false); }
+      return;
+    }
+    const { data } = await supabase
+      .from("viajes")
+      .select(field)
+      .eq("empresa_id", empresaId)
+      .ilike(field, `%${query}%`)
+      .limit(50);
+    const unique = [...new Set((data || []).map((d: any) => d[field]).filter(Boolean))].slice(0, 8);
+    if (field === "origen") { setSugerenciasOrigen(unique); setShowSugerenciasOrigen(unique.length > 0); }
+    else { setSugerenciasDestino(unique); setShowSugerenciasDestino(unique.length > 0); }
+  }, [empresaId]);
+
   const seleccionarPasajero = (p: any) => {
     setPasajeroNombre(p.nombre || "");
     setPasajeroCelular(p.celular || "");
     setPasajeroDetalle(p.detalle || "");
     setPasajeroDireccion(p.direccion || "");
-    setParada(p.parada || "");
     setCantidadPasajeros(String(p.cantidad_pasajeros || 1));
     setShowSugerencias(false);
   };
