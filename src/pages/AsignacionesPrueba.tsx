@@ -524,12 +524,42 @@ export default function AsignacionesPrueba() {
                       Datos del pasajero
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="space-y-2">
+                      <div className="space-y-2 relative">
                         <Label className="text-muted-foreground flex items-center gap-1">
                           <User className="w-3.5 h-3.5" />
                           Nombre
                         </Label>
-                        <Input placeholder="Nombre del pasajero" value={pasajeroNombre} onChange={(e) => setPasajeroNombre(e.target.value)} />
+                        <Input
+                          ref={nombreInputRef}
+                          placeholder="Nombre del pasajero"
+                          value={pasajeroNombre}
+                          onChange={(e) => {
+                            setPasajeroNombre(e.target.value);
+                            buscarPasajeros(e.target.value);
+                          }}
+                          onFocus={() => {
+                            if (pasajeroNombre.length >= 2) buscarPasajeros(pasajeroNombre);
+                          }}
+                          autoComplete="off"
+                        />
+                        {showSugerencias && sugerenciasPasajeros.length > 0 && (
+                          <div
+                            ref={sugerenciasRef}
+                            className="absolute z-50 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-md"
+                          >
+                            {sugerenciasPasajeros.map((p) => (
+                              <button
+                                key={p.id}
+                                type="button"
+                                className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors flex flex-col"
+                                onClick={() => seleccionarPasajero(p)}
+                              >
+                                <span className="font-medium">{p.nombre}</span>
+                                {p.celular && <span className="text-xs text-muted-foreground">{p.celular}</span>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div className="space-y-2">
                         <Label className="text-muted-foreground flex items-center gap-1">
