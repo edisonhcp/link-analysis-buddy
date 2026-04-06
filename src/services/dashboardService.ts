@@ -147,22 +147,27 @@ export async function fetchViajesActivosConVehiculo(empresaId: string) {
 
   if (viajesRes.error) return { viajes: [], activeAssignments: [] };
 
-  const viajes = (viajesRes.data || []).map((v: any) => ({
-    id: v.id,
-    destino: v.destino,
-    estado: v.estado,
-    fecha_llegada: v.fecha_llegada,
-    fecha_salida: v.fecha_salida,
-    vehiculo: v.asignaciones?.vehiculos || null,
-    conductor: v.asignaciones?.conductores || null,
-  }));
+  const viajes = (viajesRes.data || []).map((v: any) => {
+    const asig = v.asignacion_id ? asignacionMap[v.asignacion_id] : null;
+    return {
+      id: v.id,
+      destino: v.destino,
+      estado: v.estado,
+      fecha_llegada: v.fecha_llegada,
+      fecha_salida: v.fecha_salida,
+      vehiculo: asig ? vehMap[asig.vehiculo_id] || null : null,
+      conductor: asig ? condMap[asig.conductor_id] || null : null,
+    };
+  });
 
   // Map vehiculo_id -> current conductor from active assignments
   const activeAssignments: Record<string, { nombres: string; apellidos: string }> = {};
-  for (const a of (asigRes.data || [])) {
-    const cond = (a as any).conductores;
-    if (cond && (a as any).vehiculo_id) {
-      activeAssignments[(a as any).vehiculo_id] = { nombres: cond.nombres, apellidos: cond.apellidos };
+  for (const a of Object.values(asignacionMap) as any[]) {
+    if (a.estado === "ACTIVA" && a.conductor_id && a.vehiculo_id) {
+      const cond = condMap[a.conductor_id];
+      if (cond) {
+        activeAssignments[a.vehiculo_id] = { nombres: cond.nombres, apellidos: cond.apellidos };
+      }
     }
   }
 
