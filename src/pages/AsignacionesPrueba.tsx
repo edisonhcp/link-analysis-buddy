@@ -501,14 +501,48 @@ export default function AsignacionesPrueba() {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 relative">
                   <Label className="text-muted-foreground">Origen</Label>
-                  <Input placeholder="Ciudad de origen" value={origen} onChange={(e) => setOrigen(e.target.value)} />
+                  <Input
+                    ref={origenInputRef}
+                    placeholder="Ciudad de origen"
+                    value={origen}
+                    onChange={(e) => { setOrigen(e.target.value); buscarCiudades(e.target.value, "origen"); }}
+                    onFocus={() => { if (origen.length >= 2) buscarCiudades(origen, "origen"); }}
+                    autoComplete="off"
+                  />
+                  {showSugerenciasOrigen && sugerenciasOrigen.length > 0 && (
+                    <div ref={origenSugRef} className="absolute z-50 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-md">
+                      {sugerenciasOrigen.map((c) => (
+                        <button key={c} type="button" className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                          onClick={() => { setOrigen(c); setShowSugerenciasOrigen(false); }}>
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 relative">
                   <Label className="text-muted-foreground">Destino</Label>
-                  <Input placeholder="Ciudad de destino" value={destino} onChange={(e) => setDestino(e.target.value)} />
+                  <Input
+                    ref={destinoInputRef}
+                    placeholder="Ciudad de destino"
+                    value={destino}
+                    onChange={(e) => { setDestino(e.target.value); buscarCiudades(e.target.value, "destino"); }}
+                    onFocus={() => { if (destino.length >= 2) buscarCiudades(destino, "destino"); }}
+                    autoComplete="off"
+                  />
+                  {showSugerenciasDestino && sugerenciasDestino.length > 0 && (
+                    <div ref={destinoSugRef} className="absolute z-50 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-md">
+                      {sugerenciasDestino.map((c) => (
+                        <button key={c} type="button" className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                          onClick={() => { setDestino(c); setShowSugerenciasDestino(false); }}>
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Parada */}
