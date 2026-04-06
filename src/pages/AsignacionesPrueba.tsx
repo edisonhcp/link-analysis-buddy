@@ -72,6 +72,16 @@ export default function AsignacionesPrueba() {
   const nombreInputRef = useRef<HTMLInputElement>(null);
   const sugerenciasRef = useRef<HTMLDivElement>(null);
 
+  // Autocomplete for origen/destino
+  const [sugerenciasOrigen, setSugerenciasOrigen] = useState<string[]>([]);
+  const [showSugerenciasOrigen, setShowSugerenciasOrigen] = useState(false);
+  const [sugerenciasDestino, setSugerenciasDestino] = useState<string[]>([]);
+  const [showSugerenciasDestino, setShowSugerenciasDestino] = useState(false);
+  const origenInputRef = useRef<HTMLInputElement>(null);
+  const origenSugRef = useRef<HTMLDivElement>(null);
+  const destinoInputRef = useRef<HTMLInputElement>(null);
+  const destinoSugRef = useRef<HTMLDivElement>(null);
+
   // Search passengers by name for autocomplete
   const buscarPasajeros = useCallback(async (query: string) => {
     if (!empresaId || query.length < 2) {
@@ -89,12 +99,29 @@ export default function AsignacionesPrueba() {
     setShowSugerencias((data || []).length > 0);
   }, [empresaId]);
 
+  // Search cities for autocomplete (from viajes table)
+  const buscarCiudades = useCallback(async (query: string, field: "origen" | "destino") => {
+    if (!empresaId || query.length < 2) {
+      if (field === "origen") { setSugerenciasOrigen([]); setShowSugerenciasOrigen(false); }
+      else { setSugerenciasDestino([]); setShowSugerenciasDestino(false); }
+      return;
+    }
+    const { data } = await supabase
+      .from("viajes")
+      .select(field)
+      .eq("empresa_id", empresaId)
+      .ilike(field, `%${query}%`)
+      .limit(50);
+    const unique = [...new Set((data || []).map((d: any) => d[field]).filter(Boolean))].slice(0, 8);
+    if (field === "origen") { setSugerenciasOrigen(unique); setShowSugerenciasOrigen(unique.length > 0); }
+    else { setSugerenciasDestino(unique); setShowSugerenciasDestino(unique.length > 0); }
+  }, [empresaId]);
+
   const seleccionarPasajero = (p: any) => {
     setPasajeroNombre(p.nombre || "");
     setPasajeroCelular(p.celular || "");
     setPasajeroDetalle(p.detalle || "");
     setPasajeroDireccion(p.direccion || "");
-    setParada(p.parada || "");
     setCantidadPasajeros(String(p.cantidad_pasajeros || 1));
     setShowSugerencias(false);
   };
@@ -102,9 +129,18 @@ export default function AsignacionesPrueba() {
   // Close suggestions on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (sugerenciasRef.current && !sugerenciasRef.current.contains(e.target as Node) &&
-          nombreInputRef.current && !nombreInputRef.current.contains(e.target as Node)) {
+      const t = e.target as Node;
+      if (sugerenciasRef.current && !sugerenciasRef.current.contains(t) &&
+          nombreInputRef.current && !nombreInputRef.current.contains(t)) {
         setShowSugerencias(false);
+      }
+      if (origenSugRef.current && !origenSugRef.current.contains(t) &&
+          origenInputRef.current && !origenInputRef.current.contains(t)) {
+        setShowSugerenciasOrigen(false);
+      }
+      if (destinoSugRef.current && !destinoSugRef.current.contains(t) &&
+          destinoInputRef.current && !destinoInputRef.current.contains(t)) {
+        setShowSugerenciasDestino(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -209,7 +245,6 @@ export default function AsignacionesPrueba() {
         celular: pasajeroCelular,
         detalle: pasajeroDetalle,
         direccion: pasajeroDireccion,
-        parada,
         cantidad_pasajeros: parseInt(cantidadPasajeros) || 1,
         pasajeros_monto: parseFloat(valorPasajeros) || 0,
         encomiendas_monto: parseFloat(valorEncomienda) || 0,
@@ -230,7 +265,6 @@ export default function AsignacionesPrueba() {
           celular: pasajeroCelular,
           detalle: pasajeroDetalle,
           direccion: pasajeroDireccion,
-          parada,
           cantidad_pasajeros: parseInt(cantidadPasajeros) || 1,
           pasajeros_monto: parseFloat(valorPasajeros) || 0,
           encomiendas_monto: parseFloat(valorEncomienda) || 0,
@@ -465,14 +499,48 @@ export default function AsignacionesPrueba() {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 relative">
                   <Label className="text-muted-foreground">Origen</Label>
-                  <Input placeholder="Ciudad de origen" value={origen} onChange={(e) => setOrigen(e.target.value)} />
+                  <Input
+                    ref={origenInputRef}
+                    placeholder="Ciudad de origen"
+                    value={origen}
+                    onChange={(e) => { setOrigen(e.target.value); buscarCiudades(e.target.value, "origen"); }}
+                    onFocus={() => { if (origen.length >= 2) buscarCiudades(origen, "origen"); }}
+                    autoComplete="off"
+                  />
+                  {showSugerenciasOrigen && sugerenciasOrigen.length > 0 && (
+                    <div ref={origenSugRef} className="absolute z-50 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-md">
+                      {sugerenciasOrigen.map((c) => (
+                        <button key={c} type="button" className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                          onClick={() => { setOrigen(c); setShowSugerenciasOrigen(false); }}>
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 relative">
                   <Label className="text-muted-foreground">Destino</Label>
-                  <Input placeholder="Ciudad de destino" value={destino} onChange={(e) => setDestino(e.target.value)} />
+                  <Input
+                    ref={destinoInputRef}
+                    placeholder="Ciudad de destino"
+                    value={destino}
+                    onChange={(e) => { setDestino(e.target.value); buscarCiudades(e.target.value, "destino"); }}
+                    onFocus={() => { if (destino.length >= 2) buscarCiudades(destino, "destino"); }}
+                    autoComplete="off"
+                  />
+                  {showSugerenciasDestino && sugerenciasDestino.length > 0 && (
+                    <div ref={destinoSugRef} className="absolute z-50 top-full left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-md border bg-popover text-popover-foreground shadow-md">
+                      {sugerenciasDestino.map((c) => (
+                        <button key={c} type="button" className="w-full text-left px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                          onClick={() => { setDestino(c); setShowSugerenciasDestino(false); }}>
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Parada */}
