@@ -36,6 +36,7 @@ export default function ConductorConfiguracion() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [conductorId, setConductorId] = useState<string | null>(null);
+  const [deleteAccountAlert, setDeleteAccountAlert] = useState(false);
 
   const [form, setForm] = useState({
     nombres: "", apellidos: "", identificacion: "", celular: "",
