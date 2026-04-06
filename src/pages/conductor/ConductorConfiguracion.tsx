@@ -139,6 +139,12 @@ export default function ConductorConfiguracion() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (!user?.id) return;
+    await deleteConductorAccount(user.id);
+    toast({ title: "Cuenta eliminada. Puede registrarse en otra compañía." });
+  };
+
   const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
 
   if (loading) {
