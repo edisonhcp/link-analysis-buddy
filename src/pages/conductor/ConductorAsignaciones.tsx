@@ -243,7 +243,7 @@ export default function ConductorAsignaciones() {
             {(() => {
               // Show all non-hidden viajes (FINALIZADO within 24h stays visible for egresos)
               const groups: Record<string, any[]> = {};
-              for (const v of activeViajes) {
+              for (const v of filteredViajes) {
                 const fechaStr = v.fecha_salida ? new Date(v.fecha_salida).toLocaleDateString("es-EC") : "";
                 const key = `${v.asignacion_id || ""}_${v.origen}_${v.destino}_${fechaStr}_${v.hora_salida || ""}`;
                 if (!groups[key]) groups[key] = [];
