@@ -72,6 +72,16 @@ export default function AsignacionesPrueba() {
   const nombreInputRef = useRef<HTMLInputElement>(null);
   const sugerenciasRef = useRef<HTMLDivElement>(null);
 
+  // Autocomplete for origen/destino
+  const [sugerenciasOrigen, setSugerenciasOrigen] = useState<string[]>([]);
+  const [showSugerenciasOrigen, setShowSugerenciasOrigen] = useState(false);
+  const [sugerenciasDestino, setSugerenciasDestino] = useState<string[]>([]);
+  const [showSugerenciasDestino, setShowSugerenciasDestino] = useState(false);
+  const origenInputRef = useRef<HTMLInputElement>(null);
+  const origenSugRef = useRef<HTMLDivElement>(null);
+  const destinoInputRef = useRef<HTMLInputElement>(null);
+  const destinoSugRef = useRef<HTMLDivElement>(null);
+
   // Search passengers by name for autocomplete
   const buscarPasajeros = useCallback(async (query: string) => {
     if (!empresaId || query.length < 2) {
